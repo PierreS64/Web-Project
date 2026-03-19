@@ -764,6 +764,21 @@ footer {
 /* Index: Listing and room cards */
 .home-page .listing-section {
     scroll-margin-top: 96px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.home-page .listing-section .row {
+    --bs-gutter-x: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.home-page .listing-section .row > * {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 .home-page .listing-header {
@@ -885,9 +900,70 @@ footer {
     white-space: nowrap;
 }
 
+.home-page .listing-actions {
+    margin-top: 18px;
+}
+
+.home-page .listing-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #1f57bf;
+    border-radius: 10px;
+    padding: 10px 18px;
+    color: #1f57bf;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.home-page .listing-view-all:hover {
+    background: #1f57bf;
+    color: #fff;
+}
+
 .home-page footer {
     border-top: 1px solid rgba(0, 0, 0, 0.12);
     margin-top: 24px;
+}
+
+.listing-page .all-listings-page-wrap {
+    max-width: 1320px;
+}
+
+.listing-page .all-listings-header h1 {
+    color: #1f57bf;
+    font-size: 2rem;
+}
+
+.listing-page .all-listings-header p {
+    color: #6b7c74;
+}
+
+.listing-page .all-listings-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.listing-page .all-listings-tabs a {
+    text-decoration: none;
+    color: #1f57bf;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.listing-page .all-listings-tabs a:hover,
+.listing-page .all-listings-tabs a.active {
+    background: #1f57bf;
+    color: #fff;
+    border-color: #1f57bf;
 }
 
 /* =========================================
@@ -907,6 +983,10 @@ footer {
         height: 220px;
     }
 
+    .home-page .listing-section {
+        padding: 20px;
+    }
+
     .home-page .popup-tab-item {
         font-size: 0.95rem;
         padding: 10px 12px;
@@ -924,6 +1004,10 @@ footer {
     .home-page .navbar .navbar-nav {
         width: 100%;
         gap: 0.2rem !important;
+    }
+
+    .listing-page .all-listings-header h1 {
+        font-size: 1.7rem;
     }
 }
 
@@ -954,6 +1038,15 @@ footer {
 
     .home-page .listing-header h3 {
         font-size: 1.6rem;
+    }
+
+    .home-page .listing-section {
+        padding: 16px;
+    }
+
+    .home-page .listing-view-all {
+        width: 100%;
+        justify-content: center;
     }
 
     .home-page .hero-section {
@@ -997,6 +1090,11 @@ footer {
         min-width: 96px;
         height: 36px;
         font-size: 0.9rem;
+    }
+
+    .listing-page .all-listings-tabs a {
+        width: 100%;
+        text-align: center;
     }
 }
 

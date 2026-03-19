@@ -166,6 +166,15 @@ function checkAuth() {
 
 // --- ROOM LOGIC ---
 function renderHomeRooms(roomsToRender = null) {
+    const HOME_SECTION_LIMIT = 8;
+    const SEE_ALL_MAP = {
+        latest: 'see-all-latest',
+        phongTro: 'see-all-phong-tro',
+        nhaNguyenCan: 'see-all-nha-nguyen-can',
+        canHo: 'see-all-can-ho',
+        kyTucXa: 'see-all-ky-tuc-xa'
+    };
+
     const rooms = roomsToRender || Storage.getRooms();
     const container = document.getElementById('room-list');
     const resultCount = document.getElementById('results-count');
@@ -177,6 +186,14 @@ function renderHomeRooms(roomsToRender = null) {
     const countNhaNguyenCan = document.getElementById('results-nha-nguyen-can');
     const countCanHo = document.getElementById('results-can-ho');
     const countKyTucXa = document.getElementById('results-ky-tuc-xa');
+
+    const toggleSeeAllButton = (key, total) => {
+        const btnId = SEE_ALL_MAP[key];
+        if (!btnId) return;
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.classList.toggle('d-none', total <= HOME_SECTION_LIMIT);
+    };
 
     const normalizeType = (type = '') => type.toLowerCase().replace(/\s+/g, ' ').trim();
     const isPhongTro = (type = '') => {
@@ -200,7 +217,7 @@ function renderHomeRooms(roomsToRender = null) {
         const imgUrl = (Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : room.image) || 'img/logo.png';
 
         return `
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-3 col-md-6">
             <article class="room-card room-card-figma h-100" onclick="viewRoom('${room.id}')">
                 <div class="room-thumb-wrap">
                     <img src="${imgUrl}" class="room-thumb" alt="${room.title}">
@@ -244,6 +261,12 @@ function renderHomeRooms(roomsToRender = null) {
         renderRoomList(roomCanHo, []);
         renderRoomList(roomKyTucXa, []);
 
+        toggleSeeAllButton('latest', 0);
+        toggleSeeAllButton('phongTro', 0);
+        toggleSeeAllButton('nhaNguyenCan', 0);
+        toggleSeeAllButton('canHo', 0);
+        toggleSeeAllButton('kyTucXa', 0);
+
         if (countPhongTro) countPhongTro.textContent = '0 tin đăng';
         if (countNhaNguyenCan) countNhaNguyenCan.textContent = '0 tin đăng';
         if (countCanHo) countCanHo.textContent = '0 tin đăng';
@@ -251,12 +274,18 @@ function renderHomeRooms(roomsToRender = null) {
         return; 
     }
 
-    renderRoomList(container, rooms);
+    renderRoomList(container, rooms.slice(0, HOME_SECTION_LIMIT));
 
-    renderRoomList(roomPhongTro, groupedRooms.phongTro);
-    renderRoomList(roomNhaNguyenCan, groupedRooms.nhaNguyenCan);
-    renderRoomList(roomCanHo, groupedRooms.canHo);
-    renderRoomList(roomKyTucXa, groupedRooms.kyTucXa);
+    renderRoomList(roomPhongTro, groupedRooms.phongTro.slice(0, HOME_SECTION_LIMIT));
+    renderRoomList(roomNhaNguyenCan, groupedRooms.nhaNguyenCan.slice(0, HOME_SECTION_LIMIT));
+    renderRoomList(roomCanHo, groupedRooms.canHo.slice(0, HOME_SECTION_LIMIT));
+    renderRoomList(roomKyTucXa, groupedRooms.kyTucXa.slice(0, HOME_SECTION_LIMIT));
+
+    toggleSeeAllButton('latest', rooms.length);
+    toggleSeeAllButton('phongTro', groupedRooms.phongTro.length);
+    toggleSeeAllButton('nhaNguyenCan', groupedRooms.nhaNguyenCan.length);
+    toggleSeeAllButton('canHo', groupedRooms.canHo.length);
+    toggleSeeAllButton('kyTucXa', groupedRooms.kyTucXa.length);
 
     if (countPhongTro) countPhongTro.textContent = `${groupedRooms.phongTro.length} tin đăng`;
     if (countNhaNguyenCan) countNhaNguyenCan.textContent = `${groupedRooms.nhaNguyenCan.length} tin đăng`;
