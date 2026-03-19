@@ -112,6 +112,9 @@
                         <button type="button" class="btn btn-primary" onclick="openContractFromAction()">
                             <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng
                         </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="openEndContractFromAction()">
+                            <i class="fa-solid fa-file-circle-xmark"></i> Kết thúc hợp đồng
+                        </button>
                         <button type="button" class="btn btn-warning" onclick="openInvoiceFromAction()">
                             <i class="fa-solid fa-file-invoice"></i> Tạo hoá đơn
                         </button>
@@ -413,6 +416,40 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-primary" onclick="saveContract()">
                         <i class="fa-solid fa-file-signature"></i> Lưu hợp đồng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="endContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Kết thúc hợp đồng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="endContractForm">
+                        <input type="hidden" id="endContractRoomId">
+                        <div class="mb-2 small text-muted" id="endContractRoomTitle"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                            <input type="date" id="endContractDate" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Lý do kết thúc</label>
+                            <textarea id="endContractReason" class="form-control" rows="3" placeholder="Ví dụ: hết hạn hợp đồng, khách trả phòng sớm..."></textarea>
+                        </div>
+                        <div class="alert alert-warning small mb-0">
+                            Sau khi kết thúc, phòng sẽ chuyển về trạng thái còn trống.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                    <button type="button" class="btn btn-danger" onclick="saveEndContract()">
+                        <i class="fa-solid fa-check"></i> Xác nhận kết thúc
                     </button>
                 </div>
             </div>

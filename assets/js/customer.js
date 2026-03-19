@@ -23,6 +23,10 @@ let tenantActionGalleryState = {
     index: 0
 };
 
+function isNonEmptyText(value) {
+    return typeof value === 'string' && value.trim().length > 0;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     tenantActionModal = new bootstrap.Modal(document.getElementById('tenantActionModal'));
     tenantInvoiceModal = new bootstrap.Modal(document.getElementById('tenantInvoiceModal'));
@@ -36,19 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderTenantRoomList();
     renderTenantNotifications();
+    setInterval(renderTenantNotifications, 30000);
 
     const searchInput = document.getElementById('tenantSearchInput');
     if (searchInput) searchInput.addEventListener('input', renderTenantRoomList);
 
     const invoiceFilter = document.getElementById('tenantInvoiceFilter');
     if (invoiceFilter) invoiceFilter.addEventListener('change', renderTenantRoomList);
-
-    const qrModalEl = document.getElementById('paymentQrModal');
-    if (qrModalEl) {
-        qrModalEl.addEventListener('hidden.bs.modal', () => {
-            stopPaymentAutoPolling();
-        });
-    }
 });
 
 function getTenantRooms() {
@@ -90,10 +88,10 @@ function renderTenantRoomList() {
 }
 
 function buildTenantRoomCard(room) {
-    const image = (Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : room.image) || 'img/logo.png';
+    const image = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
     const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
     const area = Number(room.area) || 0;
-    const locationText = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
+    const locationText = room.address;
 
     const invoices = Array.isArray(room.invoices) ? room.invoices : [];
     const unpaidCount = invoices.filter((inv) => (inv.status || 'unpaid') !== 'paid').length;
@@ -105,15 +103,15 @@ function buildTenantRoomCard(room) {
             </div>
             <div class="category-room-content">
                 <div class="d-flex justify-content-between gap-2 align-items-start mb-1">
-                    <h4 class="category-room-title mb-0">${room.title || 'Phòng trọ'}</h4>
+                    <h4 class="category-room-title mb-0">${room.title}</h4>
                     <span class="badge ${unpaidCount > 0 ? 'bg-danger' : 'bg-success'}">${unpaidCount > 0 ? `${unpaidCount} hóa đơn chưa trả` : 'Đã thanh toán đủ'}</span>
                 </div>
                 <div class="category-room-price">${price}đ/tháng</div>
                 <div class="category-room-tags">
-                    <span>${room.type || 'Phòng trọ'}</span>
+                    <span>${room.type}</span>
                     <span>${area}m2</span>
                 </div>
-                <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText || 'Chưa cập nhật'}</div>
+                <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText}</div>
             </div>
         </article>
     `;
@@ -125,29 +123,32 @@ function openTenantActionModalById(roomId) {
         alert('Không tìm thấy phòng!');
         return;
     }
+    if (!Array.isArray(room.images) || room.images.length === 0) return alert('Dữ liệu phòng thiếu ảnh. Vui lòng liên hệ chủ trọ cập nhật.');
+    if (!isNonEmptyText(room.title) || !isNonEmptyText(room.type) || !isNonEmptyText(room.address) || !isNonEmptyText(room.description)) {
+        return alert('Dữ liệu phòng chưa đầy đủ trường bắt buộc. Vui lòng liên hệ chủ trọ cập nhật.');
+    }
 
     selectedTenantRoomId = room.id;
 
-    const images = Array.isArray(room.images) && room.images.length > 0
-        ? room.images
-        : (room.image ? [room.image] : ['img/logo.png']);
+    const images = room.images;
 
-    document.getElementById('tenantActionTitle').textContent = room.title || 'Chi tiết phòng thuê';
-    document.getElementById('tenantActionType').textContent = room.type || 'Phòng trọ';
+    document.getElementById('tenantActionTitle').textContent = room.title;
+    document.getElementById('tenantActionType').textContent = room.type;
     document.getElementById('tenantActionPrice').textContent = `${new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0)}đ/tháng`;
     document.getElementById('tenantActionArea').textContent = `${Number(room.area) || 0}m2`;
-    document.getElementById('tenantActionAddress').textContent = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ') || 'Chưa cập nhật';
-    document.getElementById('tenantActionOwner').textContent = `${room.ownerName || 'Chủ trọ'} - ${room.ownerPhone || 'Liên hệ'}`;
-    document.getElementById('tenantActionDescription').textContent = room.description || 'Chưa có mô tả.';
+    document.getElementById('tenantActionAddress').textContent = room.address;
+    document.getElementById('tenantActionOwner').textContent = `${room.ownerName} - ${room.ownerPhone}`;
+    document.getElementById('tenantActionDescription').textContent = room.description;
 
-    initTenantActionGallery(images, room.title || 'Phòng trọ');
+    initTenantActionGallery(images, room.title);
     tenantActionModal.show();
 }
 
 window.openTenantActionModalById = openTenantActionModalById;
 
 function initTenantActionGallery(images, title) {
-    tenantActionGalleryState.images = images || [];
+    if (!Array.isArray(images) || images.length === 0) return;
+    tenantActionGalleryState.images = images;
     tenantActionGalleryState.index = 0;
 
     const track = document.getElementById('tenantActionGalleryTrack');
@@ -298,6 +299,10 @@ function openPaymentQrModal() {
 
     const room = Storage.getRoomById(selectedTenantRoomId);
     if (!room) return;
+    if (!room.contract || room.contract.tenantPhone !== currentUser.phone) {
+        alert('Phòng chưa có hợp đồng hợp lệ với tài khoản hiện tại.');
+        return;
+    }
 
     const invoice = (room.invoices || []).find((inv) => inv.id === selectedTenantInvoiceId);
     if (!invoice) return;
@@ -308,6 +313,10 @@ function openPaymentQrModal() {
     }
 
     const owner = Storage.getUserByPhone(room.ownerPhone);
+    if (!owner) {
+        alert('Không tìm thấy thông tin chủ trọ cho phòng này.');
+        return;
+    }
     const bankBin = owner?.bankBin || owner?.bankCode || '';
     const accountNumber = owner?.bankAccountNumber || '';
     const accountName = owner?.bankAccountName || room.ownerName || '';
@@ -332,7 +341,7 @@ function openPaymentQrModal() {
     `;
 
     document.getElementById('paymentVerifyStatus').className = 'alert alert-info mt-3 mb-0 text-start';
-    document.getElementById('paymentVerifyStatus').textContent = 'Hệ thống đang theo dõi thanh toán theo nội dung chuyển khoản.';
+    document.getElementById('paymentVerifyStatus').textContent = 'Vui lòng hoàn tất thanh toán theo thông tin QR ở trên.';
 
     Storage.addNotification({
         toPhone: room.ownerPhone,
@@ -351,133 +360,7 @@ function openPaymentQrModal() {
     });
 
     paymentQrModal.show();
-    startPaymentAutoPolling(room.id, invoice.id, amount, transferContent);
 }
-
-window.openPaymentQrModal = openPaymentQrModal;
-
-function startPaymentAutoPolling(roomId, invoiceId, amount, transferContent) {
-    stopPaymentAutoPolling();
-    paymentPollTimer = setInterval(() => {
-        verifyPaymentNow(true, roomId, invoiceId, amount, transferContent);
-    }, 30000);
-}
-
-function stopPaymentAutoPolling() {
-    if (paymentPollTimer) {
-        clearInterval(paymentPollTimer);
-        paymentPollTimer = null;
-    }
-}
-
-async function verifyPaymentNow(silent = false, roomId, invoiceId, amount, transferContent) {
-    const localRoomId = roomId || selectedTenantRoomId;
-    const localInvoiceId = invoiceId || selectedTenantInvoiceId;
-    const room = Storage.getRoomById(localRoomId);
-    if (!room) return;
-
-    const invoice = (room.invoices || []).find((inv) => inv.id === localInvoiceId);
-    if (!invoice) return;
-
-    const paymentAmount = amount || Number(invoice.grandTotal) || 0;
-    const content = transferContent || `${currentUser.name} ${invoice.period}`.trim();
-
-    const statusEl = document.getElementById('paymentVerifyStatus');
-    const monitorConfig = Storage.getPaymentMonitorConfig();
-
-    if (!monitorConfig || !monitorConfig.endpoint) {
-        if (!silent && statusEl) {
-            statusEl.className = 'alert alert-warning mt-3 mb-0 text-start';
-            statusEl.textContent = 'Chưa cấu hình API kiểm tra biến động số dư. Vui lòng cấu hình trong hồ sơ cá nhân.';
-        }
-        return;
-    }
-
-    try {
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-
-        if (monitorConfig.token) {
-            headers.Authorization = `Bearer ${monitorConfig.token}`;
-        }
-        if (monitorConfig.clientId) {
-            headers['X-Client-Id'] = monitorConfig.clientId;
-        }
-
-        const method = (monitorConfig.method || 'POST').toUpperCase();
-        const payload = {
-            amount: paymentAmount,
-            content,
-            accountNumber: monitorConfig.accountNumber || '',
-            sinceMinutes: Number(monitorConfig.sinceMinutes || 240)
-        };
-
-        const requestOptions = {
-            method,
-            headers
-        };
-
-        if (method !== 'GET') {
-            requestOptions.body = JSON.stringify(payload);
-        }
-
-        const res = await fetch(monitorConfig.endpoint, requestOptions);
-        const data = await res.json();
-
-        const transactions = Array.isArray(data?.transactions)
-            ? data.transactions
-            : (Array.isArray(data?.data?.transactions) ? data.data.transactions : []);
-
-        const foundTx = transactions.find((tx) => {
-            const txAmount = Number(tx.amount || tx.value || 0);
-            const txContent = String(tx.description || tx.content || tx.memo || '').toLowerCase();
-            return txAmount >= paymentAmount && txContent.includes(content.toLowerCase());
-        });
-
-        if (foundTx) {
-            completeInvoicePaid(room, invoice, content, foundTx.reference || foundTx.id || foundTx.transactionId || 'AUTO');
-            if (statusEl) {
-                statusEl.className = 'alert alert-success mt-3 mb-0 text-start';
-                statusEl.textContent = 'Đã xác nhận thanh toán thành công tự động từ API biến động số dư.';
-            }
-            stopPaymentAutoPolling();
-        } else if (!silent && statusEl) {
-            statusEl.className = 'alert alert-info mt-3 mb-0 text-start';
-            statusEl.textContent = 'Chưa tìm thấy giao dịch phù hợp. Hệ thống sẽ tiếp tục theo dõi.';
-        }
-    } catch (error) {
-        console.error(error);
-        if (!silent && statusEl) {
-            statusEl.className = 'alert alert-danger mt-3 mb-0 text-start';
-            statusEl.textContent = 'Không thể kiểm tra API biến động số dư. Hãy thử lại sau.';
-        }
-    }
-}
-
-window.verifyPaymentNow = () => verifyPaymentNow(false);
-
-function markInvoicePaidManual() {
-    if (!selectedTenantRoomId || !selectedTenantInvoiceId) return;
-    const room = Storage.getRoomById(selectedTenantRoomId);
-    if (!room) return;
-
-    const invoice = (room.invoices || []).find((inv) => inv.id === selectedTenantInvoiceId);
-    if (!invoice) return;
-
-    const transferContent = `${currentUser.name} ${invoice.period}`.trim();
-    completeInvoicePaid(room, invoice, transferContent, 'MANUAL_CONFIRM');
-
-    const statusEl = document.getElementById('paymentVerifyStatus');
-    if (statusEl) {
-        statusEl.className = 'alert alert-success mt-3 mb-0 text-start';
-        statusEl.textContent = 'Đã ghi nhận thanh toán thành công.';
-    }
-
-    stopPaymentAutoPolling();
-}
-
-window.markInvoicePaidManual = markInvoicePaidManual;
 
 function completeInvoicePaid(room, invoice, transferContent, paymentRef) {
     const updatedRoom = Storage.markInvoicePaid(room.id, invoice.id, {
@@ -524,6 +407,32 @@ function completeInvoicePaid(room, invoice, transferContent, paymentRef) {
     renderTenantNotifications();
 }
 
+function markInvoicePaidManual() {
+    if (!selectedTenantRoomId || !selectedTenantInvoiceId) return;
+    const room = Storage.getRoomById(selectedTenantRoomId);
+    if (!room) return;
+
+    const invoice = (room.invoices || []).find((inv) => inv.id === selectedTenantInvoiceId);
+    if (!invoice) return;
+
+    const transferContent = `${currentUser.name} ${invoice.period}`.trim();
+    completeInvoicePaid(room, invoice, transferContent, 'MANUAL_CONFIRM');
+
+    const statusEl = document.getElementById('paymentVerifyStatus');
+    if (statusEl) {
+        statusEl.className = 'alert alert-success mt-3 mb-0 text-start';
+        statusEl.textContent = 'Đã ghi nhận thanh toán thành công.';
+    }
+}
+
+window.markInvoicePaidManual = markInvoicePaidManual;
+
+function verifyPaymentNow() {
+    markInvoicePaidManual();
+}
+
+window.verifyPaymentNow = verifyPaymentNow;
+
 function openIssueModal() {
     if (!selectedTenantRoomId) return;
     const form = document.getElementById('issueForm');
@@ -543,6 +452,10 @@ function submitIssueReport() {
 
     if (!issueTitle || !issueDescription) {
         alert('Vui lòng nhập đủ tiêu đề và mô tả sự cố.');
+        return;
+    }
+    if (!room.contract || room.contract.tenantPhone !== currentUser.phone) {
+        alert('Chỉ khách thuê đang có hợp đồng mới được gửi báo cáo sự cố.');
         return;
     }
 
@@ -602,6 +515,10 @@ function requestExtendContract() {
     if (!selectedTenantRoomId) return;
     const room = Storage.getRoomById(selectedTenantRoomId);
     if (!room) return;
+    if (!room.contract || room.contract.tenantPhone !== currentUser.phone) {
+        alert('Phòng này chưa có hợp đồng hợp lệ với bạn.');
+        return;
+    }
 
     Storage.addNotification({
         toPhone: room.ownerPhone,
@@ -637,6 +554,10 @@ function requestEndContract() {
     if (!selectedTenantRoomId) return;
     const room = Storage.getRoomById(selectedTenantRoomId);
     if (!room) return;
+    if (!room.contract || room.contract.tenantPhone !== currentUser.phone) {
+        alert('Phòng này chưa có hợp đồng hợp lệ với bạn.');
+        return;
+    }
 
     if (!confirm('Bạn chắc chắn muốn gửi yêu cầu kết thúc hợp đồng?')) return;
 
@@ -682,17 +603,32 @@ function renderTenantNotifications() {
 
     listEl.innerHTML = notifications.slice(0, 20).map((item) => {
         const unread = item.isRead ? '' : '<span class="badge text-bg-danger">Mới</span>';
+        const title = isNonEmptyText(item.title) ? item.title : 'Thông báo';
+        const message = isNonEmptyText(item.message) ? item.message : 'Nội dung thông báo không hợp lệ.';
         return `
             <article class="notification-item ${item.isRead ? '' : 'unread'}" onclick="markTenantNotificationRead('${item.id}')">
                 <div class="d-flex justify-content-between align-items-start gap-2">
-                    <div class="fw-semibold">${item.title || 'Thông báo'}</div>
+                    <div class="fw-semibold">${title}</div>
                     ${unread}
                 </div>
-                <div class="small text-muted mt-1">${item.message || ''}</div>
-                <div class="small text-secondary mt-1">${new Date(item.createdAt || Date.now()).toLocaleString('vi-VN')}</div>
+                <div class="small text-muted mt-1">${message}</div>
+                <div class="small text-secondary mt-1">${formatNotificationTime(item.createdAt)}</div>
             </article>
         `;
     }).join('');
+}
+
+function formatNotificationTime(isoTime) {
+    const targetTime = new Date(isoTime || Date.now());
+    const now = new Date();
+    const diffSeconds = Math.max(0, Math.floor((now.getTime() - targetTime.getTime()) / 1000));
+
+    if (diffSeconds < 60) return 'Vừa xong';
+    if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} phút trước`;
+    if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)} giờ trước`;
+    if (diffSeconds < 604800) return `${Math.floor(diffSeconds / 86400)} ngày trước`;
+
+    return targetTime.toLocaleString('vi-VN');
 }
 
 function markTenantNotificationRead(notificationId) {

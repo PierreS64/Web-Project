@@ -13,6 +13,7 @@ if (!currentUser || currentUser.role !== 'owner') {
 // 2. BIẾN TOÀN CỤC
 let roomModal;
 let contractModal;
+let endContractModal;
 let roomActionModal;
 let invoiceModal;
 let selectedRoomActionId = null;
@@ -27,10 +28,12 @@ let selectedImages = [];
 document.addEventListener('DOMContentLoaded', () => {
     roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
     contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+    endContractModal = new bootstrap.Modal(document.getElementById('endContractModal'));
     roomActionModal = new bootstrap.Modal(document.getElementById('roomActionModal'));
     invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
     renderTable();
     renderOwnerNotifications();
+    setInterval(renderOwnerNotifications, 30000);
 
     // Sự kiện tìm kiếm & lọc
     document.getElementById('searchInput').addEventListener('input', renderTable);
@@ -69,6 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
 const MAX_IMAGES = 10;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+function isNonEmptyText(value) {
+    return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isPositiveNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) && num > 0;
+}
+
+function isNonNegativeNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) && num >= 0;
+}
 
 function initImageUploadHandlers() {
     const uploadArea = document.getElementById('imageUploadArea');
@@ -269,9 +286,8 @@ window.loadDistricts = async function() {
     const selectedIndex = citySel.selectedIndex;
     if (selectedIndex < 0) return;
     
-    // Fallback getAttribute nếu dataset lỗi
     const option = citySel.options[selectedIndex];
-    const code = option.dataset.code || option.getAttribute('data-code');
+    const code = option.dataset.code;
 
     if (!code) {
         distSel.innerHTML = '<option value="">-- Quận/Huyện --</option>';
@@ -312,7 +328,7 @@ window.loadWards = async function() {
     if (selectedIndex < 0) return;
 
     const option = distSel.options[selectedIndex];
-    const code = option.dataset.code || option.getAttribute('data-code');
+    const code = option.dataset.code;
 
     if (!code) {
         wardSel.innerHTML = '<option value="">-- Phường/Xã --</option>';
@@ -388,8 +404,8 @@ function renderTable() {
 function buildOwnerRoomCard(room) {
     const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
     const area = Number(room.area) || 0;
-    const locationText = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
-    const image = (Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : room.image) || 'img/logo.png';
+    const locationText = room.address;
+    const image = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
     const statusBadge = room.status === 'available'
         ? '<span class="badge bg-success">Còn trống</span>'
         : '<span class="badge bg-secondary">Đã thuê</span>';
@@ -406,7 +422,7 @@ function buildOwnerRoomCard(room) {
                 </div>
                 <div class="category-room-price">${price}đ/tháng</div>
                 <div class="category-room-tags">
-                    <span>${room.type || 'Phòng trọ'}</span>
+                    <span>${room.type}</span>
                     <span>${area}m²</span>
                 </div>
                 <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText}</div>
@@ -448,7 +464,7 @@ async function editRoom(id) {
     if (room) {
         document.getElementById('roomId').value = room.id;
         document.getElementById('roomTitle').value = room.title;
-        document.getElementById('roomType').value = room.type || 'Phòng trọ';
+        document.getElementById('roomType').value = room.type;
         document.getElementById('roomPrice').value = room.price;
         document.getElementById('roomElecPrice').value = room.elecPrice || '';
         document.getElementById('roomWaterPrice').value = room.waterPrice || '';
@@ -478,40 +494,16 @@ async function editRoom(id) {
         }
         */
 
-        // Cố gắng fill lại địa chỉ từ các thành phần (nếu có)
-        // Nếu là dữ liệu đã được lưu với API mới (có room.city)
-        if (room.city) {
-            // 1. Set City
-            const cityFound = setSelectValue('addrCity', room.city);
-            
-            if (cityFound) {
-                // 2. Load Districts (await)
-                await window.loadDistricts();
-                // 3. Set District
-                const distFound = setSelectValue('addrDistrict', room.district);
-                
-                if (distFound) {
-                    // 4. Load Wards (await)
-                    await window.loadWards();
-                    // 5. Set Ward
-                    setSelectValue('addrWard', room.ward);
-                }
+        const cityFound = setSelectValue('addrCity', room.city);
+        if (cityFound) {
+            await window.loadDistricts();
+            const distFound = setSelectValue('addrDistrict', room.district);
+            if (distFound) {
+                await window.loadWards();
+                setSelectValue('addrWard', room.ward);
             }
-
-            document.getElementById('addrStreet').value = room.street;
-        } else {
-            // Fallback cho dữ liệu cũ (chỉ có string address)
-            document.getElementById('addrCity').value = '';
-            // Reset districts/wards
-            const distSel = document.getElementById('addrDistrict');
-            const wardSel = document.getElementById('addrWard');
-            distSel.innerHTML = '<option value="">-- Quận/Huyện --</option>';
-            wardSel.innerHTML = '<option value="">-- Phường/Xã --</option>';
-            distSel.disabled = true;
-            wardSel.disabled = true;
-
-            document.getElementById('addrStreet').value = room.address;
         }
+        document.getElementById('addrStreet').value = room.street;
         
         document.getElementById('roomDesc').value = room.description || '';
         document.getElementById('roomStatus').value = room.status;
@@ -523,12 +515,6 @@ async function editRoom(id) {
                 size: 0,
                 base64: src
             }));
-        } else if (room.image) {
-            selectedImages = [{
-                name: 'image-1',
-                size: 0,
-                base64: room.image
-            }];
         }
         clearValidationMessage();
         renderImagePreview();
@@ -595,11 +581,14 @@ function getCheckedValues(containerId) {
 async function saveRoom() {
     const id = document.getElementById('roomId').value;
     const title = document.getElementById('roomTitle').value.trim();
+    const roomType = document.getElementById('roomType').value;
+    const roomStatus = document.getElementById('roomStatus').value;
     const price = document.getElementById('roomPrice').value;
     const elecPrice = document.getElementById('roomElecPrice').value;
     const waterPrice = document.getElementById('roomWaterPrice').value;
     const wifiPrice = document.getElementById('roomWifiPrice').value;
     const servicePrice = document.getElementById('roomServicePrice').value;
+    const area = document.getElementById('roomArea').value;
     const description = document.getElementById('roomDesc').value.trim();
 
     // Lấy thông tin địa chỉ
@@ -609,9 +598,10 @@ async function saveRoom() {
     const street = document.getElementById('addrStreet').value.trim();
 
     // Validate cơ bản
-    if (!title) return alert('Vui lòng nhập Tên phòng!');
-    if (!price) return alert('Vui lòng nhập Giá tiền!');
-    if (!document.getElementById('roomArea').value) return alert('Vui lòng nhập Diện tích!');
+    if (!isNonEmptyText(title)) return alert('Vui lòng nhập Tên phòng!');
+    if (!isNonEmptyText(roomType)) return alert('Vui lòng chọn Loại hình phòng!');
+    if (!isPositiveNumber(price)) return alert('Giá tiền phải là số lớn hơn 0.');
+    if (!isPositiveNumber(area)) return alert('Diện tích phải là số lớn hơn 0.');
     
     if (!city || !district || !ward) return alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!');
     if (!street) return alert('Vui lòng nhập địa chỉ cụ thể (Số nhà, đường)!');
@@ -622,8 +612,12 @@ async function saveRoom() {
     if (!lat || !lng) return alert('Vui lòng chọn vị trí trên bản đồ!');
     */
 
-    if (!description) return alert('Vui lòng nhập Mô tả!');
-    if (!document.getElementById('roomStatus').value) return alert('Vui lòng chọn Trạng thái!');
+    if (!isNonEmptyText(description)) return alert('Vui lòng nhập Mô tả!');
+    if (!isNonEmptyText(roomStatus)) return alert('Vui lòng chọn Trạng thái!');
+
+    if (!isNonNegativeNumber(elecPrice) || !isNonNegativeNumber(waterPrice) || !isNonNegativeNumber(wifiPrice) || !isNonNegativeNumber(servicePrice)) {
+        return alert('Các giá điện/nước/wifi/dịch vụ phải là số không âm.');
+    }
 
     // Ghép địa chỉ hiển thị
     // Ưu tiên: Số nhà, Phường, Quận, TP
@@ -648,44 +642,27 @@ async function saveRoom() {
     const amenities = getCheckedValues('amenityCheckboxes');
     const surroundings = getCheckedValues('surroundingCheckboxes');
 
-    // Lấy thông tin chủ nhà (User đang đăng nhập)
-    let ownerName = 'Chủ nhà';
-    let ownerPhone = 'Liên hệ';
-    
-    // Nếu đang sửa admin, ráng giữ thông tin cũ
-    if (id) {
-        const oldRoom = Storage.getRoomById(id);
-        if (oldRoom) {
-            ownerName = oldRoom.ownerName || ownerName;
-            ownerPhone = oldRoom.ownerPhone || ownerPhone;
-        }
-    } 
-    
-    // Nếu tạo mới hoặc chưa có info, thử lấy từ CurrentUser
     const currentUser = Storage.getCurrentUser();
-    if (currentUser) {
-        // Nếu tạo mới hoàn toàn -> Lấy của người đang tạo
-        if (!id) {
-            ownerName = currentUser.name;
-            ownerPhone = currentUser.phone;
-        }
-        // Nếu sửa mà cũ chưa có -> Update
-        else if (ownerName === 'Chủ nhà') {
-             ownerName = currentUser.name;
-             ownerPhone = currentUser.phone;
-        }
+    if (!currentUser || !isNonEmptyText(currentUser.name) || !isNonEmptyText(currentUser.phone)) {
+        return alert('Thông tin chủ trọ không hợp lệ. Vui lòng đăng nhập lại.');
     }
+
+    const existingRoom = id ? Storage.getRoomById(id) : null;
+    if (id && !existingRoom) return alert('Không tìm thấy dữ liệu phòng để cập nhật.');
+
+    const ownerName = currentUser.name;
+    const ownerPhone = currentUser.phone;
 
     const roomData = {
         id: id || 'ROOM_' + Date.now(),
         title: title,
-        type: document.getElementById('roomType').value,
+        type: roomType,
         price: Number(price),
         elecPrice: Number(elecPrice) || 0,
         waterPrice: Number(waterPrice) || 0,
         wifiPrice: Number(wifiPrice) || 0,
         servicePrice: Number(servicePrice) || 0,
-        area: document.getElementById('roomArea').value,
+        area: area,
         ownerName: ownerName,
         ownerPhone: ownerPhone,
         address: fullAddress,
@@ -702,11 +679,11 @@ async function saveRoom() {
         surroundings: surroundings,
 
         description: description,
-        status: document.getElementById('roomStatus').value,
+        status: roomStatus,
         images: imagesArray,
-        contract: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).contract || null) : null,
-        invoices: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).invoices || []) : [],
-        lastElectricReading: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).lastElectricReading || 0) : 0
+        contract: existingRoom ? (existingRoom.contract || null) : null,
+        invoices: existingRoom ? (existingRoom.invoices || []) : [],
+        lastElectricReading: existingRoom ? (existingRoom.lastElectricReading || 0) : 0
     };
 
     try {
@@ -724,7 +701,7 @@ async function saveRoom() {
     } catch (e) {
         console.error(e);
         if (e.name === 'QuotaExceededError' || e.code === 22) {
-            alert('Lỗi: Dung lượng lưu trữ đầy! Vui lòng chọn ảnh nhỏ hơn hoặc xóa bớt dữ liệu cũ.');
+            alert('Lỗi: Dung lượng lưu trữ đầy! Vui lòng chọn ảnh nhỏ hơn hoặc xóa bớt dữ liệu.');
         } else {
             alert('Có lỗi xảy ra khi lưu dữ liệu: ' + e.message);
         }
@@ -804,6 +781,11 @@ async function saveContract() {
     const room = Storage.getRoomById(roomId);
     if (!room) return alert('Không tìm thấy phòng trọ.');
 
+    const tenantUser = Storage.getUserByPhone(tenantPhone);
+    if (!tenantUser || tenantUser.role !== 'tenant') {
+        return alert('Số điện thoại khách thuê phải tồn tại trong hệ thống với vai trò Khách thuê.');
+    }
+
     let contractFileName = room.contract?.fileName || '';
     let contractFileData = room.contract?.fileData || '';
 
@@ -829,6 +811,7 @@ async function saveContract() {
 
     const updatedRoom = {
         ...room,
+        status: 'rented',
         contract: {
             tenantName,
             tenantPhone,
@@ -841,20 +824,17 @@ async function saveContract() {
 
     try {
         Storage.updateRoom(updatedRoom);
-        const tenantUser = Storage.getUserByPhone(tenantPhone);
-        if (tenantUser) {
-            Storage.addNotification({
-                toPhone: tenantPhone,
-                fromPhone: currentUser.phone,
-                type: 'contract_created',
-                title: 'Hợp đồng mới',
-                message: `Chủ trọ đã tạo/cập nhật hợp đồng cho phòng ${room.title}.`,
-                meta: {
-                    roomId: room.id,
-                    roomTitle: room.title
-                }
-            });
-        }
+        Storage.addNotification({
+            toPhone: tenantPhone,
+            fromPhone: currentUser.phone,
+            type: 'contract_created',
+            title: 'Hợp đồng mới',
+            message: `Chủ trọ đã tạo/cập nhật hợp đồng cho phòng ${room.title}.`,
+            meta: {
+                roomId: room.id,
+                roomTitle: room.title
+            }
+        });
         contractModal.hide();
         renderTable();
         renderOwnerNotifications();
@@ -871,23 +851,30 @@ function openRoomActionModalById(roomId) {
         alert('Không tìm thấy phòng trọ!');
         return;
     }
+    if (!Array.isArray(room.images) || room.images.length === 0) return alert('Dữ liệu phòng thiếu ảnh. Vui lòng cập nhật lại phòng.');
+    if (!isNonEmptyText(room.title) || !isNonEmptyText(room.type) || !isNonEmptyText(room.address) || !isNonEmptyText(room.description)) {
+        return alert('Dữ liệu phòng chưa đầy đủ trường bắt buộc. Vui lòng cập nhật lại phòng.');
+    }
+    if (!isPositiveNumber(room.price) || !isPositiveNumber(room.area)) {
+        return alert('Dữ liệu phòng không hợp lệ (giá/diện tích). Vui lòng cập nhật lại phòng.');
+    }
 
     selectedRoomActionId = room.id;
 
-    const images = (Array.isArray(room.images) && room.images.length > 0 ? room.images : (room.image ? [room.image] : ['img/logo.png']));
-    const location = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
+    const images = room.images;
+    const location = room.address;
     const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
     const statusText = room.status === 'available' ? 'Còn trống' : 'Đã thuê';
 
-    document.getElementById('roomActionTitle').textContent = room.title || 'Chi tiết phòng trọ';
-    document.getElementById('roomActionType').textContent = room.type || 'Phòng trọ';
+    document.getElementById('roomActionTitle').textContent = room.title;
+    document.getElementById('roomActionType').textContent = room.type;
     document.getElementById('roomActionPrice').textContent = `${price}đ/tháng`;
     document.getElementById('roomActionArea').textContent = `${Number(room.area) || 0}m²`;
     document.getElementById('roomActionStatus').textContent = statusText;
-    document.getElementById('roomActionAddress').textContent = location || 'Chưa cập nhật';
-    document.getElementById('roomActionDescription').textContent = room.description || 'Chưa có mô tả cho phòng này.';
+    document.getElementById('roomActionAddress').textContent = location;
+    document.getElementById('roomActionDescription').textContent = room.description;
 
-    initOwnerActionGallery(images, room.title || 'Phòng trọ');
+    initOwnerActionGallery(images, room.title);
 
     roomActionModal.show();
 }
@@ -895,7 +882,8 @@ function openRoomActionModalById(roomId) {
 window.openRoomActionModalById = openRoomActionModalById;
 
 function initOwnerActionGallery(images, title) {
-    ownerActionGalleryState.images = images || [];
+    if (!Array.isArray(images) || images.length === 0) return;
+    ownerActionGalleryState.images = images;
     ownerActionGalleryState.index = 0;
 
     const track = document.getElementById('ownerActionGalleryTrack');
@@ -961,6 +949,99 @@ function openContractFromAction() {
 }
 
 window.openContractFromAction = openContractFromAction;
+
+function openEndContractFromAction() {
+    if (!selectedRoomActionId) return;
+    roomActionModal.hide();
+    openEndContractModal(selectedRoomActionId);
+}
+
+window.openEndContractFromAction = openEndContractFromAction;
+
+function openEndContractModal(roomId) {
+    const room = Storage.getRoomById(roomId);
+    if (!room) {
+        alert('Không tìm thấy phòng trọ!');
+        return;
+    }
+
+    if (!room.contract) {
+        alert('Phòng này chưa có hợp đồng để kết thúc.');
+        return;
+    }
+
+    const form = document.getElementById('endContractForm');
+    if (form) form.reset();
+
+    const today = new Date();
+    const todayValue = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    document.getElementById('endContractRoomId').value = room.id;
+    document.getElementById('endContractRoomTitle').textContent = `Phòng: ${room.title}`;
+    document.getElementById('endContractDate').value = todayValue;
+
+    endContractModal.show();
+}
+
+async function saveEndContract() {
+    const roomId = document.getElementById('endContractRoomId').value;
+    const endDate = document.getElementById('endContractDate').value;
+    const endReason = (document.getElementById('endContractReason').value || '').trim();
+
+    if (!roomId) return alert('Không xác định được phòng trọ.');
+    if (!endDate) return alert('Vui lòng chọn ngày kết thúc hợp đồng.');
+
+    const room = Storage.getRoomById(roomId);
+    if (!room || !room.contract) return alert('Không tìm thấy hợp đồng hiện tại của phòng này.');
+
+    const tenantPhone = room.contract.tenantPhone;
+    if (!/^\d{10}$/.test(tenantPhone || '')) {
+        return alert('Hợp đồng hiện tại thiếu số điện thoại khách thuê hợp lệ.');
+    }
+    const endedContract = {
+        ...room.contract,
+        endedAt: new Date(`${endDate}T00:00:00`).toISOString(),
+        endReason
+    };
+
+    const updatedRoom = {
+        ...room,
+        status: 'available',
+        contractHistory: [endedContract].concat(Array.isArray(room.contractHistory) ? room.contractHistory : []),
+        contract: null
+    };
+
+    try {
+        Storage.updateRoom(updatedRoom);
+
+        if (tenantPhone) {
+            const reasonText = endReason ? ` Lý do: ${endReason}.` : '';
+            Storage.addNotification({
+                toPhone: tenantPhone,
+                fromPhone: currentUser.phone,
+                type: 'contract_ended',
+                title: 'Hợp đồng đã kết thúc',
+                message: `Hợp đồng phòng ${room.title} đã kết thúc vào ngày ${new Date(`${endDate}T00:00:00`).toLocaleDateString('vi-VN')}.${reasonText}`,
+                meta: {
+                    roomId: room.id,
+                    roomTitle: room.title,
+                    endDate,
+                    endReason
+                }
+            });
+        }
+
+        endContractModal.hide();
+        renderTable();
+        renderOwnerNotifications();
+        alert('Kết thúc hợp đồng thành công. Phòng đã chuyển về trạng thái còn trống.');
+    } catch (error) {
+        console.error(error);
+        alert('Không thể kết thúc hợp đồng. Vui lòng thử lại.');
+    }
+}
+
+window.saveEndContract = saveEndContract;
 
 function openInvoiceFromAction() {
     if (!selectedRoomActionId) return;
@@ -1055,12 +1136,20 @@ function saveInvoice() {
     const roomId = document.getElementById('invoiceRoomId').value;
     const room = Storage.getRoomById(roomId);
     if (!room) return alert('Không tìm thấy phòng trọ.');
+    if (!room.contract || !/^\d{10}$/.test(room.contract.tenantPhone || '')) {
+        return alert('Chỉ được tạo hoá đơn cho phòng đã có hợp đồng hợp lệ.');
+    }
 
     const period = document.getElementById('invoicePeriod').value;
+    const rent = toNumber(document.getElementById('invoiceRent').value);
+    const rate = toNumber(document.getElementById('invoiceElecRate').value);
     const prev = toNumber(document.getElementById('invoiceElecPrev').value);
     const current = toNumber(document.getElementById('invoiceElecCurrent').value);
 
     if (!period) return alert('Vui lòng chọn kỳ hoá đơn.');
+    if (!isPositiveNumber(rent)) return alert('Tiền nhà phải lớn hơn 0.');
+    if (!isNonNegativeNumber(rate)) return alert('Giá điện phải là số không âm.');
+    if (!isNonNegativeNumber(prev) || !isNonNegativeNumber(current)) return alert('Chỉ số điện phải là số không âm.');
     if (current < prev) return alert('Số điện hiện tại không được nhỏ hơn số điện kỳ trước.');
 
     recalculateInvoice();
@@ -1068,8 +1157,8 @@ function saveInvoice() {
     const invoiceData = {
         id: `INV_${Date.now()}`,
         period,
-        rent: toNumber(document.getElementById('invoiceRent').value),
-        electricRate: toNumber(document.getElementById('invoiceElecRate').value),
+        rent,
+        electricRate: rate,
         electricPreviousReading: prev,
         electricCurrentReading: current,
         electricUsage: toNumber(document.getElementById('invoiceElecUsage').value),
@@ -1083,6 +1172,10 @@ function saveInvoice() {
         note: (document.getElementById('invoiceNote').value || '').trim(),
         createdAt: new Date().toISOString()
     };
+
+    if (!isPositiveNumber(invoiceData.grandTotal)) {
+        return alert('Tổng hoá đơn phải lớn hơn 0.');
+    }
 
     const invoices = Array.isArray(room.invoices) ? room.invoices : [];
     invoices.unshift(invoiceData);
@@ -1136,7 +1229,7 @@ function renderOwnerNotifications() {
     }
 
     listEl.innerHTML = notifications.slice(0, 12).map((item) => {
-        const created = new Date(item.createdAt || Date.now()).toLocaleString('vi-VN');
+        const created = formatNotificationTime(item.createdAt);
         const unread = item.isRead ? '' : '<span class="badge text-bg-danger">Mới</span>';
         return `
             <article class="notification-item ${item.isRead ? '' : 'unread'}" onclick="markOwnerNotificationRead('${item.id}')">
@@ -1149,6 +1242,19 @@ function renderOwnerNotifications() {
             </article>
         `;
     }).join('');
+}
+
+function formatNotificationTime(isoTime) {
+    const targetTime = new Date(isoTime || Date.now());
+    const now = new Date();
+    const diffSeconds = Math.max(0, Math.floor((now.getTime() - targetTime.getTime()) / 1000));
+
+    if (diffSeconds < 60) return 'Vừa xong';
+    if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} phút trước`;
+    if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)} giờ trước`;
+    if (diffSeconds < 604800) return `${Math.floor(diffSeconds / 86400)} ngày trước`;
+
+    return targetTime.toLocaleString('vi-VN');
 }
 
 function markOwnerNotificationRead(notificationId) {

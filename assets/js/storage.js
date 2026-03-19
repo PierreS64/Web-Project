@@ -2,7 +2,6 @@
 const USERS_KEY = 'user_data';
 const CURRENT_USER_KEY = 'current_user';
 const NOTIFICATIONS_KEY = 'notification_data';
-const PAYMENT_MONITOR_KEY = 'payment_monitor_config';
 
 // --- DỮ LIỆU MẪU (SEED DATA) ---
 const initialRooms = [];
@@ -183,15 +182,6 @@ const Storage = {
 
         this.updateRoom(updatedRoom);
         return updatedRoom;
-    },
-
-    // 5. CẤU HÌNH THEO DÕI BIẾN ĐỘNG SỐ DƯ
-    getPaymentMonitorConfig: function() {
-        return JSON.parse(localStorage.getItem(PAYMENT_MONITOR_KEY) || 'null');
-    },
-
-    setPaymentMonitorConfig: function(config) {
-        localStorage.setItem(PAYMENT_MONITOR_KEY, JSON.stringify(config || null));
     },
 
     logout: function() {

@@ -2,6 +2,16 @@
     initCategoryPage();
 });
 
+function isRoomDataValid(room) {
+    return room
+        && typeof room.title === 'string' && room.title.trim()
+        && typeof room.type === 'string' && room.type.trim()
+        && typeof room.address === 'string' && room.address.trim()
+        && Array.isArray(room.images) && room.images.length > 0
+        && Number.isFinite(Number(room.price)) && Number(room.price) > 0
+        && Number.isFinite(Number(room.area)) && Number(room.area) > 0;
+}
+
 function initCategoryPage() {
     const pageRoot = document.querySelector('.category-page-wrap');
     if (!pageRoot) return;
@@ -25,7 +35,7 @@ function initCategoryPage() {
     titleEl.textContent = config.heroTitle;
     breadcrumbEl.textContent = config.breadcrumb;
 
-    const allRooms = Storage.getRooms().filter(config.filterByType);
+    const allRooms = Storage.getRooms().filter(isRoomDataValid).filter(config.filterByType);
 
     const applyAll = () => {
         const keyword = (keywordInput ? keywordInput.value : '').trim().toLowerCase();
@@ -132,7 +142,7 @@ function getCategoryConfig(key) {
         'phong-tro': {
             heroTitle: 'TÌM NHÀ TRỌ, PHÒNG TRỌ GIÁ RẺ, MỚI NHẤT',
             breadcrumb: 'Nhà trọ, phòng trọ',
-            filterByType: (room) => isPhongTro(room.type || 'Phòng trọ')
+            filterByType: (room) => isPhongTro(room.type)
         },
         'nha-nguyen-can': {
             heroTitle: 'TÌM NHÀ NGUYÊN CĂN GIÁ RẺ, MỚI NHẤT',
@@ -220,8 +230,8 @@ function sortRooms(rooms, sortBy) {
 function buildCategoryCard(room) {
     const priceText = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
     const areaText = Number(room.area) || 0;
-    const locationText = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
-    const thumb = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : (room.image || 'img/logo.png');
+    const locationText = room.address;
+    const thumb = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
     const amenityPreview = Array.isArray(room.amenities) && room.amenities.length > 0
         ? `<div class="room-extra-info"><i class="fa-solid fa-square-check"></i> ${room.amenities.slice(0, 3).join(', ')}</div>`
         : '';
@@ -235,7 +245,7 @@ function buildCategoryCard(room) {
                 <h4 class="category-room-title">${room.title}</h4>
                 <div class="category-room-price">Từ ${priceText}đ/tháng</div>
                 <div class="category-room-tags">
-                    <span>${room.type || 'Phòng trọ'}</span>
+                    <span>${room.type}</span>
                     <span>${areaText}m2</span>
                 </div>
                 <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText}</div>

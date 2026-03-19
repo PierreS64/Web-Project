@@ -6,6 +6,16 @@
 let authModal;
 let roomDetailModal;
 
+function isRoomDataValid(room) {
+    return room
+        && typeof room.title === 'string' && room.title.trim()
+        && typeof room.type === 'string' && room.type.trim()
+        && typeof room.address === 'string' && room.address.trim()
+        && Array.isArray(room.images) && room.images.length > 0
+        && Number.isFinite(Number(room.price)) && Number(room.price) > 0
+        && Number.isFinite(Number(room.area)) && Number(room.area) > 0;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo Modal
     const authModalEl = document.getElementById('authModal');
@@ -108,8 +118,12 @@ function togglePassword(inputId, iconId) {
 
 function handleLogin(e) {
     e.preventDefault();
-    const phone = document.getElementById('logPhone').value;
+    const phone = document.getElementById('logPhone').value.trim();
     const pass = document.getElementById('logPass').value;
+
+    if (!/^\d{10}$/.test(phone)) return alert('Vui lòng nhập số điện thoại hợp lệ (10 chữ số).');
+    if (!pass) return alert('Vui lòng nhập mật khẩu.');
+
     const user = Storage.login(phone, pass);
     if(user) {
         // Tự động đóng modal và tải lại trang để cập nhật giao diện
@@ -127,6 +141,8 @@ function handleRegister(e) {
     const pass = document.getElementById('regPass').value;
     const role = document.getElementById('regRole').value;
 
+    if (!name) return alert('Vui lòng nhập họ tên.');
+    if (!role || !['owner', 'tenant'].includes(role)) return alert('Vui lòng chọn vai trò hợp lệ.');
     if (!/^\d{10}$/.test(phone)) return alert('Lỗi: SĐT phải là 10 số!');
     if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(pass)) return alert('Lỗi: Mật khẩu chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt)!');
     if (name.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(name)) return alert('Lỗi: Tên không hợp lệ!');
@@ -183,7 +199,7 @@ function renderHomeRooms(roomsToRender = null) {
         kyTucXa: 'see-all-ky-tuc-xa'
     };
 
-    const rooms = roomsToRender || Storage.getRooms();
+    const rooms = (roomsToRender || Storage.getRooms()).filter(isRoomDataValid);
     const container = document.getElementById('room-list');
     const resultCount = document.getElementById('results-count');
     const roomPhongTro = document.getElementById('room-list-phong-tro');
@@ -210,7 +226,7 @@ function renderHomeRooms(roomsToRender = null) {
     };
 
     const groupedRooms = {
-        phongTro: rooms.filter(r => isPhongTro(r.type || 'Phòng trọ')),
+        phongTro: rooms.filter(r => isPhongTro(r.type)),
         nhaNguyenCan: rooms.filter(r => normalizeType(r.type) === 'nhà nguyên căn'),
         canHo: rooms.filter(r => normalizeType(r.type) === 'căn hộ'),
         kyTucXa: rooms.filter(r => normalizeType(r.type) === 'ký túc xá')
@@ -218,11 +234,11 @@ function renderHomeRooms(roomsToRender = null) {
 
     const buildRoomCard = (room) => {
         const price = new Intl.NumberFormat('vi-VN').format(room.price);
-        const area = Number(room.area) || 0;
-        const type = room.type || 'Phòng trọ';
-        const locationText = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
+        const area = Number(room.area);
+        const type = room.type;
+        const locationText = room.address;
         const statusChip = room.status === 'rented' ? '<span class="room-chip room-chip-rented">Đã thuê</span>' : '';
-        const imgUrl = (Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : room.image) || 'img/logo.png';
+        const imgUrl = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
 
         return `
         <div class="col-lg-3 col-md-6">
@@ -305,7 +321,7 @@ function handleSearch() {
     const keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
     const type = document.getElementById('searchType').value;
 
-    const allRooms = Storage.getRooms();
+    const allRooms = Storage.getRooms().filter(isRoomDataValid);
     const filtered = allRooms.filter(r => {
         // 1. Lọc theo từ khóa (Tên hoặc Địa chỉ)
         const matchKeyword = r.title.toLowerCase().includes(keyword) || 
@@ -313,8 +329,7 @@ function handleSearch() {
         
         // 2. Lọc theo loại hình
         // Nếu chọn 'all' thì bỏ qua, nếu không thì so sánh chính xác
-        // Dữ liệu cũ chưa có type thì mặc định coi là 'Phòng trọ'
-        const roomType = r.type || 'Phòng trọ';
+        const roomType = r.type;
         const matchType = (type === 'all') || (roomType === type);
 
         return matchKeyword && matchType;

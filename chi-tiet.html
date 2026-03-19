@@ -164,25 +164,36 @@
         };
 
         function renderDetail(room) {
+            if (!room
+                || !(room.title && room.type && room.address && room.description && room.ownerName && room.ownerPhone)
+                || !Array.isArray(room.images) || room.images.length === 0
+                || !Number.isFinite(Number(room.price)) || Number(room.price) <= 0
+                || !Number.isFinite(Number(room.area)) || Number(room.area) <= 0
+                || !Array.isArray(room.amenities)
+                || !Array.isArray(room.targets)
+                || !Array.isArray(room.surroundings)) {
+                document.getElementById('detail-container').innerHTML = '<div class="alert alert-danger">Dữ liệu phòng không hợp lệ hoặc thiếu trường bắt buộc.</div>';
+                return;
+            }
+
             const price = new Intl.NumberFormat('vi-VN').format(room.price);
-            const images = room.images && Array.isArray(room.images) ? room.images : (room.image ? [room.image] : []);
-            const ownerName = room.ownerName || 'Chủ nhà';
-            // Fallback số điện thoại để tránh lỗi link (dùng số dummy hoặc xử lý logic ẩn nút)
-            const ownerPhone = room.ownerPhone || ''; 
-            const phoneDisplay = ownerPhone || 'Chưa cập nhật';
+            const images = room.images && Array.isArray(room.images) ? room.images : [];
+            const ownerName = room.ownerName;
+            const ownerPhone = room.ownerPhone;
+            const phoneDisplay = ownerPhone;
             
             // Map Amenities
-            const amenitiesHtml = (room.amenities || []).map(item => `
+            const amenitiesHtml = room.amenities.map(item => `
                 <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
             `).join('');
 
             // Map Targets
-            const targetsHtml = (room.targets || []).map(item => `
+            const targetsHtml = room.targets.map(item => `
                 <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
             `).join('');
 
             // Map Surroundings
-            const surroundingsHtml = (room.surroundings || []).map(item => `
+            const surroundingsHtml = room.surroundings.map(item => `
                 <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
             `).join('');
 
@@ -190,7 +201,7 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="trang-chu.html">Trang chủ</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">${room.type || 'Phòng trọ'}</li>
+                        <li class="breadcrumb-item active" aria-current="page">${room.type}</li>
                     </ol>
                 </nav>
 
@@ -206,7 +217,7 @@
                         <!-- Intro -->
                         <div class="my-4">
                             <h5 class="section-title">Giới thiệu</h5>
-                            <p style="white-space: pre-line;">${room.description || 'Chưa có mô tả chi tiết cho phòng này. Liên hệ chủ nhà để biết thêm thông tin.'}</p>
+                            <p style="white-space: pre-line;">${room.description}</p>
                             <hr class="text-secondary opacity-25 my-3">
                             <p><strong>Diện tích:</strong> ${room.area} m²</p>
                             <p><strong>Giá điện:</strong> ${room.elecPrice ? new Intl.NumberFormat('vi-VN').format(room.elecPrice) + ' đ/kW' : 'Miễn phí'}</p>
@@ -272,7 +283,7 @@
 
         function renderDetailGallery(images, title) {
             if (!images || images.length === 0) {
-                return `<img src="img/logo.png" class="gallery-main shadow-sm" alt="${title}">`;
+                return '';
             }
 
             const slides = images.map((src, idx) => `
@@ -298,7 +309,7 @@
         }
 
         function initDetailGallery(images) {
-            detailGalleryState.images = images || [];
+            detailGalleryState.images = images;
             detailGalleryState.index = 0;
             syncDetailGallery();
         }

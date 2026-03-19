@@ -125,81 +125,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label fw-bold">Thông tin tài khoản ngân hàng</label>
-                                    <div class="card p-3 bg-light border">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Ngân hàng</label>
-                                                <select id="bankSelect" class="form-select">
-                                                    <option value="">Chọn ngân hàng</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Số tài khoản</label>
-                                                <input type="text" id="bankAccountNumber" class="form-control" placeholder="Nhập số tài khoản">
-                                            </div>
-                                            <div class="col-md-8">
-                                                <label class="form-label">Chủ tài khoản (tự động tra cứu)</label>
-                                                <input type="text" id="bankAccountName" class="form-control" readonly>
-                                                <div id="bankLookupStatus" class="form-text"></div>
-                                            </div>
-                                            <div class="col-md-4 d-flex align-items-end">
-                                                <button type="button" class="btn btn-outline-primary w-100" onclick="lookupBankAccountName()">
-                                                    <i class="fa-solid fa-magnifying-glass"></i> Tra cứu chủ tài khoản
-                                                </button>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">VietQR Client ID (nếu có)</label>
-                                                <input type="text" id="vietQrClientId" class="form-control" placeholder="x-client-id">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">VietQR API Key (nếu có)</label>
-                                                <input type="text" id="vietQrApiKey" class="form-control" placeholder="x-api-key">
-                                            </div>
-                                            <div class="col-12">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="1" id="bankInfoConfirmed">
-                                                    <label class="form-check-label" for="bankInfoConfirmed">
-                                                        Tôi xác nhận thông tin tài khoản ngân hàng ở trên là chính xác.
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label fw-bold">API kiểm tra biến động số dư</label>
-                                    <div class="card p-3 bg-light border">
-                                        <div class="row g-3">
-                                            <div class="col-md-12">
-                                                <label class="form-label">API Endpoint</label>
-                                                <input type="text" id="monitorEndpoint" class="form-control" placeholder="https://your-provider/api/transactions/check">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Token API (nếu có)</label>
-                                                <input type="text" id="monitorToken" class="form-control" placeholder="Bearer token">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Client ID (nếu có)</label>
-                                                <input type="text" id="monitorClientId" class="form-control" placeholder="Client ID">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Số tài khoản theo dõi</label>
-                                                <input type="text" id="monitorAccountNumber" class="form-control" placeholder="Số tài khoản ngân hàng cần kiểm tra">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Phút quét ngược</label>
-                                                <input type="number" id="monitorSinceMinutes" class="form-control" min="10" value="240">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <button type="submit" class="btn btn-primary btn-update">
                                 <i class="fa-solid fa-floppy-disk"></i> Cập nhật
@@ -319,8 +245,6 @@
     <script src="assets/js/storage.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
-        const VIET_QR_API_BASE = 'https://api.vietqr.io/v2';
-
         // Load User Data
         const currentUser = Storage.getCurrentUser();
         if(!currentUser) {
@@ -337,95 +261,9 @@
             document.getElementById('profBirthdate').value = currentUser.birthdate || '';
             document.getElementById('profIdCard').value = currentUser.idCard || '';
             document.getElementById('profAddress').value = currentUser.address || '';
-            document.getElementById('bankAccountNumber').value = currentUser.bankAccountNumber || '';
-            document.getElementById('bankAccountName').value = currentUser.bankAccountName || '';
-            document.getElementById('vietQrClientId').value = currentUser.vietQrClientId || '';
-            document.getElementById('vietQrApiKey').value = currentUser.vietQrApiKey || '';
-            document.getElementById('bankInfoConfirmed').checked = !!currentUser.bankInfoConfirmed;
-
-            const paymentMonitor = Storage.getPaymentMonitorConfig() || {};
-            document.getElementById('monitorEndpoint').value = paymentMonitor.endpoint || '';
-            document.getElementById('monitorToken').value = paymentMonitor.token || '';
-            document.getElementById('monitorClientId').value = paymentMonitor.clientId || '';
-            document.getElementById('monitorAccountNumber').value = paymentMonitor.accountNumber || '';
-            document.getElementById('monitorSinceMinutes').value = Number(paymentMonitor.sinceMinutes || 240);
-
-            loadBankList(currentUser.bankBin || '');
         }
 
-        async function loadBankList(selectedBankBin = '') {
-            const bankSelect = document.getElementById('bankSelect');
-            if (!bankSelect) return;
 
-            try {
-                const res = await fetch(`${VIET_QR_API_BASE}/banks`);
-                const data = await res.json();
-                const banks = Array.isArray(data?.data) ? data.data : [];
-
-                bankSelect.innerHTML = '<option value="">Chọn ngân hàng</option>' + banks.map((bank) => {
-                    const selected = selectedBankBin && String(bank.bin) === String(selectedBankBin) ? 'selected' : '';
-                    return `<option value="${bank.bin}" data-short="${bank.shortName || ''}" data-code="${bank.code || ''}" data-name="${bank.name || ''}" ${selected}>${bank.shortName || bank.code || bank.name}</option>`;
-                }).join('');
-            } catch (error) {
-                console.error(error);
-                bankSelect.innerHTML = '<option value="">Không tải được danh sách ngân hàng</option>';
-            }
-        }
-
-        async function lookupBankAccountName() {
-            const statusEl = document.getElementById('bankLookupStatus');
-            const bankSelect = document.getElementById('bankSelect');
-            const accountNumber = (document.getElementById('bankAccountNumber').value || '').trim();
-            const selectedOption = bankSelect.options[bankSelect.selectedIndex];
-            const bankBin = selectedOption ? selectedOption.value : '';
-
-            if (!bankBin || !accountNumber) {
-                statusEl.className = 'form-text text-danger';
-                statusEl.textContent = 'Vui lòng chọn ngân hàng và nhập số tài khoản.';
-                return;
-            }
-
-            statusEl.className = 'form-text text-muted';
-            statusEl.textContent = 'Đang tra cứu tên chủ tài khoản...';
-
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-
-            const vietQrClientId = (document.getElementById('vietQrClientId').value || '').trim();
-            const vietQrApiKey = (document.getElementById('vietQrApiKey').value || '').trim();
-
-            if (vietQrClientId) headers['x-client-id'] = vietQrClientId;
-            if (vietQrApiKey) headers['x-api-key'] = vietQrApiKey;
-
-            try {
-                const res = await fetch(`${VIET_QR_API_BASE}/lookup`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({
-                        bin: bankBin,
-                        accountNumber
-                    })
-                });
-
-                const result = await res.json();
-                if (res.ok && result?.data?.accountName) {
-                    document.getElementById('bankAccountName').value = result.data.accountName;
-                    statusEl.className = 'form-text text-success';
-                    statusEl.textContent = 'Tra cứu thành công, hãy xác nhận và lưu thông tin.';
-                    return;
-                }
-
-                statusEl.className = 'form-text text-warning';
-                statusEl.textContent = 'Không tra cứu được tự động. Hãy kiểm tra API key VietQR trong tài khoản hoặc nhập lại thông tin.';
-            } catch (error) {
-                console.error(error);
-                statusEl.className = 'form-text text-danger';
-                statusEl.textContent = 'Lỗi kết nối API tra cứu tài khoản ngân hàng.';
-            }
-        }
-
-        window.lookupBankAccountName = lookupBankAccountName;
 
         // Toggle password visibility
         function togglePass(inputId, iconId) {
@@ -512,36 +350,15 @@
         document.getElementById('personalForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const newName = document.getElementById('profName').value.trim();
+            if (!newName) {
+                alert('Vui lòng nhập họ tên.');
+                return;
+            }
             
             if (newName.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newName)) {
                 alert('Lỗi: Tên không hợp lệ!');
                 return;
             }
-
-            const bankSelect = document.getElementById('bankSelect');
-            const selectedBank = bankSelect.options[bankSelect.selectedIndex];
-            const bankBin = selectedBank ? selectedBank.value : '';
-            const bankShortName = selectedBank ? (selectedBank.getAttribute('data-short') || '') : '';
-            const bankCode = selectedBank ? (selectedBank.getAttribute('data-code') || '') : '';
-            const bankName = selectedBank ? (selectedBank.getAttribute('data-name') || '') : '';
-            const bankAccountNumber = (document.getElementById('bankAccountNumber').value || '').trim();
-            const bankAccountName = (document.getElementById('bankAccountName').value || '').trim();
-            const vietQrClientId = (document.getElementById('vietQrClientId').value || '').trim();
-            const vietQrApiKey = (document.getElementById('vietQrApiKey').value || '').trim();
-            const bankInfoConfirmed = document.getElementById('bankInfoConfirmed').checked;
-
-            if ((bankBin || bankAccountNumber || bankAccountName) && !bankInfoConfirmed) {
-                alert('Vui lòng xác nhận thông tin ngân hàng trước khi lưu.');
-                return;
-            }
-
-            const monitorConfig = {
-                endpoint: (document.getElementById('monitorEndpoint').value || '').trim(),
-                token: (document.getElementById('monitorToken').value || '').trim(),
-                clientId: (document.getElementById('monitorClientId').value || '').trim(),
-                accountNumber: (document.getElementById('monitorAccountNumber').value || '').trim(),
-                sinceMinutes: Number(document.getElementById('monitorSinceMinutes').value || 240)
-            };
 
             const updatedUser = {
                 ...currentUser,
@@ -549,20 +366,10 @@
                 gender: document.getElementById('profGender').value,
                 birthdate: document.getElementById('profBirthdate').value,
                 idCard: document.getElementById('profIdCard').value,
-                address: document.getElementById('profAddress').value,
-                bankBin,
-                bankCode,
-                bankName,
-                bankShortName,
-                bankAccountNumber,
-                bankAccountName,
-                vietQrClientId,
-                vietQrApiKey,
-                bankInfoConfirmed
+                address: document.getElementById('profAddress').value
             };
 
             if (Storage.updateUser(updatedUser)) {
-                Storage.setPaymentMonitorConfig(monitorConfig);
                 alert('Cập nhật thông tin cá nhân thành công!');
                 location.reload();
             } else {
