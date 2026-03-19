@@ -999,3 +999,20 @@ footer {
         font-size: 0.9rem;
     }
 }
+
+/* =========================================
+    [PROFILE] 11. PROFILE PAGE
+    ========================================= */
+.profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+body.home-page {
+    background-color: #f8f9fa;
+    padding-top: 80px;
+}
