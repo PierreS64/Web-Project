@@ -47,38 +47,194 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <div class="container">
-        <div class="profile-container">
-            <h3 class="mb-4 fw-bold text-center text-primary"><i class="fa-regular fa-address-card"></i> Hồ sơ của bạn</h3>
-            
-            <form id="profileForm" onsubmit="handleProfileUpdate(event)">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Số điện thoại (Tài khoản)</label>
-                    <input type="text" id="profPhone" class="form-control" readonly style="background-color: #e9ecef;">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Họ và Tên</label>
-                    <input type="text" id="profName" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Mật khẩu mới (Để trống nếu không đổi)</label>
-                    <div class="input-group">
-                        <input type="password" id="profPass" class="form-control">
-                        <span class="input-group-text" onclick="togglePass('profPass', 'profPass-icon')" style="cursor: pointer;">
-                            <i class="fa-solid fa-eye-slash" id="profPass-icon"></i>
-                        </span>
+    <div class="profile-wrapper">
+        <div class="container-fluid">
+            <div class="row h-100">
+                <!-- SIDEBAR LEFT -->
+                <div class="col-lg-3 profile-sidebar">
+                    <div class="sidebar-inner">
+                        <div class="user-header mb-4">
+                            <div class="user-info">
+                                <h5 class="fw-bold mb-1" id="sidebar-user-name">User Name</h5>
+                            </div>
+                        </div>
+
+                        <nav class="sidebar-nav">
+                            <a href="#personal-info" class="nav-item active" onclick="switchTab('personal-info')">
+                                <i class="fa-solid fa-address-card"></i>
+                                <span>Thông tin cá nhân</span>
+                            </a>
+                            <a href="#account-info" class="nav-item" onclick="switchTab('account-info')">
+                                <i class="fa-solid fa-user"></i>
+                                <span>Thông tin tài khoản</span>
+                            </a>
+                            <a href="#" class="nav-item" onclick="Storage.logout()">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </nav>
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Vai trò</label>
-                    <input type="text" id="profRoleDisplay" class="form-control" readonly style="background-color: #e9ecef;">
+
+                <!-- MAIN CONTENT RIGHT -->
+                <div class="col-lg-9 profile-main">
+                    <!-- Personal Info Section -->
+                    <div id="personal-info" class="profile-section active">
+                        <div class="section-header mb-4">
+                            <h2 class="section-title">THÔNG TIN CÁ NHÂN</h2>
+                            <p class="section-subtitle">Cập nhật thông tin của bạn.</p>
+                        </div>
+
+                        <form id="personalForm" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Họ tên</label>
+                                    <input type="text" class="form-control" id="profName" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Giới tính</label>
+                                    <select class="form-select" id="profGender">
+                                        <option value="">Nam</option>
+                                        <option value="">Nữ</option>
+                                        <option value="">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Ngày sinh</label>
+                                    <input type="date" class="form-control" id="profBirthdate">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Số Căn cước công dân</label>
+                                    <input type="text" class="form-control" id="profIdCard" placeholder="Vui lòng nhập">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <input type="text" class="form-control" id="profAddress" placeholder="Vui lòng nhập">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-update">
+                                <i class="fa-solid fa-floppy-disk"></i> Cập nhật
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Account Info Section -->
+                    <div id="account-info" class="profile-section">
+                        <div class="section-header mb-4">
+                            <h2 class="section-title">THÔNG TIN TÀI KHOẢN</h2>
+                            <p class="section-subtitle">Quản lý và cập nhật thông tin tài khoản trên Trọ Mới</p>
+                        </div>
+
+                        <form id="accountForm" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <div class="form-value-group">
+                                        <input type="text" class="form-value" id="profPhone" readonly>
+                                        <button type="button" class="btn-action">Cập nhật</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <div class="form-value-group">
+                                        <div class="form-value-display">
+                                            <span id="profEmail">filipnguyen9112001@gmail.com</span>
+                                            <i class="fa-solid fa-check-circle text-info"></i>
+                                        </div>
+                                        <button type="button" class="btn-action">Cập nhật</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Mật khẩu</label>
+                                    <div class="form-value-group">
+                                        <div class="form-value-display">
+                                            <span id="profPassDisplay">••••••••</span>
+                                        </div>
+                                        <button type="button" class="btn-action btn-danger-action" onclick="showChangePassword()">Đổi mật khẩu</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Trạng thái tài khoản</label>
+                                    <div class="account-status verified">
+                                        <i class="fa-solid fa-check-circle"></i>
+                                        <span>Tài khoản đã xác thực</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
                 </div>
-                
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1 fw-bold"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
-                    <button type="button" class="btn btn-danger fw-bold" onclick="Storage.logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất (Log out)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </form>
+                <div class="modal-body">
+                    <form id="changePasswordForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="currentPass" required>
+                                <span class="input-group-text" onclick="togglePass('currentPass', 'currentPass-icon')" style="cursor: pointer;">
+                                    <i class="fa-solid fa-eye-slash" id="currentPass-icon"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="newPass" required>
+                                <span class="input-group-text" onclick="togglePass('newPass', 'newPass-icon')" style="cursor: pointer;">
+                                    <i class="fa-solid fa-eye-slash" id="newPass-icon"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPass" required>
+                                <span class="input-group-text" onclick="togglePass('confirmPass', 'confirmPass-icon')" style="cursor: pointer;">
+                                    <i class="fa-solid fa-eye-slash" id="confirmPass-icon"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="handleChangePassword()">Lưu thay đổi</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -92,9 +248,13 @@
         if(!currentUser) {
             window.location.href = 'index.html';
         } else {
-            document.getElementById('profPhone').value = currentUser.phone;
+            // Update sidebar
+            document.getElementById('sidebar-user-name').textContent = currentUser.name;
+            
+            // Update form fields
             document.getElementById('profName').value = currentUser.name;
-            document.getElementById('profRoleDisplay').value = currentUser.role === 'owner' ? 'Chủ nhà (Owner)' : 'Khách thuê (Tenant)';
+            document.getElementById('profPhone').value = currentUser.phone;
+            document.getElementById('profEmail').textContent = currentUser.email || 'Chưa cập nhật';
         }
 
         // Toggle password visibility
@@ -112,37 +272,98 @@
             }
         }
 
-        // Handle Profile Update
-        function handleProfileUpdate(e) {
-            e.preventDefault();
-            const newName = document.getElementById('profName').value.trim();
-            const newPass = document.getElementById('profPass').value;
+        // Switch Tab
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from nav items
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active to clicked nav item
+            event.target.closest('.nav-item').classList.add('active');
+        }
 
-            if (newName.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newName)) {
-                return alert('Lỗi: Tên không hợp lệ!');
+        // Show Change Password Modal
+        function showChangePassword() {
+            const modal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+            modal.show();
+        }
+
+        // Handle Change Password
+        function handleChangePassword() {
+            const currentPass = document.getElementById('currentPass').value;
+            const newPass = document.getElementById('newPass').value;
+            const confirmPass = document.getElementById('confirmPass').value;
+
+            if (!currentPass || !newPass || !confirmPass) {
+                alert('Vui lòng điền đầy đủ thông tin!');
+                return;
             }
 
-            let passToSave = currentUser.pass;
-            if (newPass.length > 0) {
-                if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(newPass)) {
-                    return alert('Lỗi: Mật khẩu mới chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt)!');
-                }
-                passToSave = newPass;
+            if (newPass !== confirmPass) {
+                alert('Mật khẩu xác nhận không khớp!');
+                return;
+            }
+
+            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(newPass)) {
+                alert('Mật khẩu mới chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt, 5-20 ký tự)!');
+                return;
+            }
+
+            if (currentPass !== currentUser.pass) {
+                alert('Mật khẩu hiện tại không chính xác!');
+                return;
+            }
+
+            const updatedUser = {
+                ...currentUser,
+                pass: newPass
+            };
+
+            if (Storage.updateUser(updatedUser)) {
+                alert('Đổi mật khẩu thành công!');
+                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                document.getElementById('changePasswordForm').reset();
+                location.reload();
+            } else {
+                alert('Có lỗi xảy ra, vui lòng thử lại.');
+            }
+        }
+
+        // Handle Personal Info Update
+        document.getElementById('personalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newName = document.getElementById('profName').value.trim();
+            
+            if (newName.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newName)) {
+                alert('Lỗi: Tên không hợp lệ!');
+                return;
             }
 
             const updatedUser = {
                 ...currentUser,
                 name: newName,
-                pass: passToSave
+                gender: document.getElementById('profGender').value,
+                birthdate: document.getElementById('profBirthdate').value,
+                idCard: document.getElementById('profIdCard').value,
+                address: document.getElementById('profAddress').value
             };
 
             if (Storage.updateUser(updatedUser)) {
-                alert('Cập nhật thông tin thành công!');
-                window.location.reload();
+                alert('Cập nhật thông tin cá nhân thành công!');
+                location.reload();
             } else {
                 alert('Có lỗi xảy ra, vui lòng thử lại.');
             }
-        }
+        });
     </script>
 </body>
 </html>
