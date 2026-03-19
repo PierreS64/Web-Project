@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="trang-chu.html">
                 <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,10 +24,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-ky-tuc-xa">Ký túc xá</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div id="auth-buttons" class="d-flex gap-2">
@@ -39,8 +39,8 @@
                         </a>
                     </div>
                     <div id="user-info" class="d-none align-items-center gap-2">
-                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
-                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                        <a href="ho-so.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
                     </div>
                     <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
                 </div>
@@ -158,10 +158,14 @@
             renderDetail(room);
         });
 
+        let detailGalleryState = {
+            images: [],
+            index: 0
+        };
+
         function renderDetail(room) {
             const price = new Intl.NumberFormat('vi-VN').format(room.price);
-            let images = room.images && Array.isArray(room.images) ? room.images : (room.image ? [room.image] : []);
-                const img = images.length > 0 ? images[0] : '';
+            const images = room.images && Array.isArray(room.images) ? room.images : (room.image ? [room.image] : []);
             const ownerName = room.ownerName || 'Chủ nhà';
             // Fallback số điện thoại để tránh lỗi link (dùng số dummy hoặc xử lý logic ẩn nút)
             const ownerPhone = room.ownerPhone || ''; 
@@ -185,7 +189,7 @@
             const html = `
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="trang-chu.html">Trang chủ</a></li>
                         <li class="breadcrumb-item active" aria-current="page">${room.type || 'Phòng trọ'}</li>
                     </ol>
                 </nav>
@@ -197,7 +201,7 @@
                         <p class="detail-address"><i class="fa-solid fa-location-dot"></i> ${room.address}</p>
                         
                         <!-- Images -->
-                        <img src="${img}" class="gallery-main shadow-sm" alt="${room.title}">
+                        ${renderDetailGallery(images, room.title)}
                         
                         <!-- Intro -->
                         <div class="my-4">
@@ -263,7 +267,81 @@
                 </div>
             `;
             document.getElementById('detail-container').innerHTML = html;
+            initDetailGallery(images);
         }
+
+        function renderDetailGallery(images, title) {
+            if (!images || images.length === 0) {
+                return `<img src="img/logo.png" class="gallery-main shadow-sm" alt="${title}">`;
+            }
+
+            const slides = images.map((src, idx) => `
+                <div class="detail-gallery-slide" data-index="${idx}">
+                    <img src="${src}" alt="${title} - ảnh ${idx + 1}">
+                </div>
+            `).join('');
+
+            return `
+                <div class="detail-gallery">
+                    <button class="detail-gallery-nav prev" type="button" onclick="prevDetailImage()" aria-label="Ảnh trước">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div class="detail-gallery-track" id="detailGalleryTrack">
+                        ${slides}
+                    </div>
+                    <button class="detail-gallery-nav next" type="button" onclick="nextDetailImage()" aria-label="Ảnh tiếp theo">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="detail-gallery-counter" id="detailGalleryCounter"></div>
+            `;
+        }
+
+        function initDetailGallery(images) {
+            detailGalleryState.images = images || [];
+            detailGalleryState.index = 0;
+            syncDetailGallery();
+        }
+
+        function syncDetailGallery() {
+            const track = document.getElementById('detailGalleryTrack');
+            const counter = document.getElementById('detailGalleryCounter');
+            if (!track || !counter) return;
+
+            const slides = Array.from(track.querySelectorAll('.detail-gallery-slide'));
+            const total = slides.length;
+            if (total === 0) return;
+
+            const currentIndex = detailGalleryState.index;
+            const prevIndex = (currentIndex - 1 + total) % total;
+            const nextIndex = (currentIndex + 1) % total;
+
+            slides.forEach((slide, idx) => {
+                slide.classList.remove('is-active', 'is-prev', 'is-next');
+                if (idx === currentIndex) slide.classList.add('is-active');
+                else if (idx === prevIndex) slide.classList.add('is-prev');
+                else if (idx === nextIndex) slide.classList.add('is-next');
+            });
+
+            counter.textContent = `${currentIndex + 1} / ${total}`;
+        }
+
+        function nextDetailImage() {
+            const total = detailGalleryState.images.length;
+            if (total <= 1) return;
+            detailGalleryState.index = (detailGalleryState.index + 1) % total;
+            syncDetailGallery();
+        }
+
+        function prevDetailImage() {
+            const total = detailGalleryState.images.length;
+            if (total <= 1) return;
+            detailGalleryState.index = (detailGalleryState.index - 1 + total) % total;
+            syncDetailGallery();
+        }
+
+        window.nextDetailImage = nextDetailImage;
+        window.prevDetailImage = prevDetailImage;
 
         function getIcon(name) {
             const map = {

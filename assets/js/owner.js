@@ -1,18 +1,25 @@
-/**
+﻿/**
  * owner.js
- * Logic xử lý cho trang owner.html
+ * Logic xử lý cho trang chu-tro.html
  */
 
 // 1. CHECK QUYỀN TRUY CẬP
 const currentUser = Storage.getCurrentUser();
 if (!currentUser || currentUser.role !== 'owner') {
     alert('Bạn không có quyền truy cập trang này!');
-    window.location.href = 'index.html';
+    window.location.href = 'trang-chu.html';
 }
 
 // 2. BIẾN TOÀN CỤC
 let roomModal;
 let contractModal;
+let roomActionModal;
+let invoiceModal;
+let selectedRoomActionId = null;
+let ownerActionGalleryState = {
+    images: [],
+    index: 0
+};
 let selectedImages = [];
 // let map, marker;
 // let defaultLocation = { lat: 21.0285, lng: 105.8542 }; // Hà Nội
@@ -20,7 +27,10 @@ let selectedImages = [];
 document.addEventListener('DOMContentLoaded', () => {
     roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
     contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+    roomActionModal = new bootstrap.Modal(document.getElementById('roomActionModal'));
+    invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
     renderTable();
+    renderOwnerNotifications();
 
     // Sự kiện tìm kiếm & lọc
     document.getElementById('searchInput').addEventListener('input', renderTable);
@@ -35,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tenantPhoneInput.addEventListener('input', autoFillTenantNameByPhone);
         tenantPhoneInput.addEventListener('blur', autoFillTenantNameByPhone);
     }
+
+    document.querySelectorAll('.invoice-calc').forEach((input) => {
+        input.addEventListener('input', recalculateInvoice);
+    });
     
     // Fix map rendering issue when modal opens
     /*
@@ -340,57 +354,65 @@ function setSelectValue(id, value) {
 
 
 
-// 3. RENDER BẢNG DỮ LIỆU
+// 3. RENDER DANH SÁCH PHÒNG
 function renderTable() {
-    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    const keyword = (document.getElementById('searchInput').value || '').toLowerCase().trim();
     const filter = document.getElementById('statusFilter').value;
+    const listEl = document.getElementById('ownerRoomList');
+    const emptyEl = document.getElementById('ownerEmptyState');
     const rooms = Storage.getRooms();
 
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
+    const ownerRooms = rooms.filter((room) => {
+        if (room.ownerPhone) return room.ownerPhone === currentUser.phone;
+        return true;
+    });
 
-    // Lọc dữ liệu
-    const filteredRooms = rooms.filter(room => {
-        const matchName = room.title.toLowerCase().includes(keyword);
+    const filteredRooms = ownerRooms.filter((room) => {
+        const title = (room.title || '').toLowerCase();
+        const address = (room.address || '').toLowerCase();
+        const matchKeyword = title.includes(keyword) || address.includes(keyword);
         const matchStatus = filter === 'all' || room.status === filter;
-        return matchName && matchStatus;
+        return matchKeyword && matchStatus;
     });
 
     if (filteredRooms.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Không tìm thấy dữ liệu.</td></tr>';
+        listEl.innerHTML = '';
+        emptyEl.classList.remove('d-none');
         return;
     }
 
-    // Vẽ từng dòng
-    filteredRooms.forEach(room => {
-        const price = new Intl.NumberFormat('vi-VN').format(room.price);
-        const statusBadge = room.status === 'available' 
-            ? '<span class="badge bg-success">Còn trống</span>' 
-            : '<span class="badge bg-secondary">Đã thuê</span>';
+    emptyEl.classList.add('d-none');
+    listEl.innerHTML = filteredRooms.map((room) => buildOwnerRoomCard(room)).join('');
+}
 
-        const row = `
-            <tr>
-                <td class="fw-bold text-primary">${room.title}</td>
-                <td><span class="badge bg-info text-dark">${room.type || 'Phòng trọ'}</span></td>
-                <td class="text-danger fw-bold">${price} đ</td>
-                <td>${room.area} m²</td>
-                <td>${room.address}</td>
-                <td>${statusBadge}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary me-1" onclick="editRoom('${room.id}')" title="Sửa">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="btn btn-sm btn-warning me-1" onclick="openContractModal('${room.id}')" title="Tạo hợp đồng">
-                        <i class="fa-solid fa-file-signature"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRoom('${room.id}')" title="Xóa">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+function buildOwnerRoomCard(room) {
+    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const area = Number(room.area) || 0;
+    const locationText = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
+    const image = (Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : room.image) || 'img/logo.png';
+    const statusBadge = room.status === 'available'
+        ? '<span class="badge bg-success">Còn trống</span>'
+        : '<span class="badge bg-secondary">Đã thuê</span>';
+
+    return `
+        <article class="category-room-card owner-room-card" onclick="openRoomActionModalById('${room.id}')">
+            <div class="category-room-image-wrap">
+                <img src="${image}" alt="${room.title}" class="category-room-image">
+            </div>
+            <div class="category-room-content">
+                <div class="d-flex justify-content-between gap-2 align-items-start mb-1">
+                    <h4 class="category-room-title mb-0">${room.title}</h4>
+                    ${statusBadge}
+                </div>
+                <div class="category-room-price">${price}đ/tháng</div>
+                <div class="category-room-tags">
+                    <span>${room.type || 'Phòng trọ'}</span>
+                    <span>${area}m²</span>
+                </div>
+                <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText}</div>
+            </div>
+        </article>
+    `;
 }
 
 // 4. MỞ MODAL THÊM MỚI
@@ -682,7 +704,9 @@ async function saveRoom() {
         description: description,
         status: document.getElementById('roomStatus').value,
         images: imagesArray,
-        contract: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).contract || null) : null
+        contract: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).contract || null) : null,
+        invoices: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).invoices || []) : [],
+        lastElectricReading: id && Storage.getRoomById(id) ? (Storage.getRoomById(id).lastElectricReading || 0) : 0
     };
 
     try {
@@ -817,8 +841,23 @@ async function saveContract() {
 
     try {
         Storage.updateRoom(updatedRoom);
+        const tenantUser = Storage.getUserByPhone(tenantPhone);
+        if (tenantUser) {
+            Storage.addNotification({
+                toPhone: tenantPhone,
+                fromPhone: currentUser.phone,
+                type: 'contract_created',
+                title: 'Hợp đồng mới',
+                message: `Chủ trọ đã tạo/cập nhật hợp đồng cho phòng ${room.title}.`,
+                meta: {
+                    roomId: room.id,
+                    roomTitle: room.title
+                }
+            });
+        }
         contractModal.hide();
         renderTable();
+        renderOwnerNotifications();
         alert('Tạo hợp đồng thành công!');
     } catch (error) {
         console.error(error);
@@ -826,12 +865,314 @@ async function saveContract() {
     }
 }
 
+function openRoomActionModalById(roomId) {
+    const room = Storage.getRoomById(roomId);
+    if (!room) {
+        alert('Không tìm thấy phòng trọ!');
+        return;
+    }
+
+    selectedRoomActionId = room.id;
+
+    const images = (Array.isArray(room.images) && room.images.length > 0 ? room.images : (room.image ? [room.image] : ['img/logo.png']));
+    const location = room.address || [room.street, room.ward, room.district, room.city].filter(Boolean).join(', ');
+    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const statusText = room.status === 'available' ? 'Còn trống' : 'Đã thuê';
+
+    document.getElementById('roomActionTitle').textContent = room.title || 'Chi tiết phòng trọ';
+    document.getElementById('roomActionType').textContent = room.type || 'Phòng trọ';
+    document.getElementById('roomActionPrice').textContent = `${price}đ/tháng`;
+    document.getElementById('roomActionArea').textContent = `${Number(room.area) || 0}m²`;
+    document.getElementById('roomActionStatus').textContent = statusText;
+    document.getElementById('roomActionAddress').textContent = location || 'Chưa cập nhật';
+    document.getElementById('roomActionDescription').textContent = room.description || 'Chưa có mô tả cho phòng này.';
+
+    initOwnerActionGallery(images, room.title || 'Phòng trọ');
+
+    roomActionModal.show();
+}
+
+window.openRoomActionModalById = openRoomActionModalById;
+
+function initOwnerActionGallery(images, title) {
+    ownerActionGalleryState.images = images || [];
+    ownerActionGalleryState.index = 0;
+
+    const track = document.getElementById('ownerActionGalleryTrack');
+    if (!track) return;
+
+    const slides = ownerActionGalleryState.images.map((src, idx) => `
+        <div class="owner-action-gallery-slide" data-index="${idx}">
+            <img src="${src}" alt="${title} - ảnh ${idx + 1}">
+        </div>
+    `).join('');
+
+    track.innerHTML = slides;
+    syncOwnerActionGallery();
+}
+
+function syncOwnerActionGallery() {
+    const track = document.getElementById('ownerActionGalleryTrack');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('.owner-action-gallery-slide'));
+    const total = slides.length;
+    if (total === 0) return;
+
+    const currentIndex = ownerActionGalleryState.index;
+    const prevIndex = (currentIndex - 1 + total) % total;
+    const nextIndex = (currentIndex + 1) % total;
+
+    slides.forEach((slide, idx) => {
+        slide.classList.remove('is-active', 'is-prev', 'is-next');
+        if (idx === currentIndex) slide.classList.add('is-active');
+        else if (idx === prevIndex) slide.classList.add('is-prev');
+        else if (idx === nextIndex) slide.classList.add('is-next');
+    });
+
+    const prevBtn = document.querySelector('.owner-action-gallery-nav.prev');
+    const nextBtn = document.querySelector('.owner-action-gallery-nav.next');
+    const disabled = total <= 1;
+    if (prevBtn) prevBtn.disabled = disabled;
+    if (nextBtn) nextBtn.disabled = disabled;
+}
+
+function nextOwnerActionImage() {
+    const total = ownerActionGalleryState.images.length;
+    if (total <= 1) return;
+    ownerActionGalleryState.index = (ownerActionGalleryState.index + 1) % total;
+    syncOwnerActionGallery();
+}
+
+function prevOwnerActionImage() {
+    const total = ownerActionGalleryState.images.length;
+    if (total <= 1) return;
+    ownerActionGalleryState.index = (ownerActionGalleryState.index - 1 + total) % total;
+    syncOwnerActionGallery();
+}
+
+window.nextOwnerActionImage = nextOwnerActionImage;
+window.prevOwnerActionImage = prevOwnerActionImage;
+
+function openContractFromAction() {
+    if (!selectedRoomActionId) return;
+    roomActionModal.hide();
+    openContractModal(selectedRoomActionId);
+}
+
+window.openContractFromAction = openContractFromAction;
+
+function openInvoiceFromAction() {
+    if (!selectedRoomActionId) return;
+    roomActionModal.hide();
+    openInvoiceModal(selectedRoomActionId);
+}
+
+window.openInvoiceFromAction = openInvoiceFromAction;
+
+function editFromAction() {
+    if (!selectedRoomActionId) return;
+    roomActionModal.hide();
+    editRoom(selectedRoomActionId);
+}
+
+window.editFromAction = editFromAction;
+
+function deleteFromAction() {
+    if (!selectedRoomActionId) return;
+    const deleted = deleteRoom(selectedRoomActionId);
+    if (deleted) {
+        roomActionModal.hide();
+        selectedRoomActionId = null;
+    }
+}
+
+window.deleteFromAction = deleteFromAction;
+
+function openInvoiceModal(roomId) {
+    const room = Storage.getRoomById(roomId);
+    if (!room) return;
+
+    const form = document.getElementById('invoiceForm');
+    if (form) form.reset();
+
+    const now = new Date();
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const previousReading = Number(room.lastElectricReading || getLatestInvoiceReading(room) || 0);
+
+    document.getElementById('invoiceRoomId').value = room.id;
+    document.getElementById('invoiceRoomTitle').textContent = `Phòng: ${room.title}`;
+    document.getElementById('invoicePeriod').value = period;
+    document.getElementById('invoiceRent').value = Number(room.price) || 0;
+    document.getElementById('invoiceElecRate').value = Number(room.elecPrice) || 0;
+    document.getElementById('invoiceElecPrev').value = previousReading;
+    document.getElementById('invoiceElecCurrent').value = previousReading;
+    document.getElementById('invoiceWater').value = Number(room.waterPrice) || 0;
+    document.getElementById('invoiceWifi').value = Number(room.wifiPrice) || 0;
+    document.getElementById('invoiceService').value = Number(room.servicePrice) || 0;
+    document.getElementById('invoiceIssue').value = '';
+    document.getElementById('invoiceNote').value = '';
+
+    recalculateInvoice();
+    invoiceModal.show();
+}
+
+function getLatestInvoiceReading(room) {
+    if (!Array.isArray(room.invoices) || room.invoices.length === 0) return 0;
+    const latest = room.invoices[0];
+    return Number(latest.electricCurrentReading || 0);
+}
+
+function toNumber(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function recalculateInvoice() {
+    const rate = toNumber(document.getElementById('invoiceElecRate').value);
+    const prev = toNumber(document.getElementById('invoiceElecPrev').value);
+    const current = toNumber(document.getElementById('invoiceElecCurrent').value);
+    const usage = Math.max(current - prev, 0);
+    const electricTotal = usage * rate;
+
+    document.getElementById('invoiceElecUsage').value = usage;
+    document.getElementById('invoiceElecTotal').value = electricTotal;
+
+    const rent = toNumber(document.getElementById('invoiceRent').value);
+    const water = toNumber(document.getElementById('invoiceWater').value);
+    const wifi = toNumber(document.getElementById('invoiceWifi').value);
+    const service = toNumber(document.getElementById('invoiceService').value);
+    const issue = toNumber(document.getElementById('invoiceIssue').value);
+
+    const grandTotal = rent + electricTotal + water + wifi + service + issue;
+    document.getElementById('invoiceGrandTotal').value = grandTotal;
+}
+
+window.recalculateInvoice = recalculateInvoice;
+
+function saveInvoice() {
+    const roomId = document.getElementById('invoiceRoomId').value;
+    const room = Storage.getRoomById(roomId);
+    if (!room) return alert('Không tìm thấy phòng trọ.');
+
+    const period = document.getElementById('invoicePeriod').value;
+    const prev = toNumber(document.getElementById('invoiceElecPrev').value);
+    const current = toNumber(document.getElementById('invoiceElecCurrent').value);
+
+    if (!period) return alert('Vui lòng chọn kỳ hoá đơn.');
+    if (current < prev) return alert('Số điện hiện tại không được nhỏ hơn số điện kỳ trước.');
+
+    recalculateInvoice();
+
+    const invoiceData = {
+        id: `INV_${Date.now()}`,
+        period,
+        rent: toNumber(document.getElementById('invoiceRent').value),
+        electricRate: toNumber(document.getElementById('invoiceElecRate').value),
+        electricPreviousReading: prev,
+        electricCurrentReading: current,
+        electricUsage: toNumber(document.getElementById('invoiceElecUsage').value),
+        electricTotal: toNumber(document.getElementById('invoiceElecTotal').value),
+        water: toNumber(document.getElementById('invoiceWater').value),
+        wifi: toNumber(document.getElementById('invoiceWifi').value),
+        service: toNumber(document.getElementById('invoiceService').value),
+        issue: toNumber(document.getElementById('invoiceIssue').value),
+        grandTotal: toNumber(document.getElementById('invoiceGrandTotal').value),
+        status: 'unpaid',
+        note: (document.getElementById('invoiceNote').value || '').trim(),
+        createdAt: new Date().toISOString()
+    };
+
+    const invoices = Array.isArray(room.invoices) ? room.invoices : [];
+    invoices.unshift(invoiceData);
+
+    const updatedRoom = {
+        ...room,
+        invoices,
+        lastElectricReading: current
+    };
+
+    try {
+        Storage.updateRoom(updatedRoom);
+
+        if (room.contract && room.contract.tenantPhone) {
+            Storage.addNotification({
+                toPhone: room.contract.tenantPhone,
+                fromPhone: currentUser.phone,
+                type: 'invoice_created',
+                title: 'Hoá đơn mới',
+                message: `Có hoá đơn kỳ ${invoiceData.period} cho phòng ${room.title}. Tổng cần thanh toán: ${new Intl.NumberFormat('vi-VN').format(invoiceData.grandTotal)}đ.`,
+                meta: {
+                    roomId: room.id,
+                    roomTitle: room.title,
+                    invoiceId: invoiceData.id,
+                    period: invoiceData.period,
+                    amount: invoiceData.grandTotal
+                }
+            });
+        }
+
+        invoiceModal.hide();
+        renderTable();
+        renderOwnerNotifications();
+        alert('Tạo hoá đơn thành công!');
+    } catch (error) {
+        console.error(error);
+        alert('Không thể lưu hoá đơn. Vui lòng thử lại.');
+    }
+}
+
+window.saveInvoice = saveInvoice;
+
+function renderOwnerNotifications() {
+    const listEl = document.getElementById('ownerNotificationList');
+    if (!listEl) return;
+
+    const notifications = Storage.getNotifications(currentUser.phone);
+    if (!notifications.length) {
+        listEl.innerHTML = '<div class="text-muted small">Chưa có thông báo mới.</div>';
+        return;
+    }
+
+    listEl.innerHTML = notifications.slice(0, 12).map((item) => {
+        const created = new Date(item.createdAt || Date.now()).toLocaleString('vi-VN');
+        const unread = item.isRead ? '' : '<span class="badge text-bg-danger">Mới</span>';
+        return `
+            <article class="notification-item ${item.isRead ? '' : 'unread'}" onclick="markOwnerNotificationRead('${item.id}')">
+                <div class="d-flex justify-content-between gap-2 align-items-start">
+                    <div class="fw-semibold">${item.title || 'Thông báo'}</div>
+                    ${unread}
+                </div>
+                <div class="small text-muted mt-1">${item.message || ''}</div>
+                <div class="small text-secondary mt-1">${created}</div>
+            </article>
+        `;
+    }).join('');
+}
+
+function markOwnerNotificationRead(notificationId) {
+    Storage.markNotificationRead(notificationId, currentUser.phone);
+    renderOwnerNotifications();
+}
+
+window.markOwnerNotificationRead = markOwnerNotificationRead;
+
+function markAllOwnerNotificationsRead() {
+    Storage.markAllNotificationsRead(currentUser.phone);
+    renderOwnerNotifications();
+}
+
+window.markAllOwnerNotificationsRead = markAllOwnerNotificationsRead;
+
 // 7. XÓA PHÒNG
 function deleteRoom(id) {
     if(confirm('Bạn có chắc chắn muốn xóa phòng này? Hành động này không thể phục hồi!')) {
         Storage.deleteRoom(id);
         renderTable();
+        return true;
     }
+    return false;
 }
 document.addEventListener('DOMContentLoaded', () => {
     // Scroll To Top Logic

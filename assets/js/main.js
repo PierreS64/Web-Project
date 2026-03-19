@@ -1,6 +1,6 @@
-/**
+﻿/**
  * main.js
- * Logic cho trang chủ index.html
+ * Logic cho trang chủ trang-chu.html
  */
 
 let authModal;
@@ -156,9 +156,17 @@ function checkAuth() {
             if(displayNameEl) {
                 displayNameEl.innerHTML = `<i class="fa-solid fa-user"></i> Hi, ${user.name}`;
             }
-            if(user.role === 'owner') {
-                const adminLink = document.getElementById('admin-link');
-                if(adminLink) adminLink.classList.remove('d-none');
+            const adminLink = document.getElementById('admin-link');
+            if(adminLink) {
+                if (user.role === 'owner') {
+                    adminLink.classList.remove('d-none');
+                    adminLink.href = 'chu-tro.html';
+                    adminLink.innerHTML = '<i class="fa-solid fa-list-check"></i> Quản lý';
+                } else if (user.role === 'tenant') {
+                    adminLink.classList.remove('d-none');
+                    adminLink.href = 'khach-hang.html';
+                    adminLink.innerHTML = '<i class="fa-solid fa-house-user"></i> Thuê trọ';
+                }
             }
         }
     }
@@ -327,13 +335,13 @@ function postNewRoom() {
     }
     // Chuyển sang trang owner và mở modal (giả lập)
     if(confirm('Chuyển đến trang quản lý để đăng tin?')) {
-        window.location.href = 'owner.html';
+        window.location.href = 'chu-tro.html';
     }
 }
 
 function viewRoom(id) {
     // Navigate to detail page
-    window.location.href = `detail.html?id=${id}`;
+    window.location.href = `chi-tiet.html?id=${id}`;
 }
 
 function bookRoom() {

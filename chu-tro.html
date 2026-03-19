@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="trang-chu.html">
                 <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,16 +24,16 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-ky-tuc-xa">Ký túc xá</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div id="user-info" class="d-flex align-items-center gap-2">
-                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
-                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register"><i class="fa-solid fa-list-check"></i> Quản lý</a>
-                        <button class="btn-nav-auth btn-nav-register" onclick="Storage.logout(); window.location.href='index.html';"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+                        <a href="ho-so.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                        <button class="btn-nav-auth btn-nav-register" onclick="Storage.logout(); window.location.href='trang-chu.html';"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
                     </div>
                 </div>
             </div>
@@ -55,31 +55,158 @@
             </div>
         </div>
 
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="fa-solid fa-bell"></i> Thông báo</span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="markAllOwnerNotificationsRead()">Đánh dấu đã đọc</button>
+            </div>
+            <div class="card-body">
+                <div id="ownerNotificationList" class="notification-list"></div>
+            </div>
+        </div>
+
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white fw-bold">Danh sách phòng</div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tên Phòng</th>
-                                <th>Loại hình</th>
-                                <th>Giá Thuê</th>
-                                <th>Diện tích</th>
-                                <th>Địa chỉ</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            </tbody>
-                    </table>
+            <div class="card-body p-3">
+                <div id="ownerRoomList" class="owner-room-list"></div>
+                <div id="ownerEmptyState" class="text-center text-muted py-4 d-none">
+                    Không có phòng phù hợp với bộ lọc hiện tại.
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="roomModal" tabindex="-1">
+    <div class="modal fade" id="roomActionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="roomActionTitle">Chi tiết phòng trọ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="owner-action-gallery">
+                                <button class="owner-action-gallery-nav prev" type="button" onclick="prevOwnerActionImage()" aria-label="Ảnh trước">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <div class="owner-action-gallery-track" id="ownerActionGalleryTrack"></div>
+                                <button class="owner-action-gallery-nav next" type="button" onclick="nextOwnerActionImage()" aria-label="Ảnh tiếp theo">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="room-action-info"><span>Loại hình:</span> <strong id="roomActionType">-</strong></div>
+                            <div class="room-action-info"><span>Giá thuê:</span> <strong id="roomActionPrice">-</strong></div>
+                            <div class="room-action-info"><span>Diện tích:</span> <strong id="roomActionArea">-</strong></div>
+                            <div class="room-action-info"><span>Trạng thái:</span> <strong id="roomActionStatus">-</strong></div>
+                            <div class="room-action-info"><span>Địa chỉ:</span> <strong id="roomActionAddress">-</strong></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0" id="roomActionDescription">Mô tả phòng trọ</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-between flex-wrap gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-primary" onclick="openContractFromAction()">
+                            <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="openInvoiceFromAction()">
+                            <i class="fa-solid fa-file-invoice"></i> Tạo hoá đơn
+                        </button>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-outline-primary" onclick="editFromAction()">
+                            <i class="fa-solid fa-pen"></i> Sửa
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteFromAction()">
+                            <i class="fa-solid fa-trash"></i> Xoá
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="invoiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning-subtle">
+                    <h5 class="modal-title fw-bold">Tạo hoá đơn mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="invoiceForm">
+                        <input type="hidden" id="invoiceRoomId">
+                        <div class="mb-2 text-muted small" id="invoiceRoomTitle"></div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Kỳ hoá đơn</label>
+                                <input type="month" id="invoicePeriod" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tiền nhà (VNĐ)</label>
+                                <input type="number" id="invoiceRent" class="form-control invoice-calc" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Giá điện (VNĐ/kWh)</label>
+                                <input type="number" id="invoiceElecRate" class="form-control invoice-calc" min="0" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Số điện kỳ trước</label>
+                                <input type="number" id="invoiceElecPrev" class="form-control invoice-calc" min="0" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Số điện hiện tại</label>
+                                <input type="number" id="invoiceElecCurrent" class="form-control invoice-calc" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện tiêu thụ</label>
+                                <input type="number" id="invoiceElecUsage" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tổng tiền điện (VNĐ)</label>
+                                <input type="number" id="invoiceElecTotal" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tiền nước (VNĐ)</label>
+                                <input type="number" id="invoiceWater" class="form-control invoice-calc" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tiền wifi (VNĐ)</label>
+                                <input type="number" id="invoiceWifi" class="form-control invoice-calc" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Tiền dịch vụ (VNĐ)</label>
+                                <input type="number" id="invoiceService" class="form-control invoice-calc" min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tiền xử lý sự cố (VNĐ)</label>
+                                <input type="number" id="invoiceIssue" class="form-control invoice-calc" min="0" placeholder="Để trống nếu không có">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tổng khách cần trả (VNĐ)</label>
+                                <input type="number" id="invoiceGrandTotal" class="form-control fw-bold text-danger" readonly>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Ghi chú</label>
+                                <textarea id="invoiceNote" class="form-control" rows="2" placeholder="Thông tin bổ sung nếu cần"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                    <button type="button" class="btn btn-warning" onclick="saveInvoice()">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu hoá đơn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="roomModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
@@ -254,7 +381,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade form-theme-green" id="contractModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
