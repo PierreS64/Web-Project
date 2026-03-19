@@ -1,0 +1,15 @@
+# 1. Cấu hình của trình soạn thảo (giữ cho repo sạch sẽ nếu làm việc nhóm)
+.vscode/
+.idea/
+
+# 2. File rác ẩn do hệ điều hành tự động sinh ra (rất hay gặp)
+.DS_Store
+Thumbs.db
+ehthumbs.db
+$RECYCLE.BIN/
+
+# 3. File thiết kế đồ họa dung lượng lớn (không nên lưu trên Git)
+*.psd
+*.ai
+*.xd
+*.fig

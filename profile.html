@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - Nhà xanh</title>
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { background-color: #f8f9fa; padding-top: 80px; }
+        .profile-container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="home-page">
+
+    <!-- NAV BAR -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="auth-buttons" class="d-flex gap-2">
+                        <a href="#" class="btn-nav-auth btn-nav-login" onclick="openAuthModal('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                        </a>
+                        <a href="#" class="btn-nav-auth btn-nav-register" onclick="openAuthModal('register')">
+                            <i class="fa-solid fa-user-plus"></i> Đăng ký
+                        </a>
+                    </div>
+                    <div id="user-info" class="d-none align-items-center gap-2">
+                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                    </div>
+                    <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <div class="profile-container">
+            <h3 class="mb-4 fw-bold text-center text-primary"><i class="fa-regular fa-address-card"></i> Hồ sơ của bạn</h3>
+            
+            <form id="profileForm" onsubmit="handleProfileUpdate(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số điện thoại (Tài khoản)</label>
+                    <input type="text" id="profPhone" class="form-control" readonly style="background-color: #e9ecef;">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Họ và Tên</label>
+                    <input type="text" id="profName" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mật khẩu mới (Để trống nếu không đổi)</label>
+                    <div class="input-group">
+                        <input type="password" id="profPass" class="form-control">
+                        <span class="input-group-text" onclick="togglePass('profPass', 'profPass-icon')" style="cursor: pointer;">
+                            <i class="fa-solid fa-eye-slash" id="profPass-icon"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Vai trò</label>
+                    <input type="text" id="profRoleDisplay" class="form-control" readonly style="background-color: #e9ecef;">
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1 fw-bold"><i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
+                    <button type="button" class="btn btn-danger fw-bold" onclick="Storage.logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất (Log out)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Load User Data
+        const currentUser = Storage.getCurrentUser();
+        if(!currentUser) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('profPhone').value = currentUser.phone;
+            document.getElementById('profName').value = currentUser.name;
+            document.getElementById('profRoleDisplay').value = currentUser.role === 'owner' ? 'Chủ nhà (Owner)' : 'Khách thuê (Tenant)';
+        }
+
+        // Toggle password visibility
+        function togglePass(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // Handle Profile Update
+        function handleProfileUpdate(e) {
+            e.preventDefault();
+            const newName = document.getElementById('profName').value.trim();
+            const newPass = document.getElementById('profPass').value;
+
+            if (newName.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newName)) {
+                return alert('Lỗi: Tên không hợp lệ!');
+            }
+
+            let passToSave = currentUser.pass;
+            if (newPass.length > 0) {
+                if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(newPass)) {
+                    return alert('Lỗi: Mật khẩu mới chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt)!');
+                }
+                passToSave = newPass;
+            }
+
+            const updatedUser = {
+                ...currentUser,
+                name: newName,
+                pass: passToSave
+            };
+
+            if (Storage.updateUser(updatedUser)) {
+                alert('Cập nhật thông tin thành công!');
+                window.location.reload();
+            } else {
+                alert('Có lỗi xảy ra, vui lòng thử lại.');
+            }
+        }
+    </script>
+</body>
+</html>

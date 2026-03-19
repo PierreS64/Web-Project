@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhà Trọ</title>
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { padding-top: 80px; }
+    </style>
+</head>
+<body class="home-page bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="user-info" class="d-flex align-items-center gap-2">
+                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                        <button class="btn-nav-auth btn-nav-register" onclick="Storage.logout(); window.location.href='index.html';"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body d-flex justify-content-between flex-wrap gap-3">
+                <div class="d-flex gap-2 flex-grow-1">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm phòng...">
+                    <select id="statusFilter" class="form-select w-auto">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="available">Còn trống</option>
+                        <option value="rented">Đã thuê</option>
+                    </select>
+                </div>
+                <button class="btn btn-success fw-bold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Thêm Phòng Mới</button>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold">Danh sách phòng</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên Phòng</th>
+                                <th>Loại hình</th>
+                                <th>Giá Thuê</th>
+                                <th>Diện tích</th>
+                                <th>Địa chỉ</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="roomModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalTitle">Thông tin phòng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="roomForm">
+                        <input type="hidden" id="roomId">
+                        <div class="mb-3">
+                            <label>Tên phòng <span class="text-danger">*</span></label>
+                            <input type="text" id="roomTitle" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Loại hình <span class="text-danger">*</span></label>
+                            <select id="roomType" class="form-select" required>
+                                <option value="Nhà trọ, Phòng trọ">Nhà trọ, Phòng trọ</option>
+                                <option value="Nhà nguyên căn">Nhà nguyên căn</option>
+                                <option value="Căn hộ">Căn hộ</option>
+                                <option value="Ký túc xá">Ký túc xá</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Thông tin chi tiết <span class="text-danger">*</span></label>
+                            <div class="card p-3 bg-light border">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Giá tiền (VNĐ/tháng)</label>
+                                        <input type="number" id="roomPrice" class="form-control" required step="100000" min="0">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Diện tích (m2)</label>
+                                        <input type="number" id="roomArea" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Giá điện (VNĐ/kW)</label>
+                                        <input type="number" id="roomElecPrice" class="form-control" step="100" min="0" placeholder="0 nếu miễn phí">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Giá nước (VNĐ/tháng)</label>
+                                        <input type="number" id="roomWaterPrice" class="form-control" step="1000" min="0" placeholder="0 nếu miễn phí">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Giá Wifi (VNĐ/tháng)</label>
+                                        <input type="number" id="roomWifiPrice" class="form-control" step="1000" min="0" placeholder="0 nếu miễn phí">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Giá dịch vụ (VNĐ/tháng)</label>
+                                        <input type="number" id="roomServicePrice" class="form-control" step="1000" min="0" placeholder="Rác, vệ sinh...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                            <div class="card p-3 bg-light border">
+                                <div class="mb-2">
+                                    <label class="small text-muted">Quốc gia</label>
+                                    <input type="text" class="form-control mb-2" value="Việt Nam" disabled readonly>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <select id="addrCity" class="form-select" onchange="loadDistricts()" required>
+                                            <option value="">-- Tỉnh/Thành --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <select id="addrDistrict" class="form-select" onchange="loadWards()" disabled required>
+                                            <option value="">-- Quận/Huyện --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <select id="addrWard" class="form-select" disabled required>
+                                            <option value="">-- Phường/Xã --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="text" id="addrStreet" class="form-control" placeholder="Số nhà, Tên đường..." required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Hình ảnh phòng <span class="text-danger">*</span></label>
+                            <div id="imageUploadArea" class="card border-2 border-dashed bg-light p-3 text-center" style="cursor: pointer;">
+                                <div id="uploadPrompt" class="py-2">
+                                    <i class="fa-solid fa-images text-success" style="font-size: 2rem;"></i>
+                                    <div class="fw-semibold mt-2">Nhấp hoặc kéo thả ảnh vào đây</div>
+                                    <div class="small text-muted">Tối đa 10 ảnh, mỗi ảnh không quá 5MB</div>
+                                </div>
+                            </div>
+                            <input type="file" id="roomImages" class="d-none" accept="image/*" multiple>
+                            <div id="imageValidationMsg" class="alert d-none mt-2"></div>
+                            <div id="imagePreviewContainer" class="mt-3"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Tiện ích & Môi trường</label>
+                            
+                            <div class="card p-3 bg-light border">
+                                <div class="mb-3">
+                                    <label class="small text-muted fw-bold mb-2">Đối tượng cho thuê</label>
+                                    <div class="d-flex flex-wrap gap-3" id="targetCheckboxes">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Đi học" id="tg1">
+                                            <label class="form-check-label" for="tg1">Đi học</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Đi làm" id="tg2">
+                                            <label class="form-check-label" for="tg2">Đi làm</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Cặp đôi" id="tg3">
+                                            <label class="form-check-label" for="tg3">Cặp đôi</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+
+                                <div class="mb-3">
+                                    <label class="small text-muted fw-bold mb-2">Tiện nghi</label>
+                                    <div class="row g-2" id="amenityCheckboxes">
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Gác lửng" id="am1"><label class="form-check-label" for="am1">Gác lửng</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Wifi" id="am2"><label class="form-check-label" for="am2">Wifi</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Vệ sinh trong" id="am3"><label class="form-check-label" for="am3">Vệ sinh trong</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Kệ bếp" id="am4"><label class="form-check-label" for="am4">Kệ bếp</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Điều hòa" id="am5"><label class="form-check-label" for="am5">Điều hòa</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Tủ lạnh" id="am6"><label class="form-check-label" for="am6">Tủ lạnh</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Giường nệm" id="am7"><label class="form-check-label" for="am7">Giường nệm</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Tủ áo quần" id="am8"><label class="form-check-label" for="am8">Tủ áo quần</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Ban công/sân thượng" id="am9"><label class="form-check-label" for="am9">Ban công/sân thượng</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Thang máy" id="am10"><label class="form-check-label" for="am10">Thang máy</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Bãi để xe riêng" id="am11"><label class="form-check-label" for="am11">Bãi để xe riêng</label></div></div>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+
+                                <div class="mb-2">
+                                    <label class="small text-muted fw-bold mb-2">Môi trường xung quanh</label>
+                                    <div class="row g-2" id="surroundingCheckboxes">
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Chợ" id="sr1"><label class="form-check-label" for="sr1">Chợ</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Siêu thị" id="sr2"><label class="form-check-label" for="sr2">Siêu thị</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Trường học" id="sr3"><label class="form-check-label" for="sr3">Trường học</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Công viên" id="sr4"><label class="form-check-label" for="sr4">Công viên</label></div></div>
+                                        <div class="col-6 col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" value="Bến xe Bus" id="sr5"><label class="form-check-label" for="sr5">Bến xe Bus</label></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Mô tả <span class="text-danger">*</span></label>
+                            <textarea id="roomDesc" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Trạng thái <span class="text-danger">*</span></label>
+                            <select id="roomStatus" class="form-select" required>
+                                <option value="available">Còn trống (Available)</option>
+                                <option value="rented">Đã thuê (Rented)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="saveRoom()">Lưu Dữ Liệu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Tạo hợp đồng thuê</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="contractForm">
+                        <input type="hidden" id="contractRoomId">
+                        <div class="mb-2 small text-muted" id="contractRoomTitle"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="tenantPhone" class="form-control" placeholder="Nhập số điện thoại khách" maxlength="10" required>
+                            <div id="tenantLookupStatus" class="form-text"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="tenantName" class="form-control" placeholder="Tên khách thuê" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hợp đồng thuê nhà (PDF) <span class="text-danger">*</span></label>
+                            <input type="file" id="contractFile" class="form-control" accept="application/pdf" required>
+                            <div class="form-text">Chỉ nhận tệp PDF.</div>
+                            <div id="existingContractInfo" class="small text-muted mt-2 d-none"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveContract()">
+                        <i class="fa-solid fa-file-signature"></i> Lưu hợp đồng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/owner.js"></script>
+    <!-- Scroll To Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+</body>
+</html>

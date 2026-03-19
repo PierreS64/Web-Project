@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhà xanh - Tìm phòng trọ nhanh</title>
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="home-page">
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="#">
+                <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#section-ky-tuc-xa">Ký túc xá</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="auth-buttons" class="d-flex gap-2">
+                        <a href="#" class="btn-nav-auth btn-nav-login" onclick="openAuthModal('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                        </a>
+                        <a href="#" class="btn-nav-auth btn-nav-register" onclick="openAuthModal('register')">
+                            <i class="fa-solid fa-user-plus"></i> Đăng ký
+                        </a>
+                    </div>
+                    <div id="user-info" class="d-none align-items-center gap-2">
+                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                    </div>
+                    <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="search-box-wrapper">
+            <div class="hero-intro text-center">
+                <h1 class="hero-heading">Tìm phòng trọ <span>dễ dàng</span></h1>
+                <p class="hero-subtitle">Hàng nghìn tin đăng phòng trọ, nhà nguyên căn, căn hộ uy tín trên toàn quốc</p>
+            </div>
+             <!-- Tabs Top -->
+            <ul class="search-tabs">
+                <li class="search-tab-item active" onclick="selectSearchTab(this, 'all')">Tất cả</li>
+                <li class="search-tab-item" onclick="selectSearchTab(this, 'Phòng trọ')">Nhà trọ, phòng trọ</li>
+                <li class="search-tab-item" onclick="selectSearchTab(this, 'Nhà nguyên căn')">Nhà nguyên căn</li>
+                <li class="search-tab-item" onclick="selectSearchTab(this, 'Căn hộ')">Căn hộ</li>
+                <li class="search-tab-item" onclick="selectSearchTab(this, 'Ký túc xá')">Ký túc xá</li>
+            </ul>
+            
+            <!-- Main Bar -->
+            <div class="search-bar-inner">
+                <div class="flex-grow-1 position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                    <input type="text" class="form-control ps-5 py-2" id="mainSearchInput" placeholder="Tìm theo tên phòng, địa chỉ..." onclick="openAdvancedSearchPopup()" style="height: 46px; border: 1px solid #ced4da;">
+                </div>
+                
+                <!-- Combined Filter -->
+                <div class="custom-filter-wrapper position-relative">
+                    <div class="custom-filter-btn icon-only" id="filterBtn" onclick="toggleFilterPopup('filterPopup')" title="Bộ lọc nâng cao">
+                        <i class="fa-solid fa-filter fa-lg"></i>
+                    </div>
+                    
+                    <div id="filterPopup" class="filter-popup">
+                        <div class="filter-popup-title">Mức giá (VNĐ)</div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small text-muted" id="priceMinLabel">0đ</span>
+                            <span class="small text-muted" id="priceMaxLabel">100tr+</span>
+                        </div>
+                        
+                        <!-- Dual Range Slider -->
+                        <div class="slider-container mb-4">
+                            <div class="slider-track-bg"></div>
+                            <div class="slider-track-active" id="sliderTrack" style="left: 0%; right: 0%;"></div>
+                            <!-- Min Range -->
+                            <input type="range" class="range-input" id="rangeMin" min="0" max="100000000" value="0" step="1000000" oninput="slideOne()">
+                            <!-- Max Range -->
+                            <input type="range" class="range-input" id="rangeMax" min="0" max="100000000" value="100000000" step="1000000" oninput="slideTwo()">
+                        </div>
+
+                        <div class="price-inputs">
+                            <input type="number" id="priceMin" class="form-control" placeholder="Từ" min="0" onchange="manualInput('min')">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            <input type="number" id="priceMax" class="form-control" placeholder="Đến" min="0" onchange="manualInput('max')">
+                        </div>
+
+                        <ul class="filter-list">
+                            <li><label><input type="radio" name="priceRadio" value="all" checked onchange="updatePriceLabel(this)"> Tất cả mức giá</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="duoi1tr" onchange="updatePriceLabel(this)"> Dưới 1 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="1tr-5tr" onchange="updatePriceLabel(this)"> 1 - 5 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="5tr-10tr" onchange="updatePriceLabel(this)"> 5 - 10 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="10tr-20tr" onchange="updatePriceLabel(this)"> 10 - 20 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="tren20tr" onchange="updatePriceLabel(this)"> Trên 20 triệu</label></li>
+                        </ul>
+
+                        <div class="my-2 border-top pt-3">
+                            <div class="filter-popup-title mb-2">Diện tích</div>
+                            <ul class="filter-list">
+                                <li><label><input type="radio" name="areaRadio" value="all" checked onchange="updateAreaLabel(this)"> Tất cả diện tích</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="duoi20" onchange="updateAreaLabel(this)"> Dưới 20 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="20-30" onchange="updateAreaLabel(this)"> 20m² - 30 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="30-50" onchange="updateAreaLabel(this)"> 30m² - 50 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="50-70" onchange="updateAreaLabel(this)"> 50m² - 70 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="70-90" onchange="updateAreaLabel(this)"> 70m² - 90 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="tren90" onchange="updateAreaLabel(this)"> Trên 90 m²</label></li>
+                            </ul>
+                        </div>
+
+                        <div class="filter-popup-footer">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="resetCombinedFilters()">
+                                <i class="fa-solid fa-rotate-right"></i> Đặt lại
+                            </button>
+                            <button class="btn btn-primary btn-sm px-4" onclick="applyFilter('filterPopup')">Tìm ngay</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn-search-orange" id="mainSearchButton" onclick="handleSearchTrigger(event)">
+                    <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+                </button>
+            </div>
+
+            <!-- Advanced Popup -->
+            <div id="advancedSearchPopup" class="advanced-popup">
+                <div class="popup-tab">
+                    <div class="popup-tab-item active" id="tab-area" onclick="switchPopupTab('area')">
+                        <i class="fa-solid fa-map-location-dot"></i> Chọn khu vực
+                    </div>
+                    <div class="popup-tab-item" id="tab-map" onclick="switchPopupTab('map')">
+                        <i class="fa-solid fa-location-crosshairs"></i> Tìm kiếm theo vị trí
+                    </div>
+                </div>
+
+                <div class="p-3">
+                    <!-- Content Area -->
+                    <div id="content-area">
+                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Tỉnh/TP nổi bật</h6>
+                        <div class="d-flex gap-3 mb-4">
+                            <div class="quick-city-item" onclick="quickSelectCity('Hà Nội')">
+                                <img src="img/HaNoiF.jpg" alt="Hà Nội">
+                                <span>Hà Nội</span>
+                            </div>
+                            <div class="quick-city-item" onclick="quickSelectCity('Hồ Chí Minh')">
+                                <img src="img/HCMF.jpg" alt="Hồ Chí Minh">
+                                <span>Tp.HCM</span>
+                            </div>
+                            <div class="quick-city-item" onclick="quickSelectCity('Hải Phòng')">
+                                <img src="img/HaiPhongF.jpg" alt="Hải Phòng">
+                                <span>Hải Phòng</span>
+                            </div>
+                            <div class="quick-city-item" onclick="quickSelectCity('Đà Nẵng')">
+                                <img src="img/DaNangF.jpg" alt="Đà Nẵng">
+                                <span>Đà Nẵng</span>
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Chọn khu vực cụ thể</h6>
+                        <div class="d-flex flex-column gap-3 mb-3">
+                            <select id="advCity" class="form-select"><option value="">Chọn Tỉnh/TP...</option></select>
+                            <select id="advDistrict" class="form-select" disabled><option value="">Quận/Huyện...</option></select>
+                            <select id="advWard" class="form-select" disabled><option value="">Phường/Xã...</option></select>
+                        </div>
+                    </div>
+
+                    <!-- Content Map -->
+                    <div id="content-map" class="d-none">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ hoặc tên địa điểm</label>
+                            <input type="text" class="form-control" placeholder="VD: 123 Nguyễn Huệ, Quận 1, TP.HCM">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Bán kính tìm kiếm</label>
+                            <select class="form-select">
+                                <option>5 km - Khu vực rộng</option>
+                                <option>3 km - Trung bình</option>
+                                <option>1 km - Gần</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 border-top bg-light d-flex justify-content-between rounded-bottom">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="resetAdvancedSearch()">
+                        <i class="fa-solid fa-rotate-right"></i> Đặt lại
+                    </button>
+                    <button class="btn btn-primary btn-sm px-4" onclick="executeSearch()">Tìm ngay</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="container city-strip-section">
+        <div class="city-strip-grid">
+            <button class="city-feature-card" type="button" onclick="quickSelectCity('Hà Nội')">
+                <img src="img/HaNoi.jpg" alt="Hà Nội">
+                <span><i class="fa-solid fa-location-dot"></i> Hà Nội</span>
+            </button>
+            <button class="city-feature-card" type="button" onclick="quickSelectCity('Hồ Chí Minh')">
+                <img src="img/HCM.jpg" alt="Hồ Chí Minh">
+                <span><i class="fa-solid fa-location-dot"></i> Hồ Chí Minh</span>
+            </button>
+            <button class="city-feature-card" type="button" onclick="quickSelectCity('Hải Phòng')">
+                <img src="img/HaiPhong.webp" alt="Hải Phòng">
+                <span><i class="fa-solid fa-location-dot"></i> Hải Phòng</span>
+            </button>
+            <button class="city-feature-card" type="button" onclick="quickSelectCity('Đà Nẵng')">
+                <img src="img/DaNang.jpg" alt="Đà Nẵng">
+                <span><i class="fa-solid fa-location-dot"></i> Đà Nẵng</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="container my-5 listing-section" id="section-latest">
+        <div class="listing-header">
+            <h3 class="fw-bold mb-1">Tin đăng mới nhất</h3>
+            <p class="mb-0" id="results-count">0 tin đăng</p>
+        </div>
+        <div class="row g-3" id="room-list"></div>
+    </section>
+
+    <section class="container my-5 listing-section" id="section-phong-tro">
+        <div class="listing-header">
+            <h3 class="fw-bold mb-1">Nhà trọ, phòng trọ</h3>
+            <p class="mb-0" id="results-phong-tro">0 tin đăng</p>
+        </div>
+        <div class="row g-3" id="room-list-phong-tro"></div>
+    </section>
+
+    <section class="container my-5 listing-section" id="section-nha-nguyen-can">
+        <div class="listing-header">
+            <h3 class="fw-bold mb-1">Nhà nguyên căn</h3>
+            <p class="mb-0" id="results-nha-nguyen-can">0 tin đăng</p>
+        </div>
+        <div class="row g-3" id="room-list-nha-nguyen-can"></div>
+    </section>
+
+    <section class="container my-5 listing-section" id="section-can-ho">
+        <div class="listing-header">
+            <h3 class="fw-bold mb-1">Căn hộ</h3>
+            <p class="mb-0" id="results-can-ho">0 tin đăng</p>
+        </div>
+        <div class="row g-3" id="room-list-can-ho"></div>
+    </section>
+
+    <section class="container my-5 listing-section" id="section-ky-tuc-xa">
+        <div class="listing-header">
+            <h3 class="fw-bold mb-1">Ký túc xá</h3>
+            <p class="mb-0" id="results-ky-tuc-xa">0 tin đăng</p>
+        </div>
+        <div class="row g-3" id="room-list-ky-tuc-xa"></div>
+    </section>
+
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs justify-content-center mb-4 border-0">
+                        <li class="nav-item"><a class="nav-link active fs-5" id="tab-login" onclick="switchTab('login')" style="cursor: pointer;">Đăng nhập</a></li>
+                        <li class="nav-item"><a class="nav-link fs-5" id="tab-register" onclick="switchTab('register')" style="cursor: pointer;">Đăng ký</a></li>
+                    </ul>
+
+                    <div id="form-login">
+                        <form onsubmit="handleLogin(event)" autocomplete="off">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập SĐT" required autocomplete="off">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu" required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')" style="cursor: pointer;">
+                                        <i class="fa-solid fa-eye-slash" id="logPass-icon"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-auth py-2 rounded-3">ĐĂNG NHẬP</button>
+                        </form>
+                    </div>
+
+                    <div id="form-register" class="d-none">
+                        <form onsubmit="handleRegister(event)" autocomplete="off">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
+                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required autocomplete="off">
+                                <div class="form-text small">Tối thiểu 2 từ, không số/ký tự lạ.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="text" id="regPhone" class="form-control" placeholder="10 số" required autocomplete="off">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự" required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')" style="cursor: pointer;">
+                                        <i class="fa-solid fa-eye-slash" id="regPass-icon"></i>
+                                    </span>
+                                </div>
+                                <div class="form-text small">Yêu cầu: 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Vai trò <span class="text-danger">*</span></label>
+                                <select id="regRole" class="form-select" required>
+                                    <option value="tenant">Khách thuê (Tenant)</option>
+                                    <option value="owner">Chủ nhà (Owner)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-3">TẠO TÀI KHOẢN</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROOM DETAIL MODAL -->
+    <div class="modal fade" id="roomDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-primary" id="detailTitle">Chi tiết phòng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <img id="detailImage" src="" class="img-fluid rounded shadow-sm mb-3 w-100" style="object-fit: cover; height: 300px;">
+                        </div>
+                        <div class="col-md-5">
+                            <h4 class="fw-bold text-danger mb-3" id="detailPrice"></h4>
+                            <p><strong><i class="fa-solid fa-ruler-combined"></i> Diện tích:</strong> <span id="detailArea"></span></p>
+                            <p><strong><i class="fa-solid fa-map-location-dot"></i> Địa chỉ:</strong> <span id="detailAddress"></span></p>
+                            <p><strong><i class="fa-solid fa-circle-info"></i> Trạng thái:</strong> <span id="detailStatus"></span></p>
+                            <hr>
+                            <button class="btn btn-primary w-100 fw-bold py-2 mb-2" onclick="bookRoom()">
+                                <i class="fa-regular fa-calendar-check"></i> ĐẶT PHÒNG NGAY
+                            </button>
+                            <button class="btn btn-outline-secondary w-100" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <!-- Column 1: Logo -->
+                <div class="col-md-3 mb-4">
+                    <a href="#" class="footer-logo">
+                        <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 30px;">NHÀ XANH
+                    </a>
+                    <p class="text-muted small mt-2">
+                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người thuê nhanh chóng, an toàn.
+                    </p>
+                </div>
+
+                <!-- Column 2: Hệ thống -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">HỆ THỐNG</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Dành cho chủ trọ</a></li>
+                        <li><a href="#">Blog tin tức</a></li>
+                        <li><a href="#">Hướng dẫn đăng tin</a></li>
+                        <li><a href="#">Liên hệ hỗ trợ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Thông tin -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">THÔNG TIN</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Điều khoản & Cam kết</a></li>
+                        <li><a href="#">Quy chế hoạt động</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Giải quyết khiếu nại</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Kết nối -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">KẾT NỐI VỚI CHÚNG TÔI</h5>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-brands fa-whatsapp"></i> <!-- Zalo icon approximation -->
+                        <span>Zalo: 0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@tromoi.com</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 1: 84C P. Nguyễn Thanh Bình, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+                     <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 2: Vạn Phúc Building, P. Tố Hữu, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+
+                    <div class="social-links mt-3">
+                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-4 border-top mt-3 text-muted small">
+                © 2026 Nhà xanh. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Button Scroll To Top -->
+    <button id="scrollToTopBtn" class="scroll-to-top" title="Lên đầu trang">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết phòng trọ - Nhà xanh</title>
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body { padding-top: 80px; }
+    </style>
+</head>
+<body class="home-page bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="auth-buttons" class="d-flex gap-2">
+                        <a href="#" class="btn-nav-auth btn-nav-login" onclick="openAuthModal('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                        </a>
+                        <a href="#" class="btn-nav-auth btn-nav-register" onclick="openAuthModal('register')">
+                            <i class="fa-solid fa-user-plus"></i> Đăng ký
+                        </a>
+                    </div>
+                    <div id="user-info" class="d-none align-items-center gap-2">
+                        <a href="profile.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <a href="owner.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                    </div>
+                    <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4" id="detail-container">
+        <!-- Content will be loaded here -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (Copy from Index) -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content overflow-hidden border-0 shadow-lg">
+                <div class="modal-body p-0">
+                    <div class="d-flex text-center fw-bold" style="background-color: #f1f1f1;">
+                        <div class="w-50 py-3 cursor-pointer active-tab" id="tab-login" onclick="switchTab('login')" style="cursor: pointer; border-bottom: 3px solid #0d6efd; color: #0d6efd; background: white;">
+                            ĐĂNG NHẬP
+                        </div>
+                        <div class="w-50 py-3 cursor-pointer text-muted" id="tab-register" onclick="switchTab('register')" style="cursor: pointer;">
+                            ĐĂNG KÝ
+                        </div>
+                    </div>
+
+                    <div class="p-4" id="form-login">
+                        <form onsubmit="handleLogin(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập số điện thoại" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')" style="cursor: pointer;">
+                                        <i class="fa-solid fa-eye-slash" id="logPass-icon"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 6px;">ĐĂNG NHẬP</button>
+                        </form>
+                    </div>
+
+                    <div class="p-4 d-none" id="form-register">
+                        <form onsubmit="handleRegister(event)" autocomplete="off">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
+                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="text" id="regPhone" class="form-control" placeholder="10 số" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự" required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')" style="cursor: pointer;">
+                                        <i class="fa-solid fa-eye-slash" id="regPass-icon"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Vai trò <span class="text-danger">*</span></label>
+                                <select id="regRole" class="form-select" required>
+                                    <option value="tenant">Khách thuê (Tenant)</option>
+                                    <option value="owner">Chủ nhà (Owner)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="border-radius: 6px;">TẠO TÀI KHOẢN</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container text-center py-4">
+             <p class="text-muted small">© 2026 Nhà xanh. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/storage.js"></script>
+        <script src="assets/js/main.js"></script>
+    <script>
+        // Override renderHomeRooms to prevent error on detail page
+        // Since main.js calls it automatically
+        // or ensure main.js checks for container existence (We verified it does check for 'room-list')
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            if(!id) {
+                document.getElementById('detail-container').innerHTML = '<div class="alert alert-danger">Không tìm thấy phòng!</div>';
+                return;
+            }
+
+            const room = Storage.getRoomById(id);
+            if(!room) {
+               document.getElementById('detail-container').innerHTML = '<div class="alert alert-warning">Phòng không tồn tại hoặc đã bị xóa.</div>';
+               return; 
+            }
+
+            renderDetail(room);
+        });
+
+        function renderDetail(room) {
+            const price = new Intl.NumberFormat('vi-VN').format(room.price);
+            let images = room.images && Array.isArray(room.images) ? room.images : (room.image ? [room.image] : []);
+                const img = images.length > 0 ? images[0] : '';
+            const ownerName = room.ownerName || 'Chủ nhà';
+            // Fallback số điện thoại để tránh lỗi link (dùng số dummy hoặc xử lý logic ẩn nút)
+            const ownerPhone = room.ownerPhone || ''; 
+            const phoneDisplay = ownerPhone || 'Chưa cập nhật';
+            
+            // Map Amenities
+            const amenitiesHtml = (room.amenities || []).map(item => `
+                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
+            `).join('');
+
+            // Map Targets
+            const targetsHtml = (room.targets || []).map(item => `
+                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
+            `).join('');
+
+            // Map Surroundings
+            const surroundingsHtml = (room.surroundings || []).map(item => `
+                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
+            `).join('');
+
+            const html = `
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">${room.type || 'Phòng trọ'}</li>
+                    </ol>
+                </nav>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Header -->
+                        <h1 class="detail-header-title">${room.title}</h1>
+                        <p class="detail-address"><i class="fa-solid fa-location-dot"></i> ${room.address}</p>
+                        
+                        <!-- Images -->
+                        <img src="${img}" class="gallery-main shadow-sm" alt="${room.title}">
+                        
+                        <!-- Intro -->
+                        <div class="my-4">
+                            <h5 class="section-title">Giới thiệu</h5>
+                            <p style="white-space: pre-line;">${room.description || 'Chưa có mô tả chi tiết cho phòng này. Liên hệ chủ nhà để biết thêm thông tin.'}</p>
+                            <hr class="text-secondary opacity-25 my-3">
+                            <p><strong>Diện tích:</strong> ${room.area} m²</p>
+                            <p><strong>Giá điện:</strong> ${room.elecPrice ? new Intl.NumberFormat('vi-VN').format(room.elecPrice) + ' đ/kW' : 'Miễn phí'}</p>
+                            <p><strong>Giá nước:</strong> ${room.waterPrice ? new Intl.NumberFormat('vi-VN').format(room.waterPrice) + ' đ/tháng' : 'Miễn phí'}</p>
+                            <p><strong>Wifi:</strong> ${room.wifiPrice ? new Intl.NumberFormat('vi-VN').format(room.wifiPrice) + ' đ/tháng' : 'Miễn phí'}</p>
+                            <p><strong>Dịch vụ:</strong> ${room.servicePrice ? new Intl.NumberFormat('vi-VN').format(room.servicePrice) + ' đ/tháng' : 'Miễn phí'}</p>
+                        </div>
+
+                        <!-- Đối tượng -->
+                        ${targetsHtml ? `
+                        <hr class="text-secondary opacity-25 my-4">
+                        <div class="mb-4">
+                            <h5 class="section-title">Đối tượng</h5>
+                            <div class="info-grid">${targetsHtml}</div>
+                        </div>` : ''}
+
+                        <!-- Tiện nghi -->
+                        ${amenitiesHtml ? `
+                        <hr class="text-secondary opacity-25 my-4">
+                        <div class="mb-4">
+                            <h5 class="section-title">Tiện nghi</h5>
+                            <div class="info-grid">${amenitiesHtml}</div>
+                        </div>` : ''}
+
+                        <!-- Môi trường -->
+                        ${surroundingsHtml ? `
+                        <hr class="text-secondary opacity-25 my-4">
+                        <div class="mb-4">
+                            <h5 class="section-title">Môi trường xung quanh</h5>
+                            <div class="info-grid">${surroundingsHtml}</div>
+                        </div>` : ''}
+
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="contact-card sticky-contact">
+                            <div class="mb-3">
+                                <span class="text-muted small">Giá thuê</span>
+                                <div class="detail-price">${price}đ/tháng</div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 50px; height: 50px;">
+                                    <i class="fa-solid fa-user fa-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">${ownerName}</div>
+                                    <div class="text-muted small">${phoneDisplay}</div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-danger py-2 fw-bold" ${ownerPhone ? `onclick="window.open('tel:${ownerPhone}')"` : 'disabled'}><i class="fa-solid fa-phone"></i> ${phoneDisplay}</button>
+                                <button class="btn zalo-btn py-2" ${ownerPhone ? `onclick="window.open('https://zalo.me/${ownerPhone}', '_blank')"` : 'disabled'}><i class="fa-solid fa-comment"></i> Nhắn Zalo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detail-container').innerHTML = html;
+        }
+
+        function getIcon(name) {
+            const map = {
+                'Đi học': 'fa-solid fa-graduation-cap',
+                'Đi làm': 'fa-solid fa-briefcase',
+                'Cặp đôi': 'fa-solid fa-user-group',
+                'Gác lửng': 'fa-solid fa-stairs',
+                'Wifi': 'fa-solid fa-wifi',
+                'Vệ sinh trong': 'fa-solid fa-toilet',
+                'Phòng tắm': 'fa-solid fa-bath',
+                'Kệ bếp': 'fa-solid fa-kitchen-set',
+                'Điều hòa': 'fa-regular fa-snowflake',
+                'Tủ lạnh': 'fa-solid fa-snowflake', // FontAwesome free might duplicate
+                'Giường nệm': 'fa-solid fa-bed',
+                'Tủ áo quần': 'fa-solid fa-shirt',
+                'Ban công/sân thượng': 'fa-regular fa-sun',
+                'Thang máy': 'fa-solid fa-elevator',
+                'Bãi để xe riêng': 'fa-solid fa-motorcycle',
+                'Chợ': 'fa-solid fa-store',
+                'Siêu thị': 'fa-solid fa-cart-shopping',
+                'Trường học': 'fa-solid fa-school',
+                'Công viên': 'fa-solid fa-tree',
+                'Bến xe Bus': 'fa-solid fa-bus',
+                'Cây xanh': 'fa-solid fa-leaf'
+            };
+            return map[name] || 'fa-solid fa-check';
+        }
+    </script>
+    <!-- Scroll To Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+</body>
+</html>
