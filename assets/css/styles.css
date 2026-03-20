@@ -104,6 +104,18 @@ body {
 .btn-nav-register:hover { background-color: var(--primary-color); color: white; }
 .btn-nav-logout:hover { background-color: #bb2d3b; border-color: #bb2d3b; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4); }
 
+/* Chỉ đổi màu nút Đăng ký/Tạo tài khoản trong cụm auth */
+#auth-buttons .btn-nav-register {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+#auth-buttons .btn-nav-register:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #fff;
+}
+
 .nav-icon-btn {
     width: 44px;
     height: 44px;
@@ -2028,4 +2040,256 @@ body.home-page {
     font-size: 1.05rem;
     font-weight: 700;
     color: #b91c1c;
+}
+
+/* =========================================
+    [CATEGORY] TRANG XEM TAT CA
+    ========================================= */
+body.home-page.category-page {
+    padding-top: 0;
+}
+
+.category-page-wrap {
+    padding-top: 66px;
+    padding-bottom: 28px;
+}
+
+.category-search-strip {
+    position: relative;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    background: #0b4aaa;
+    padding: 10px 16px;
+    margin: 0 0 14px;
+}
+
+.category-search-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: none;
+    padding: 6px;
+    gap: 8px;
+    background: transparent;
+}
+
+.category-search-inner .form-control,
+.category-search-inner .form-select {
+    border-radius: 4px;
+    border-color: #d7dce5;
+}
+
+.category-breadcrumb {
+    color: #7c8da6;
+    font-size: 0.92rem;
+    margin: 4px 0 8px;
+}
+
+.category-page-title {
+    font-size: 1.95rem;
+    line-height: 1.2;
+    margin: 2px 0 14px;
+    font-weight: 800;
+    color: #17352d;
+}
+
+.category-list-panel {
+    border: 1px solid #dfe3ea;
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.category-list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.category-list-head h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #17352d;
+    font-weight: 800;
+}
+
+.category-sort-wrap {
+    min-width: 210px;
+}
+
+.category-sort-wrap label {
+    display: block;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.category-room-list {
+    display: grid;
+    gap: 12px;
+}
+
+.category-empty {
+    color: #64748b;
+    padding: 8px 2px;
+}
+
+.category-page .category-room-card {
+    display: flex;
+    gap: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.category-page .category-room-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.category-page .category-room-image-wrap {
+    width: 210px;
+    min-width: 210px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-page .category-room-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-page .category-room-title {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 1.08rem;
+    font-weight: 700;
+}
+
+.category-page .category-room-price {
+    color: #ea580c;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.category-page .category-filter-panel {
+    border: 1px solid #dfe3ea;
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    position: sticky;
+    top: 92px;
+}
+
+.category-page .filter-title {
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.category-page .filter-group {
+    margin-bottom: 12px;
+}
+
+.category-page .filter-group h3 {
+    font-size: 1.05rem;
+    line-height: 1.1;
+    margin: 0 0 8px;
+    font-weight: 700;
+    color: #17352d;
+}
+
+.category-page .filter-group label {
+    display: block;
+    margin: 0 0 6px;
+    color: #1f2937;
+    font-size: 0.95rem;
+    line-height: 1.25;
+}
+
+.category-page .filter-group input[type="radio"],
+.category-page .filter-group input[type="checkbox"] {
+    accent-color: #2563eb;
+    margin-right: 4px;
+}
+
+.category-page .filter-actions {
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 10px;
+}
+
+@media (max-width: 1199px) {
+    .category-page-title {
+        font-size: 1.75rem;
+    }
+
+    .category-list-head h2 {
+        font-size: 1.55rem;
+    }
+
+    .category-page .filter-group h3 {
+        font-size: 1rem;
+    }
+
+    .category-page .filter-group label {
+        font-size: 0.96rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .category-page-wrap {
+        padding-top: 62px;
+    }
+
+    .category-search-strip {
+        padding: 8px 12px;
+        margin-top: 0;
+    }
+
+    .category-search-inner {
+        flex-wrap: wrap;
+    }
+
+    .category-list-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category-sort-wrap {
+        width: 100%;
+    }
+
+    .category-page .category-filter-panel {
+        position: static;
+    }
+
+    .category-page-title {
+        font-size: 1.5rem;
+    }
+
+    .category-list-head h2 {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .category-page .category-room-card {
+        flex-direction: column;
+    }
+
+    .category-page .category-room-image-wrap {
+        width: 100%;
+        min-width: 100%;
+        height: 180px;
+    }
 }
