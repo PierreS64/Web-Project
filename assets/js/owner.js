@@ -1242,6 +1242,10 @@ function renderOwnerNotifications() {
             </article>
         `;
     }).join('');
+
+    if (window.NavbarUI && typeof window.NavbarUI.refreshNotifications === 'function') {
+        window.NavbarUI.refreshNotifications();
+    }
 }
 
 function formatNotificationTime(isoTime) {

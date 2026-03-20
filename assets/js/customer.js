@@ -33,11 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     paymentQrModal = new bootstrap.Modal(document.getElementById('paymentQrModal'));
     issueModal = new bootstrap.Modal(document.getElementById('issueModal'));
 
-    const displayNameEl = document.getElementById('display-name');
-    if (displayNameEl) {
-        displayNameEl.innerHTML = `<i class="fa-solid fa-user"></i> Hi, ${currentUser.name}`;
-    }
-
     renderTenantRoomList();
     renderTenantNotifications();
     setInterval(renderTenantNotifications, 30000);
@@ -616,6 +611,10 @@ function renderTenantNotifications() {
             </article>
         `;
     }).join('');
+
+    if (window.NavbarUI && typeof window.NavbarUI.refreshNotifications === 'function') {
+        window.NavbarUI.refreshNotifications();
+    }
 }
 
 function formatNotificationTime(isoTime) {

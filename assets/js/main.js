@@ -158,6 +158,11 @@ function handleRegister(e) {
 }
 
 function checkAuth() {
+    if (window.NavbarUI && typeof window.NavbarUI.refreshAuthUI === 'function') {
+        window.NavbarUI.refreshAuthUI();
+        return;
+    }
+
     const user = Storage.getCurrentUser();
     if (user) {
         const authButtons = document.getElementById('auth-buttons');
@@ -167,10 +172,9 @@ function checkAuth() {
         if(userInfo) {
             userInfo.classList.remove('d-none');
             userInfo.classList.add('d-flex');
-            // Dùng innerHTML để giữ Icon
-            const displayNameEl = document.getElementById('display-name');
-            if(displayNameEl) {
-                displayNameEl.innerHTML = `<i class="fa-solid fa-user"></i> Hi, ${user.name}`;
+            const profileNameEl = document.getElementById('nav-profile-name');
+            if(profileNameEl) {
+                profileNameEl.textContent = user.name || 'Người dùng';
             }
             const adminLink = document.getElementById('admin-link');
             if(adminLink) {

@@ -29,15 +29,42 @@
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div id="auth-buttons" class="d-flex gap-2">
-                        <a href="#" class="btn-nav-auth btn-nav-login" onclick="openAuthModal('login')">
+                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-login" onclick="return handleNavbarAuthClick(event, 'login')">
                             <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
                         </a>
-                        <a href="#" class="btn-nav-auth btn-nav-register" onclick="openAuthModal('register')">
+                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-register" onclick="return handleNavbarAuthClick(event, 'register')">
                             <i class="fa-solid fa-user-plus"></i> Đăng ký
                         </a>
                     </div>
                     <div id="user-info" class="d-none align-items-center gap-2">
-                        <a href="ho-so.html" class="user-badge text-decoration-none text-dark" id="display-name"><i class="fa-solid fa-user"></i> User</a>
+                        <div class="dropdown">
+                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
+                                <i class="fa-regular fa-bell"></i>
+                                <span id="notification-badge" class="nav-unread-badge d-none">0</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0" aria-labelledby="notification-toggle">
+                                <div class="nav-notification-head">
+                                    <h6>Thông báo</h6>
+                                    <button type="button" id="nav-mark-all-read">Đánh dấu đã đọc tất cả</button>
+                                </div>
+                                <div class="nav-notification-tabs" id="nav-notification-tabs"></div>
+                                <div class="nav-notification-list" id="nav-notification-list"></div>
+                                <div class="nav-notification-foot">
+                                    <a href="trang-chu.html">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                                <i class="fa-regular fa-user"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end nav-profile-menu p-0">
+                                <div class="nav-profile-name" id="nav-profile-name">User</div>
+                                <a class="nav-profile-link" href="ho-so.html#personal-info">Thông tin cá nhân</a>
+                                <a class="nav-profile-link" href="ho-so.html#account-info">Thông tin tài khoản</a>
+                                <button type="button" class="nav-profile-logout" onclick="Storage.logout()">Đăng xuất</button>
+                            </div>
+                        </div>
                         <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
                     </div>
                     <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
@@ -60,11 +87,11 @@
                         </div>
 
                         <nav class="sidebar-nav">
-                            <a href="#personal-info" class="nav-item active" onclick="switchTab('personal-info')">
+                            <a href="#personal-info" class="nav-item active" onclick="return switchTab('personal-info', event)">
                                 <i class="fa-solid fa-address-card"></i>
                                 <span>Thông tin cá nhân</span>
                             </a>
-                            <a href="#account-info" class="nav-item" onclick="switchTab('account-info')">
+                            <a href="#account-info" class="nav-item" onclick="return switchTab('account-info', event)">
                                 <i class="fa-solid fa-user"></i>
                                 <span>Thông tin tài khoản</span>
                             </a>
@@ -243,6 +270,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/storage.js"></script>
+    <script src="assets/js/navbar.js"></script>
     <script src="assets/js/main.js"></script>
     <script>
         // Load User Data
@@ -281,7 +309,9 @@
         }
 
         // Switch Tab
-        function switchTab(tabId) {
+        function switchTab(tabId, evt) {
+            if (evt) evt.preventDefault();
+
             // Hide all sections
             document.querySelectorAll('.profile-section').forEach(section => {
                 section.classList.remove('active');
@@ -293,11 +323,33 @@
             });
             
             // Show selected section
-            document.getElementById(tabId).classList.add('active');
-            
-            // Add active to clicked nav item
-            event.target.closest('.nav-item').classList.add('active');
+            const targetSection = document.getElementById(tabId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Add active to matching nav item
+            const activeNav = document.querySelector(`.sidebar-nav .nav-item[href="#${tabId}"]`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+
+            if (window.location.hash !== `#${tabId}`) {
+                history.replaceState(null, '', `#${tabId}`);
+            }
+
+            return false;
         }
+
+        function syncProfileTabFromHash() {
+            const hash = (window.location.hash || '').replace('#', '');
+            const allowedTabs = ['personal-info', 'account-info'];
+            const tabId = allowedTabs.includes(hash) ? hash : 'personal-info';
+            switchTab(tabId);
+        }
+
+        syncProfileTabFromHash();
+        window.addEventListener('hashchange', syncProfileTabFromHash);
 
         // Show Change Password Modal
         function showChangePassword() {
