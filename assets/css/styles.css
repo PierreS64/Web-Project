@@ -1,14 +1,16 @@
 ﻿/* ==================================================
-    STYLE GUIDE STRUCTURE
-    A) GLOBAL: dùng chung toàn site
-    B) PAGE INDEX: trang chủ và tìm kiếm
-    C) PAGE DETAIL: trang chi tiết phòng
-    D) PAGE OWNER: trang quản lý chủ trọ
-    E) RESPONSIVE: breakpoint theo từng trang
+    CSS STRUCTURE MAP
+    1) GLOBAL FOUNDATION: biến, base, component dùng chung
+    2) HOME / LISTING PAGES: trang chủ + danh sách tổng hợp
+    3) DETAIL PAGE: trang chi tiết phòng
+    4) PROFILE PAGE: hồ sơ người dùng
+    5) OWNER PAGES: quản lý chủ trọ
+    6) CATEGORY PAGE: trang xem tất cả + bộ lọc
+    7) RESPONSIVE: đặt gần section liên quan theo từng trang
     ================================================== */
 
 /* =========================================
-    [GLOBAL] 1. THEME & BASE
+    [GLOBAL FOUNDATION] THEME & BASE
     ========================================= */
 :root {
     --primary-color: #0d6efd;
@@ -22,7 +24,7 @@ body {
 }
 
 /* =========================================
-    [GLOBAL] 2. NAVBAR & AUTH BUTTONS
+    [GLOBAL FOUNDATION] NAVBAR & AUTH BUTTONS
     ========================================= */
 .navbar {
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -344,7 +346,7 @@ body {
 }
 
 /* =========================================
-    [GLOBAL] 3. BUTTONS
+    [GLOBAL FOUNDATION] SHARED BUTTONS
     ========================================= */
 .btn-custom {
     background-color: var(--primary-color);
@@ -385,7 +387,7 @@ body {
 }
 
 /* =========================================
-    [INDEX] 4. HERO, SEARCH BAR, FILTER POPUP
+    [HOME / LISTING] HERO, SEARCH BAR, FILTER POPUP (BASE)
     ========================================= */
 .hero-section {
     background-color: #0033a0;
@@ -556,7 +558,7 @@ body {
 .btn-search-orange:hover { background-color: #f4511e; color: white; }
 
 /* =========================================
-    [GLOBAL] 5. AUTH MODAL & ROOM CARD BASE
+    [GLOBAL FOUNDATION] AUTH MODAL & ROOM CARD BASE
     ========================================= */
 .nav-tabs .nav-link { color: #666; font-weight: 600; }
 .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
@@ -602,7 +604,7 @@ body {
 .room-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
 
 /* =========================================
-    [DETAIL] 6. ROOM DETAIL PAGE
+    [DETAIL PAGE] ROOM DETAIL
     ========================================= */
 .detail-header-title { font-size: 1.5rem; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
 .detail-address { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
@@ -730,7 +732,7 @@ body {
 }
 
 /* =========================================
-    [GLOBAL] 7. FOOTER
+    [GLOBAL FOUNDATION] FOOTER
     ========================================= */
 footer {
     background-color: #fff;
@@ -755,7 +757,7 @@ footer {
 .social-links a:hover { background-color: var(--primary-color); color: white; transform: translateY(-3px); }
 
 /* =========================================
-    [GLOBAL] 8. SCROLL TO TOP
+    [GLOBAL FOUNDATION] SCROLL TO TOP
     ========================================= */
 .scroll-to-top {
     position: fixed;
@@ -787,7 +789,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX] 9. FIGMA OVERRIDES
+    [HOME / LISTING] FIGMA OVERRIDES
     ========================================= */
 .home-page {
     font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
@@ -1017,62 +1019,6 @@ footer {
     border-color: #1f67e6;
 }
 
-/* =========================================
-    [OWNER] 10. ROOM IMAGE UPLOAD UI
-    ========================================= */
-#imageUploadArea {
-    border-style: dashed !important;
-    border-color: #cbd5e1 !important;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-#imageUploadArea:hover {
-    border-color: #198754 !important;
-    background-color: #f4fbf7 !important;
-}
-
-#imagePreviewContainer .card {
-    border: 1px solid #e2e8f0;
-}
-
-#imagePreviewContainer .card-body {
-    background: #fff;
-}
-
-#imagePreviewContainer .btn-danger {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* ------------------------------------------
-    [OWNER] Contract Modal (Tạo hợp đồng thuê)
-    ------------------------------------------ */
-#contractModal .modal-header {
-    background-color: #198754 !important;
-}
-
-#contractModal .btn-primary {
-    background-color: #198754;
-    border-color: #198754;
-}
-
-#contractModal .btn-primary:hover,
-#contractModal .btn-primary:focus,
-#contractModal .btn-primary:active {
-    background-color: #157347 !important;
-    border-color: #146c43 !important;
-}
-
-#contractModal .form-control:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-}
-
 .home-page .custom-filter-btn.icon-only {
     width: 40px;
     height: 40px;
@@ -1083,6 +1029,9 @@ footer {
     color: #516661;
 }
 
+/* ------------------------------------------
+   [HOME / LISTING] SEARCH ACTION STYLING
+   ------------------------------------------ */
 .home-page #filterPopup {
     min-width: 360px;
 }
@@ -1354,7 +1303,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX][RESPONSIVE] TABLET <= 992px
+    [HOME / LISTING][RESPONSIVE] TABLET <= 992px
     ========================================= */
 @media (max-width: 992px) {
     .home-page .city-strip-grid {
@@ -1399,7 +1348,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX][RESPONSIVE] MOBILE <= 767px
+    [HOME / LISTING][RESPONSIVE] MOBILE <= 767px
     ========================================= */
 @media (max-width: 767px) {
     .home-page .container-fluid.px-5 {
@@ -1486,7 +1435,7 @@ footer {
 }
 
 /* =========================================
-    [PROFILE] 11. PROFILE PAGE
+    [PROFILE PAGE] PROFILE LAYOUT & FORMS
     ========================================= */
 body.home-page {
     background-color: #f8f9fa;
@@ -1785,8 +1734,64 @@ body.home-page {
 }
 
 /* =========================================
-    [OWNER] CARD LIST VIEW
+    [OWNER PAGES] CARD LIST VIEW
     ========================================= */
+/* ------------------------------------------
+    [OWNER PAGES] ROOM IMAGE UPLOAD UI
+    ------------------------------------------ */
+#imageUploadArea {
+    border-style: dashed !important;
+    border-color: #cbd5e1 !important;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#imageUploadArea:hover {
+    border-color: #198754 !important;
+    background-color: #f4fbf7 !important;
+}
+
+#imagePreviewContainer .card {
+    border: 1px solid #e2e8f0;
+}
+
+#imagePreviewContainer .card-body {
+    background: #fff;
+}
+
+#imagePreviewContainer .btn-danger {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ------------------------------------------
+    [OWNER PAGES] CONTRACT MODAL (TAO HOP DONG THUE)
+    ------------------------------------------ */
+#contractModal .modal-header {
+    background-color: #198754 !important;
+}
+
+#contractModal .btn-primary {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+#contractModal .btn-primary:hover,
+#contractModal .btn-primary:focus,
+#contractModal .btn-primary:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+}
+
+#contractModal .form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
 .owner-room-list {
     display: flex;
     flex-direction: column;
@@ -1992,6 +1997,9 @@ body.home-page {
     gap: 10px;
 }
 
+/* ------------------------------------------
+    [OWNER PAGES] NOTIFICATION & INVOICE BLOCKS
+    ------------------------------------------ */
 .notification-item {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -2043,7 +2051,7 @@ body.home-page {
 }
 
 /* =========================================
-    [CATEGORY] TRANG XEM TAT CA
+    [CATEGORY PAGE] TRANG XEM TAT CA
     ========================================= */
 body.home-page.category-page {
     padding-top: 0;
