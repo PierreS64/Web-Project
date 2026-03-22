@@ -121,16 +121,30 @@ function handleLogin(e) {
     const phone = document.getElementById('logPhone').value.trim();
     const pass = document.getElementById('logPass').value;
 
-    if (!/^\d{10}$/.test(phone)) return alert('Vui lòng nhập số điện thoại hợp lệ (10 chữ số).');
-    if (!pass) return alert('Vui lòng nhập mật khẩu.');
+    // Use centralized validators
+    const formData = { phone, pass };
+    const rules = {
+        phone: { type: 'phone', required: true },
+        pass: { type: 'text', required: true, minLength: 1 }
+    };
+
+    const validation = Validators.validateForm(formData, rules);
+    if (!validation.isValid) {
+        Object.values(validation.errors).forEach(error => {
+            Utils.showError(error);
+        });
+        return;
+    }
 
     const user = Storage.login(phone, pass);
-    if(user) {
-        // Tự động đóng modal và tải lại trang để cập nhật giao diện
+    if (user) {
+        Utils.showSuccess('Đăng nhập thành công!');
         authModal.hide();
-        window.location.reload();
+        // Update UI instead of reload
+        window.NavbarUI?.refreshAuthUI?.();
+        renderHomeRooms();
     } else {
-        alert('Sai thông tin đăng nhập!');
+        Utils.showError('Sai số điện thoại hoặc mật khẩu!');
     }
 }
 
@@ -141,19 +155,30 @@ function handleRegister(e) {
     const pass = document.getElementById('regPass').value;
     const role = document.getElementById('regRole').value;
 
-    if (!name) return alert('Vui lòng nhập họ tên.');
-    if (!role || !['owner', 'tenant'].includes(role)) return alert('Vui lòng chọn vai trò hợp lệ.');
-    if (!/^\d{10}$/.test(phone)) return alert('Lỗi: SĐT phải là 10 số!');
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(pass)) return alert('Lỗi: Mật khẩu chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt)!');
-    if (name.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(name)) return alert('Lỗi: Tên không hợp lệ!');
+    // Use centralized validators
+    const formData = { name, phone, pass, role };
+    const rules = {
+        name: { type: 'name', required: true },
+        phone: { type: 'phone', required: true },
+        pass: { type: 'password', required: true },
+        role: { type: 'select', required: true }
+    };
+
+    const validation = Validators.validateForm(formData, rules);
+    if (!validation.isValid) {
+        Object.values(validation.errors).forEach(error => {
+            Utils.showError(error);
+        });
+        return;
+    }
 
     if (Storage.register({ name, phone, pass, role })) {
-        alert('Đăng ký thành công!'); 
+        Utils.showSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
         switchTab('login');
         document.getElementById('logPhone').value = phone;
-        document.getElementById('form-register').querySelector('form').reset();
+        document.getElementById('form-register').reset();
     } else {
-        alert('SĐT đã tồn tại!');
+        Utils.showError('Số điện thoại đã tồn tại!');
     }
 }
 
@@ -237,7 +262,7 @@ function renderHomeRooms(roomsToRender = null) {
     };
 
     const buildRoomCard = (room) => {
-        const price = new Intl.NumberFormat('vi-VN').format(room.price);
+        const price = Utils.formatCurrency(room.price);
         const area = Number(room.area);
         const type = room.type;
         const locationText = room.address;
@@ -245,15 +270,15 @@ function renderHomeRooms(roomsToRender = null) {
         const imgUrl = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
 
         return `
-        <div class="col-lg-3 col-md-6">
-            <article class="room-card room-card-figma h-100" onclick="viewRoom('${room.id}')">
+        <div class="col-lg-3 col-md-6" data-room-id="${room.id}">
+            <article class="room-card room-card-figma h-100" style="cursor: pointer;" onclick="viewRoom('${room.id}')">
                 <div class="room-thumb-wrap">
                     <img src="${imgUrl}" class="room-thumb" alt="${room.title}">
                     <div class="room-chip-row">
                         <span class="room-chip">${type}</span>
                         ${statusChip}
                     </div>
-                    <button type="button" class="room-fav-btn" onclick="event.stopPropagation()" aria-label="Yêu thích">
+                    <button type="button" class="room-fav-btn" aria-label="Yêu thích">
                         <i class="fa-regular fa-heart"></i>
                     </button>
                 </div>
@@ -267,6 +292,7 @@ function renderHomeRooms(roomsToRender = null) {
                 </div>
             </article>
         </div>`;
+    };
     };
 
     const renderRoomList = (targetEl, items, emptyMessage = 'Chưa có tin đăng trong mục này.') => {
@@ -499,8 +525,8 @@ function updateTrack() {
     track.style.width = (percent2 - percent1) + "%";
     
     if(document.getElementById('priceMinLabel')) {
-        document.getElementById('priceMinLabel').innerText = new Intl.NumberFormat('vi-VN').format(minVal);
-        document.getElementById('priceMaxLabel').innerText = new Intl.NumberFormat('vi-VN').format(maxVal);
+        document.getElementById('priceMinLabel').innerText = Utils.formatCurrency(minVal);
+        document.getElementById('priceMaxLabel').innerText = Utils.formatCurrency(maxVal);
     }
 }
 

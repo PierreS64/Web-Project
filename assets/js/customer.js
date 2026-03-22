@@ -84,7 +84,7 @@ function renderTenantRoomList() {
 
 function buildTenantRoomCard(room) {
     const image = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
-    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const price = Utils.formatCurrency(Number(room.price) || 0);
     const area = Number(room.area) || 0;
     const locationText = room.address;
 
@@ -129,7 +129,7 @@ function openTenantActionModalById(roomId) {
 
     document.getElementById('tenantActionTitle').textContent = room.title;
     document.getElementById('tenantActionType').textContent = room.type;
-    document.getElementById('tenantActionPrice').textContent = `${new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0)}đ/tháng`;
+    document.getElementById('tenantActionPrice').textContent = `${Utils.formatCurrency(Number(room.price) || 0)}đ/tháng`;
     document.getElementById('tenantActionArea').textContent = `${Number(room.area) || 0}m2`;
     document.getElementById('tenantActionAddress').textContent = room.address;
     document.getElementById('tenantActionOwner').textContent = `${room.ownerName} - ${room.ownerPhone}`;
@@ -208,13 +208,13 @@ function openTenantInvoiceModal() {
 
     const invoices = Array.isArray(room.invoices) ? room.invoices : [];
     if (!invoices.length) {
-        alert('Phòng này chưa có hóa đơn nào.');
+        Utils.showError('Phòng này chưa có hóa đơn nào.');
         return;
     }
 
     const selectEl = document.getElementById('tenantInvoiceSelect');
     selectEl.innerHTML = invoices.map((inv) => {
-        const amount = new Intl.NumberFormat('vi-VN').format(Number(inv.grandTotal) || 0);
+        const amount = Utils.formatCurrency(Number(inv.grandTotal) || 0);
         const label = `${inv.period} - ${amount}đ`;
         return `<option value="${inv.id}">${label}</option>`;
     }).join('');
@@ -241,7 +241,7 @@ function renderTenantInvoiceDetail() {
     const invoice = (room.invoices || []).find((inv) => inv.id === invoiceId);
     if (!invoice) return;
 
-    const formatMoney = (amount) => `${new Intl.NumberFormat('vi-VN').format(Number(amount) || 0)}đ`;
+    const formatMoney = (amount) => `${Utils.formatCurrency(Number(amount) || 0)}đ`;
 
     const rows = [
         ['Tiền nhà', invoice.rent],
@@ -331,7 +331,7 @@ function openPaymentQrModal() {
         <div><strong>Ngân hàng:</strong> ${owner.bankName || owner.bankShortName || bankBin}</div>
         <div><strong>Số tài khoản:</strong> ${accountNumber}</div>
         <div><strong>Chủ tài khoản:</strong> ${accountName}</div>
-        <div><strong>Số tiền:</strong> ${new Intl.NumberFormat('vi-VN').format(amount)}đ</div>
+        <div><strong>Số tiền:</strong> ${Utils.formatCurrency(amount)}đ</div>
         <div><strong>Nội dung:</strong> ${transferContent}</div>
     `;
 
@@ -343,7 +343,7 @@ function openPaymentQrModal() {
         fromPhone: currentUser.phone,
         type: 'payment_initiated',
         title: 'Khách thuê mở QR thanh toán',
-        message: `${currentUser.name} đã mở QR cho hóa đơn kỳ ${invoice.period} (${new Intl.NumberFormat('vi-VN').format(amount)}đ).`,
+        message: `${currentUser.name} đã mở QR cho hóa đơn kỳ ${invoice.period} (${Utils.formatCurrency(amount)}đ).`,
         meta: {
             roomId: room.id,
             roomTitle: room.title,
@@ -388,7 +388,7 @@ function completeInvoicePaid(room, invoice, transferContent, paymentRef) {
         fromPhone: room.ownerPhone,
         type: 'invoice_paid_success',
         title: 'Thanh toán thành công',
-        message: `Bạn đã thanh toán hóa đơn kỳ ${invoice.period} (${new Intl.NumberFormat('vi-VN').format(invoice.grandTotal)}đ).`,
+        message: `Bạn đã thanh toán hóa đơn kỳ ${invoice.period} (${Utils.formatCurrency(invoice.grandTotal)}đ).`,
         meta: {
             roomId: room.id,
             roomTitle: room.title,

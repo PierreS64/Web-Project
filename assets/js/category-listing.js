@@ -228,7 +228,7 @@ function sortRooms(rooms, sortBy) {
 }
 
 function buildCategoryCard(room) {
-    const priceText = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const priceText = Utils.formatCurrency(Number(room.price) || 0);
     const areaText = Number(room.area) || 0;
     const locationText = room.address;
     const thumb = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';

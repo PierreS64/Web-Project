@@ -402,7 +402,7 @@ function renderTable() {
 }
 
 function buildOwnerRoomCard(room) {
-    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const price = Utils.formatCurrency(Number(room.price) || 0);
     const area = Number(room.area) || 0;
     const locationText = room.address;
     const image = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
@@ -598,13 +598,13 @@ async function saveRoom() {
     const street = document.getElementById('addrStreet').value.trim();
 
     // Validate cơ bản
-    if (!isNonEmptyText(title)) return alert('Vui lòng nhập Tên phòng!');
-    if (!isNonEmptyText(roomType)) return alert('Vui lòng chọn Loại hình phòng!');
-    if (!isPositiveNumber(price)) return alert('Giá tiền phải là số lớn hơn 0.');
-    if (!isPositiveNumber(area)) return alert('Diện tích phải là số lớn hơn 0.');
+    if (!isNonEmptyText(title)) return Utils.showError('Vui lòng nhập Tên phòng!');
+    if (!isNonEmptyText(roomType)) return Utils.showError('Vui lòng chọn Loại hình phòng!');
+    if (!isPositiveNumber(price)) return Utils.showError('Giá tiền phải là số lớn hơn 0.');
+    if (!isPositiveNumber(area)) return Utils.showError('Diện tích phải là số lớn hơn 0.');
     
-    if (!city || !district || !ward) return alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!');
-    if (!street) return alert('Vui lòng nhập địa chỉ cụ thể (Số nhà, đường)!');
+    if (!city || !district || !ward) return Utils.showError('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!');
+    if (!street) return Utils.showError('Vui lòng nhập địa chỉ cụ thể (Số nhà, đường)!');
 
     /*
     const lat = document.getElementById('roomLat').value;
@@ -690,11 +690,11 @@ async function saveRoom() {
         if (id) {
             // Có ID -> Gọi Update
             Storage.updateRoom(roomData);
-            alert('Cập nhật thành công!');
+            Utils.showSuccess('Cập nhật thành công!');
         } else {
             // Không ID -> Gọi Add
             Storage.addRoom(roomData);
-            alert('Thêm mới thành công!');
+            Utils.showSuccess('Thêm mới thành công!');
         }
         roomModal.hide();
         renderTable(); // Vẽ lại bảng
@@ -863,7 +863,7 @@ function openRoomActionModalById(roomId) {
 
     const images = room.images;
     const location = room.address;
-    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const price = Utils.formatCurrency(Number(room.price) || 0);
     const statusText = room.status === 'available' ? 'Còn trống' : 'Đã thuê';
 
     document.getElementById('roomActionTitle').textContent = room.title;
@@ -1195,7 +1195,7 @@ function saveInvoice() {
                 fromPhone: currentUser.phone,
                 type: 'invoice_created',
                 title: 'Hoá đơn mới',
-                message: `Có hoá đơn kỳ ${invoiceData.period} cho phòng ${room.title}. Tổng cần thanh toán: ${new Intl.NumberFormat('vi-VN').format(invoiceData.grandTotal)}đ.`,
+                message: `Có hoá đơn kỳ ${invoiceData.period} cho phòng ${room.title}. Tổng cần thanh toán: ${Utils.formatCurrency(invoiceData.grandTotal)}đ.`,
                 meta: {
                     roomId: room.id,
                     roomTitle: room.title,
