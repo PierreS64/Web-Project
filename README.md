@@ -235,4 +235,4 @@ Dự án này được tạo cho mục đích học tập.
 ---
 
 **Cập nhật cuối**: Tháng 3 năm 2026
-**Version**: 1.0 (Refactored with Clean Code)
+**Version**: 1.0
