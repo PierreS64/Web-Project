@@ -226,7 +226,6 @@ Dự án đã được refactor theo các nguyên tắc Clean Code:
 Cần hỗ trợ? Kiểm tra:
 1. Console DevTools (F12) để xem lỗi
 2. Thử clear localStorage (`localStorage.clear()` trong console)
-3. Tải lại trang (Ctrl+Shift+R)
 
 ## 📄 Giấy Phép
 
