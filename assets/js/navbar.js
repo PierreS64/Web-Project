@@ -40,7 +40,7 @@
         }
 
         if (category === 'promo') {
-            return 'trang-chu.html';
+            return 'index.html';
         }
 
         if (user && user.role === 'owner') {

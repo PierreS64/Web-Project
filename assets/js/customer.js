@@ -6,7 +6,7 @@
 const currentUser = Storage.getCurrentUser();
 if (!currentUser || currentUser.role !== 'tenant') {
     alert('Bạn không có quyền truy cập trang này!');
-    window.location.href = 'trang-chu.html';
+    window.location.href = 'index.html';
 }
 
 let tenantActionModal;

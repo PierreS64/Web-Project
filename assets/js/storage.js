@@ -187,6 +187,6 @@ const Storage = {
     logout: function() {
         localStorage.removeItem(CURRENT_USER_KEY);
         // Chuyển về trang chủ để tránh lỗi nếu đang ở trang owner
-        window.location.href = 'trang-chu.html';
+        window.location.href = 'index.html';
     }
 };

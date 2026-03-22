@@ -43,7 +43,7 @@
 ```
 Bài tập lớn Web/
 ├── README.md                          # Tài liệu dự án
-├── trang-chu.html                     # Trang chủ
+├── index.html                         # Trang chủ
 ├── chi-tiet.html                      # Chi tiết phòng
 ├── ho-so.html                         # Hồ sơ cá nhân
 ├── chu-tro.html                       # Quản lý chủ trọ
@@ -104,7 +104,7 @@ Các tệp này được tạo trong quá trình refactoring để tập trung h
 
 3. **Mở trình duyệt**
    ```
-   http://localhost:8000/trang-chu.html
+   http://localhost:8000/
    ```
 
 ## 📖 Hướng Dẫn Sử Dụng
