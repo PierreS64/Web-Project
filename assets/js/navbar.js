@@ -151,6 +151,7 @@
         const userInfo = document.getElementById('user-info');
         const profileName = document.getElementById('nav-profile-name');
         const adminLink = document.getElementById('admin-link');
+        const postNewBtn = document.getElementById('post-new-btn');
         const viewAllLink = document.querySelector('.nav-notification-foot a');
         const user = window.Storage && Storage.getCurrentUser ? Storage.getCurrentUser() : null;
 
@@ -161,6 +162,7 @@
             userInfo.classList.add('d-none');
             userInfo.classList.remove('d-flex');
             if (adminLink) adminLink.classList.add('d-none');
+            if (postNewBtn) postNewBtn.classList.remove('d-none');
             if (viewAllLink) viewAllLink.href = resolveViewAllNotificationLink(null);
             return;
         }
@@ -181,6 +183,14 @@
                 adminLink.innerHTML = '<i class="fa-solid fa-house-user"></i> Thuê trọ';
             } else {
                 adminLink.classList.add('d-none');
+            }
+        }
+
+        if (postNewBtn) {
+            if (user.role === 'owner') {
+                postNewBtn.classList.remove('d-none');
+            } else {
+                postNewBtn.classList.add('d-none');
             }
         }
 
