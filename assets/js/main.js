@@ -30,6 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHomeRooms();
     checkAuth();
 
+    // 2.1 Mở modal auth theo query param khi chuyển từ trang khác về.
+    const authMode = new URLSearchParams(window.location.search).get('auth');
+    if ((authMode === 'login' || authMode === 'register') && typeof openAuthModal === 'function') {
+        openAuthModal(authMode);
+        if (window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        }
+    }
+
     // 3. Sự kiện tìm kiếm
     const btnSearch = document.querySelector('.btn-search');
     if(btnSearch) {
@@ -292,7 +301,6 @@ function renderHomeRooms(roomsToRender = null) {
                 </div>
             </article>
         </div>`;
-    };
     };
 
     const renderRoomList = (targetEl, items, emptyMessage = 'Chưa có tin đăng trong mục này.') => {

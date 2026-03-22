@@ -7,7 +7,7 @@
 const currentUser = Storage.getCurrentUser();
 if (!currentUser || currentUser.role !== 'owner') {
     alert('Bạn không có quyền truy cập trang này!');
-    window.location.href = 'trang-chu.html';
+    window.location.href = 'index.html';
 }
 
 // 2. BIẾN TOÀN CỤC

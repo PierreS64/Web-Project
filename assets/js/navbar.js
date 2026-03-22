@@ -55,14 +55,14 @@
             return `chi-tiet.html?id=${roomId}`;
         }
 
-        return 'trang-chu.html';
+        return 'index.html';
     }
 
     function resolveViewAllNotificationLink(user) {
-        if (!user) return 'trang-chu.html';
+        if (!user) return 'index.html';
         if (user.role === 'owner') return 'chu-tro.html#ownerNotificationList';
         if (user.role === 'tenant') return 'khach-hang.html#tenantNotificationList';
-        return 'trang-chu.html';
+        return 'index.html';
     }
 
     function renderNotificationDropdown() {
@@ -266,7 +266,11 @@
             window.openAuthModal(type);
             return false;
         }
-        return true;
+
+        event.preventDefault();
+        const mode = type === 'register' ? 'register' : 'login';
+        window.location.href = `index.html?auth=${mode}`;
+        return false;
     };
 
     window.NavbarUI = {

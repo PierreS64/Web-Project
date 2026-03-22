@@ -28,7 +28,11 @@ const EventHandlers = {
                 e.preventDefault();
                 if (typeof openAuthModal === 'function') {
                     openAuthModal('login');
+                    return;
                 }
+
+                // Fallback for pages without auth modal logic.
+                window.location.href = 'index.html?auth=login';
             });
         }
 
@@ -39,7 +43,11 @@ const EventHandlers = {
                 e.preventDefault();
                 if (typeof openAuthModal === 'function') {
                     openAuthModal('register');
+                    return;
                 }
+
+                // Fallback for pages without auth modal logic.
+                window.location.href = 'index.html?auth=register';
             });
         }
     },
@@ -130,7 +138,11 @@ const EventHandlers = {
                 e.preventDefault();
                 if (typeof postNewRoom === 'function') {
                     postNewRoom();
+                    return;
                 }
+
+                // Fallback for pages where post helper is defined elsewhere.
+                window.location.href = 'chu-tro.html';
             });
         }
 
