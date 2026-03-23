@@ -16,6 +16,10 @@ function isRoomDataValid(room) {
         && Number.isFinite(Number(room.area)) && Number(room.area) > 0;
 }
 
+function isRoomVisibleOnHome(room) {
+    return String(room && room.status ? room.status : '').toLowerCase() !== 'rented';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo Modal
     const authModalEl = document.getElementById('authModal');
@@ -237,7 +241,9 @@ function renderHomeRooms(roomsToRender = null) {
         kyTucXa: 'see-all-ky-tuc-xa'
     };
 
-    const rooms = (roomsToRender || Storage.getRooms()).filter(isRoomDataValid);
+    const rooms = (roomsToRender || Storage.getRooms())
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const container = document.getElementById('room-list');
     const resultCount = document.getElementById('results-count');
     const roomPhongTro = document.getElementById('room-list-phong-tro');
@@ -359,7 +365,9 @@ function handleSearch() {
     const keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
     const type = document.getElementById('searchType').value;
 
-    const allRooms = Storage.getRooms().filter(isRoomDataValid);
+    const allRooms = Storage.getRooms()
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const filtered = allRooms.filter(r => {
         // 1. Lọc theo từ khóa (Tên hoặc Địa chỉ)
         const matchKeyword = r.title.toLowerCase().includes(keyword) || 
@@ -730,7 +738,9 @@ function executeSearch(options = {}) {
 
 
     // 3. Perform Filter
-    const allRooms = Storage.getRooms();
+    const allRooms = Storage.getRooms()
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const filtered = allRooms.filter(r => {
         // A. Type Filter
         const typeMatch = (selectedTabType === 'all') || (r.type === selectedTabType);
