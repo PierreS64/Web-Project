@@ -6,6 +6,25 @@
 let authModal;
 let roomDetailModal;
 
+function preloadRememberedLogin() {
+    if (!window.Storage || typeof Storage.getRememberedLogin !== 'function') return;
+
+    const remembered = Storage.getRememberedLogin();
+    const phoneInput = document.getElementById('logPhone');
+    const passInput = document.getElementById('logPass');
+    const rememberCheckbox = document.getElementById('rememberPassword');
+
+    if (!phoneInput || !passInput || !rememberCheckbox) return;
+
+    if (remembered && remembered.phone && remembered.pass) {
+        phoneInput.value = remembered.phone;
+        passInput.value = remembered.pass;
+        rememberCheckbox.checked = true;
+    } else {
+        rememberCheckbox.checked = false;
+    }
+}
+
 function isRoomDataValid(room) {
     return room
         && typeof room.title === 'string' && room.title.trim()
@@ -33,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Render dữ liệu
     renderHomeRooms();
     checkAuth();
+    preloadRememberedLogin();
 
     // 2.1 Mở modal auth theo query param khi chuyển từ trang khác về.
     const authMode = new URLSearchParams(window.location.search).get('auth');
@@ -105,6 +125,7 @@ function switchTab(type) {
         regForm.classList.add('d-none');
         tabLogin.classList.add('active'); 
         tabReg.classList.remove('active');
+        preloadRememberedLogin();
     } else {
         loginForm.classList.add('d-none'); 
         regForm.classList.remove('d-none');
@@ -133,6 +154,7 @@ function handleLogin(e) {
     e.preventDefault();
     const phone = document.getElementById('logPhone').value.trim();
     const pass = document.getElementById('logPass').value;
+    const rememberCheckbox = document.getElementById('rememberPassword');
 
     // Use centralized validators
     const formData = { phone, pass };
@@ -151,6 +173,12 @@ function handleLogin(e) {
 
     const user = Storage.login(phone, pass);
     if (user) {
+        if (rememberCheckbox && rememberCheckbox.checked && typeof Storage.setRememberedLogin === 'function') {
+            Storage.setRememberedLogin(phone, pass);
+        } else if (typeof Storage.clearRememberedLogin === 'function') {
+            Storage.clearRememberedLogin();
+        }
+
         Utils.showSuccess('Đăng nhập thành công!');
         authModal.hide();
         // Update UI instead of reload
