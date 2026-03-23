@@ -1005,10 +1005,22 @@ footer {
     color: #6b7280;
 }
 
+.home-page #content-map {
+    padding-top: 4px !important;
+}
+
 .home-page #content-map .form-control,
 .home-page #content-map .form-select {
     height: 46px;
     border-radius: 8px;
+}
+
+.home-page #content-map > div {
+    margin-bottom: 16px !important;
+}
+
+.home-page #content-map .form-label {
+    margin-bottom: 4px !important;
 }
 
 .home-page .advanced-popup .btn {
