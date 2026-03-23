@@ -7,6 +7,28 @@
 const Favorites = {
     STORAGE_KEY: 'favorite_rooms',
 
+    getScopeKey: function() {
+        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function')
+            ? Storage.getCurrentUser()
+            : null;
+        return currentUser && currentUser.phone ? currentUser.phone : '__guest__';
+    },
+
+    getScopedMap: function() {
+        const raw = JSON.parse(localStorage.getItem(this.STORAGE_KEY));
+
+        // Backward compatibility: old format was an array of ids.
+        if (Array.isArray(raw)) {
+            return { __guest__: raw };
+        }
+
+        return raw && typeof raw === 'object' ? raw : {};
+    },
+
+    saveScopedMap: function(map) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(map));
+    },
+
     /**
      * Add room to favorites
      * @param {string} roomId - Room ID to add
@@ -15,8 +37,11 @@ const Favorites = {
     add: function(roomId) {
         const favorites = this.getAll();
         if (!favorites.includes(roomId)) {
-            favorites.push(roomId);
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(favorites));
+            const map = this.getScopedMap();
+            const scopeKey = this.getScopeKey();
+            const next = [...favorites, roomId];
+            map[scopeKey] = next;
+            this.saveScopedMap(map);
             this.notifyListeners();
             return true;
         }
@@ -29,8 +54,11 @@ const Favorites = {
      * @returns {boolean} true if removed successfully
      */
     remove: function(roomId) {
+        const map = this.getScopedMap();
+        const scopeKey = this.getScopeKey();
         const favorites = this.getAll().filter(id => id !== roomId);
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(favorites));
+        map[scopeKey] = favorites;
+        this.saveScopedMap(map);
         this.notifyListeners();
         return true;
     },
@@ -40,7 +68,9 @@ const Favorites = {
      * @returns {Array<string>} Array of room IDs
      */
     getAll: function() {
-        return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
+        const map = this.getScopedMap();
+        const scopeKey = this.getScopeKey();
+        return Array.isArray(map[scopeKey]) ? map[scopeKey] : [];
     },
 
     /**
@@ -82,7 +112,10 @@ const Favorites = {
      * Clear all favorites
      */
     clear: function() {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify([]));
+        const map = this.getScopedMap();
+        const scopeKey = this.getScopeKey();
+        map[scopeKey] = [];
+        this.saveScopedMap(map);
         this.notifyListeners();
     },
 
@@ -121,21 +154,23 @@ const Favorites = {
  * @param {boolean} isFav - Whether favorited
  */
 function updateFavoriteButtonUI(roomId, isFav) {
-    const card = document.querySelector(`[data-room-id="${roomId}"]`);
-    if (!card) return;
+    const cards = document.querySelectorAll(`[data-room-id="${roomId}"]`);
+    if (!cards.length) return;
 
-    const btn = card.querySelector('.room-fav-btn');
-    if (!btn) return;
+    cards.forEach((card) => {
+        const btn = card.querySelector('.room-fav-btn');
+        if (!btn) return;
 
-    if (isFav) {
-        btn.classList.add('active');
-        btn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-        btn.setAttribute('aria-label', 'Bỏ thích');
-    } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-        btn.setAttribute('aria-label', 'Yêu thích');
-    }
+        if (isFav) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+            btn.setAttribute('aria-label', 'Bỏ thích');
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+            btn.setAttribute('aria-label', 'Yêu thích');
+        }
+    });
 }
 
 /**
@@ -143,6 +178,9 @@ function updateFavoriteButtonUI(roomId, isFav) {
  */
 function setupFavoriteButtons() {
     document.querySelectorAll('.room-fav-btn').forEach(btn => {
+        if (btn.dataset.boundFavorite === '1') return;
+        btn.dataset.boundFavorite = '1';
+
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
 
@@ -187,4 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setupFavoriteButtons();
         syncAllFavoriteButtons();
     };
+
+    Favorites.onChange(() => {
+        syncAllFavoriteButtons();
+    });
 });

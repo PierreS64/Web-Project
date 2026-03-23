@@ -153,7 +153,44 @@
         const adminLink = document.getElementById('admin-link');
         const postNewBtn = document.getElementById('post-new-btn');
         const viewAllLink = document.querySelector('.nav-notification-foot a');
+        const profileMenu = document.querySelector('.nav-profile-menu');
         const user = window.Storage && Storage.getCurrentUser ? Storage.getCurrentUser() : null;
+
+        const ensureFavoritesLink = () => {
+            if (!profileMenu) return;
+            const existing = profileMenu.querySelector('.nav-profile-favorites');
+
+            if (!user) {
+                if (existing) existing.remove();
+                return;
+            }
+
+            if (existing) {
+                existing.href = 'yeu-thich.html';
+                const firstProfileLink = profileMenu.querySelector('.nav-profile-link:not(.nav-profile-favorites)');
+                if (firstProfileLink) {
+                    profileMenu.insertBefore(existing, firstProfileLink);
+                }
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.className = 'nav-profile-link nav-profile-favorites';
+            link.href = 'yeu-thich.html';
+            link.textContent = 'Phòng yêu thích';
+
+            const firstProfileLink = profileMenu.querySelector('.nav-profile-link');
+            if (firstProfileLink) {
+                profileMenu.insertBefore(link, firstProfileLink);
+            } else {
+                const logoutBtn = profileMenu.querySelector('.nav-profile-logout');
+                if (logoutBtn) {
+                    profileMenu.insertBefore(link, logoutBtn);
+                } else {
+                    profileMenu.appendChild(link);
+                }
+            }
+        };
 
         if (!authButtons || !userInfo) return;
 
@@ -164,6 +201,7 @@
             if (adminLink) adminLink.classList.add('d-none');
             if (postNewBtn) postNewBtn.classList.remove('d-none');
             if (viewAllLink) viewAllLink.href = resolveViewAllNotificationLink(null);
+            ensureFavoritesLink();
             return;
         }
 
@@ -197,6 +235,8 @@
         if (viewAllLink) {
             viewAllLink.href = resolveViewAllNotificationLink(user);
         }
+
+        ensureFavoritesLink();
 
         renderNotificationDropdown();
     }

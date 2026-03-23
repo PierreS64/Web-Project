@@ -26,6 +26,17 @@ const initialUsers = [
 
 const seedImages = ['img/HaNoi.jpg', 'img/HCM.jpg', 'img/DaNang.jpg', 'img/HaiPhong.webp'];
 
+function getRandomSeedImages(count = 3) {
+    const pool = [...seedImages];
+
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    return pool.slice(0, Math.min(count, pool.length));
+}
+
 function createSeedRoom(id, title, type, ownerName, ownerPhone, city, district, ward, street, price, area, status = 'available') {
     return {
         id,
@@ -49,7 +60,7 @@ function createSeedRoom(id, title, type, ownerName, ownerPhone, city, district, 
         surroundings: ['gần chợ', 'gần trường học', 'gần bến xe'],
         description: `${title} vị trí đẹp, thuận tiện di chuyển, khu vực an ninh, có thể dọn vào ở ngay.`,
         status,
-        images: [seedImages[id.length % 4], seedImages[(id.length + 1) % 4]],
+        images: getRandomSeedImages(3),
         contract: null,
         invoices: [],
         lastElectricReading: 0
@@ -88,6 +99,7 @@ const initialRooms = [
     const roomDataRaw = localStorage.getItem(ROOMS_KEY);
     const roomData = roomDataRaw ? JSON.parse(roomDataRaw) : null;
     const currentRooms = Array.isArray(roomData) ? roomData : [];
+
     const existingRoomIds = new Set(currentRooms.map((r) => r && r.id).filter(Boolean));
     const missingSeedRooms = initialRooms.filter((room) => !existingRoomIds.has(room.id));
     if (missingSeedRooms.length > 0 || !Array.isArray(roomData)) {

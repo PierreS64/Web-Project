@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhà xanh - Phòng yêu thích</title>
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="home-page category-page">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="index.html">
+                <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
+                    <li class="nav-item"><a class="nav-link " href="phong-tro.html">Nhà trọ, phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link " href="nha-nguyen-can.html">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link " href="can-ho.html">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link " href="ky-tuc-xa.html">Ký túc xá</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="auth-buttons" class="d-flex gap-2">
+                        <a href="index.html" class="btn-nav-auth btn-nav-login" onclick="return handleNavbarAuthClick(event, 'login')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
+                        <a href="index.html" class="btn-nav-auth btn-nav-register" onclick="return handleNavbarAuthClick(event, 'register')"><i class="fa-solid fa-user-plus"></i> Đăng ký</a>
+                    </div>
+                    <div id="user-info" class="d-none align-items-center gap-2">
+                        <div class="dropdown">
+                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
+                                <i class="fa-regular fa-bell"></i>
+                                <span id="notification-badge" class="nav-unread-badge d-none">0</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0" aria-labelledby="notification-toggle">
+                                <div class="nav-notification-head">
+                                    <h6>Thông báo</h6>
+                                    <button type="button" id="nav-mark-all-read">Đánh dấu đã đọc tất cả</button>
+                                </div>
+                                <div class="nav-notification-tabs" id="nav-notification-tabs"></div>
+                                <div class="nav-notification-list" id="nav-notification-list"></div>
+                                <div class="nav-notification-foot">
+                                    <a href="index.html">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                                <i class="fa-regular fa-user"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end nav-profile-menu p-0">
+                                <div class="nav-profile-name" id="nav-profile-name">User</div>
+                                <a class="nav-profile-link" href="ho-so.html#personal-info">Thông tin cá nhân</a>
+                                <a class="nav-profile-link" href="ho-so.html#account-info">Thông tin tài khoản</a>
+                                <button type="button" class="nav-profile-logout">Đăng xuất</button>
+                            </div>
+                        </div>
+                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                    </div>
+                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container category-page-wrap" data-category="tat-ca" data-favorites="1">
+        <section class="category-search-strip">
+            <div class="search-bar-inner category-search-inner">
+                <div class="flex-grow-1 position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                    <input type="text" class="form-control ps-5" id="categoryKeyword" placeholder="Tìm theo tên phòng, địa chỉ..." style="height: 44px; border: 1px solid #ced4da;">
+                </div>
+                <select id="categoryTypeSelect" class="form-select" style="max-width: 220px; height: 44px;">
+                    <option value="tat-ca" selected>Tất cả tin</option>
+                    <option value="phong-tro" >Nhà trọ, phòng trọ</option>
+                    <option value="nha-nguyen-can" >Nhà nguyên căn</option>
+                    <option value="can-ho" >Căn hộ</option>
+                    <option value="ky-tuc-xa" >Ký túc xá</option>
+                </select>
+                <select id="categoryPriceQuick" class="form-select" style="max-width: 180px; height: 44px;">
+                    <option value="all">Mức giá</option>
+                    <option value="under-3">Dưới 3 triệu</option>
+                    <option value="3-5">3 - 5 triệu</option>
+                    <option value="5-10">5 - 10 triệu</option>
+                    <option value="over-10">Trên 10 triệu</option>
+                </select>
+                <button id="categorySearchBtn" class="btn-search-orange" type="button">
+                    <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+                </button>
+            </div>
+        </section>
+
+        <div class="category-breadcrumb">Trang chủ / <span id="category-breadcrumb-current">Phòng yêu thích</span></div>
+        <h1 id="category-page-title" class="category-page-title">PHÒNG TRỌ YÊU THÍCH CỦA BẠN</h1>
+
+        <div class="row g-3 align-items-start">
+            <div class="col-lg-9">
+                <section class="category-list-panel">
+                    <div class="category-list-head">
+                        <h2 id="category-result-title">Tổng 0 kết quả</h2>
+                        <div class="category-sort-wrap">
+                            <label for="sortSelect">Sắp xếp theo</label>
+                            <select id="sortSelect" class="form-select form-select-sm">
+                                <option value="newest">Mới nhất</option>
+                                <option value="price-asc">Giá thấp đến cao</option>
+                                <option value="price-desc">Giá cao đến thấp</option>
+                                <option value="area-desc">Diện tích lớn đến nhỏ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="category-room-list" class="category-room-list"></div>
+                </section>
+            </div>
+
+            <aside class="col-lg-3">
+                <section class="category-filter-panel">
+                    <div class="filter-title"><i class="fa-solid fa-filter"></i> Lọc tìm kiếm</div>
+
+                    <div class="filter-group">
+                        <h3>Khoảng giá</h3>
+                        <label><input type="radio" name="priceRange" value="all" checked> Tất cả</label>
+                        <label><input type="radio" name="priceRange" value="under-3"> Dưới 3 triệu</label>
+                        <label><input type="radio" name="priceRange" value="3-5"> 3 - 5 triệu</label>
+                        <label><input type="radio" name="priceRange" value="5-10"> 5 - 10 triệu</label>
+                        <label><input type="radio" name="priceRange" value="over-10"> Trên 10 triệu</label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Diện tích</h3>
+                        <label><input type="radio" name="areaRange" value="all" checked> Tất cả</label>
+                        <label><input type="radio" name="areaRange" value="under-20"> Dưới 20 m2</label>
+                        <label><input type="radio" name="areaRange" value="20-40"> 20 - 40 m2</label>
+                        <label><input type="radio" name="areaRange" value="40-60"> 40 - 60 m2</label>
+                        <label><input type="radio" name="areaRange" value="60-80"> 60 - 80 m2</label>
+                        <label><input type="radio" name="areaRange" value="over-80"> Trên 80 m2</label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Tiện nghi</h3>
+                        <label><input type="checkbox" name="amenities" value="Gác lửng"> Gác lửng</label>
+                        <label><input type="checkbox" name="amenities" value="Wifi"> Wifi</label>
+                        <label><input type="checkbox" name="amenities" value="Vệ sinh trong"> Vệ sinh trong</label>
+                        <label><input type="checkbox" name="amenities" value="Phòng tắm"> Phòng tắm</label>
+                        <label><input type="checkbox" name="amenities" value="Bình nóng lạnh"> Bình nóng lạnh</label>
+                        <label><input type="checkbox" name="amenities" value="Kệ bếp"> Kệ bếp</label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Môi trường xung quanh</h3>
+                        <label><input type="checkbox" name="surroundings" value="Chợ"> Chợ</label>
+                        <label><input type="checkbox" name="surroundings" value="Siêu thị"> Siêu thị</label>
+                        <label><input type="checkbox" name="surroundings" value="Trường học"> Trường học</label>
+                        <label><input type="checkbox" name="surroundings" value="Công viên"> Công viên</label>
+                        <label><input type="checkbox" name="surroundings" value="Bến xe Bus"> Bến xe bus</label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Đối tượng</h3>
+                        <label><input type="radio" name="target" value="all" checked> Tất cả</label>
+                        <label><input type="radio" name="target" value="Đi học"> Sinh viên</label>
+                        <label><input type="radio" name="target" value="Đi làm"> Người đi làm</label>
+                        <label><input type="radio" name="target" value="Cặp đôi"> Cặp đôi</label>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button id="resetFiltersBtn" type="button" class="btn btn-outline-secondary btn-sm">Đặt lại</button>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Foundation -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/validators.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <!-- Core -->
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/navbar.js"></script>
+    <script src="assets/js/event-handlers.js"></script>
+    <!-- Features -->
+    <script src="assets/js/favorites.js"></script>
+    <!-- Category Logic -->
+    <script src="assets/js/category-listing.js"></script>
+</body>
+</html>

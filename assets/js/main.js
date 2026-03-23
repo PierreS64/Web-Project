@@ -39,6 +39,14 @@ function isRoomVisibleOnHome(room) {
     return String(room && room.status ? room.status : '').toLowerCase() !== 'rented';
 }
 
+function getRoomTypeClass(type) {
+    const normalized = String(type || '').toLowerCase().trim();
+    if (normalized === 'nhà nguyên căn') return 'room-chip-type-house';
+    if (normalized === 'căn hộ') return 'room-chip-type-apartment';
+    if (normalized === 'ký túc xá') return 'room-chip-type-dorm';
+    return 'room-chip-type-motel';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Khởi tạo Modal
     const authModalEl = document.getElementById('authModal');
@@ -288,7 +296,7 @@ function renderHomeRooms(roomsToRender = null) {
         if (!btnId) return;
         const btn = document.getElementById(btnId);
         if (!btn) return;
-        btn.classList.toggle('d-none', total <= HOME_SECTION_LIMIT);
+        btn.classList.remove('d-none');
     };
 
     const normalizeType = (type = '') => type.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -308,6 +316,7 @@ function renderHomeRooms(roomsToRender = null) {
         const price = Utils.formatCurrency(room.price);
         const area = Number(room.area);
         const type = room.type;
+        const typeClass = getRoomTypeClass(type);
         const locationText = room.address;
         const statusChip = room.status === 'rented' ? '<span class="room-chip room-chip-rented">Đã thuê</span>' : '';
         const imgUrl = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
@@ -318,7 +327,7 @@ function renderHomeRooms(roomsToRender = null) {
                 <div class="room-thumb-wrap">
                     <img src="${imgUrl}" class="room-thumb" alt="${room.title}">
                     <div class="room-chip-row">
-                        <span class="room-chip">${type}</span>
+                        <span class="room-chip ${typeClass}">${type}</span>
                         ${statusChip}
                     </div>
                     <button type="button" class="room-fav-btn" aria-label="Yêu thích">

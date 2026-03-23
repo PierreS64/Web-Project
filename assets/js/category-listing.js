@@ -35,7 +35,17 @@ function initCategoryPage() {
     titleEl.textContent = config.heroTitle;
     breadcrumbEl.textContent = config.breadcrumb;
 
-    const allRooms = Storage.getRooms().filter(isRoomDataValid).filter(config.filterByType);
+    const isFavoriteMode = pageRoot.dataset.favorites === '1';
+    const canUseFavorites = typeof Favorites !== 'undefined' && typeof Favorites.getAll === 'function';
+    const favoriteIds = isFavoriteMode && canUseFavorites ? Favorites.getAll() : [];
+
+    let allRooms = Storage.getRooms().filter(isRoomDataValid).filter(config.filterByType);
+    if (isFavoriteMode) {
+        allRooms = allRooms.filter((room) => favoriteIds.includes(room.id));
+        titleEl.textContent = 'PHÒNG TRỌ YÊU THÍCH CỦA BẠN';
+        breadcrumbEl.textContent = 'Danh sách yêu thích';
+        resultTitleEl.textContent = `Tổng ${allRooms.length} kết quả`;
+    }
 
     const applyAll = () => {
         const keyword = (keywordInput ? keywordInput.value : '').trim().toLowerCase();
@@ -64,7 +74,15 @@ function initCategoryPage() {
         }
 
         listEl.innerHTML = sorted.map(buildCategoryCard).join('');
+        if (typeof setupFavoriteButtons === 'function') setupFavoriteButtons();
+        if (typeof syncAllFavoriteButtons === 'function') syncAllFavoriteButtons();
     };
+
+    if (isFavoriteMode && !Storage.getCurrentUser()) {
+        listEl.innerHTML = '<div class="category-empty">Vui lòng đăng nhập để xem phòng yêu thích của bạn.</div>';
+        resultTitleEl.textContent = 'Tổng 0 kết quả';
+        return;
+    }
 
     document.querySelectorAll('input[name="priceRange"]').forEach((input) => input.addEventListener('change', applyAll));
     document.querySelectorAll('input[name="areaRange"]').forEach((input) => input.addEventListener('change', applyAll));
@@ -235,17 +253,21 @@ function buildCategoryCard(room) {
     const amenityPreview = Array.isArray(room.amenities) && room.amenities.length > 0
         ? `<div class="room-extra-info"><i class="fa-solid fa-square-check"></i> ${room.amenities.slice(0, 3).join(', ')}</div>`
         : '';
+    const typeClass = getCategoryTypeClass(room.type);
 
     return `
-        <article class="category-room-card" onclick="openRoomDetail('${room.id}')">
+        <article class="category-room-card" data-room-id="${room.id}" onclick="openRoomDetail('${room.id}')">
             <div class="category-room-image-wrap">
                 <img src="${thumb}" alt="${room.title}" class="category-room-image">
+                <button type="button" class="room-fav-btn" aria-label="Yêu thích">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
             </div>
             <div class="category-room-content">
                 <h4 class="category-room-title">${room.title}</h4>
                 <div class="category-room-price">Từ ${priceText}đ/tháng</div>
                 <div class="category-room-tags">
-                    <span>${room.type}</span>
+                    <span class="${typeClass}">${room.type}</span>
                     <span>${areaText}m2</span>
                 </div>
                 <div class="category-room-location"><i class="fa-solid fa-location-dot"></i> ${locationText}</div>
@@ -253,6 +275,14 @@ function buildCategoryCard(room) {
             </div>
         </article>
     `;
+}
+
+function getCategoryTypeClass(type) {
+    const normalized = String(type || '').toLowerCase().trim();
+    if (normalized === 'nhà nguyên căn') return 'tag-type-house';
+    if (normalized === 'căn hộ') return 'tag-type-apartment';
+    if (normalized === 'ký túc xá') return 'tag-type-dorm';
+    return 'tag-type-motel';
 }
 
 function openRoomDetail(id) {

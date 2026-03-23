@@ -341,6 +341,10 @@ body {
     content: "\f4fe";
 }
 
+.nav-profile-link.nav-profile-favorites::before {
+    content: "\f004";
+}
+
 .nav-profile-logout::before {
     content: "\f2f5";
 }
@@ -1173,6 +1177,22 @@ footer {
     font-weight: 600;
 }
 
+.home-page .room-chip.room-chip-type-motel {
+    background: #16a34a;
+}
+
+.home-page .room-chip.room-chip-type-house {
+    background: #0ea5e9;
+}
+
+.home-page .room-chip.room-chip-type-apartment {
+    background: #f59e0b;
+}
+
+.home-page .room-chip.room-chip-type-dorm {
+    background: #8b5cf6;
+}
+
 .home-page .room-chip-rented {
     background: #dc2626;
 }
@@ -1187,6 +1207,13 @@ footer {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.92);
     color: #96a2ab;
+}
+
+.home-page .room-fav-btn.active,
+.category-room-image-wrap .room-fav-btn.active {
+    color: #ef4444;
+    background: rgba(255, 241, 242, 0.96);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.22);
 }
 
 .home-page .room-info-wrap {
@@ -1815,11 +1842,25 @@ body.home-page {
 }
 
 .category-room-image-wrap {
+    position: relative;
     width: 210px;
     min-width: 210px;
     height: 150px;
     border-radius: 10px;
     overflow: hidden;
+}
+
+.category-room-image-wrap .room-fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #96a2ab;
+    z-index: 2;
 }
 
 .category-room-image {
@@ -1861,6 +1902,30 @@ body.home-page {
     padding: 4px 8px;
     font-size: 0.82rem;
     color: #334155;
+}
+
+.category-room-tags span.tag-type-motel {
+    background: #ecfdf3;
+    border-color: #6ee7b7;
+    color: #047857;
+}
+
+.category-room-tags span.tag-type-house {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+.category-room-tags span.tag-type-apartment {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+.category-room-tags span.tag-type-dorm {
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+    color: #6d28d9;
 }
 
 .category-room-location,
