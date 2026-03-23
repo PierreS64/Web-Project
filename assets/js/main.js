@@ -720,6 +720,24 @@ function resetAdvancedSearch() {
     document.getElementById('mainSearchInput').value = '';
 }
 
+function normalizeLocationText(value = '') {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\b(thanh pho|tp\.?|tinh|quan|huyen|thi xa|thi tran|phuong|xa)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function locationContains(haystack, needle) {
+    const normalizedNeedle = normalizeLocationText(needle);
+    if (!normalizedNeedle) return true;
+
+    const normalizedHaystack = normalizeLocationText(haystack);
+    return normalizedHaystack.includes(normalizedNeedle);
+}
+
 function executeSearch(options = {}) {
     // 1. Get location string from Advanced Search
     const city = document.getElementById('advCity').value;
@@ -784,7 +802,11 @@ function executeSearch(options = {}) {
 
         // B. Keyword / Location Filter
         const roomAddress = (r.address || [r.street, r.ward, r.district, r.city].filter(Boolean).join(', ')).toLowerCase();
-        const locMatch = !locationKeyword || roomAddress.includes(locationKeyword.toLowerCase());
+        const cityMatch = !city || locationContains(r.city || roomAddress, city);
+        const districtMatch = !district || locationContains(r.district || roomAddress, district);
+        const wardMatch = !ward || locationContains(r.ward || roomAddress, ward);
+        const keywordMatch = !locationKeyword || locationContains(roomAddress, locationKeyword);
+        const locMatch = cityMatch && districtMatch && wardMatch && keywordMatch;
 
         // C. Price Filter
         const priceMatch = r.price >= minPrice && r.price <= maxPrice;
