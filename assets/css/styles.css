@@ -1816,16 +1816,22 @@ body.home-page {
     background-color: #198754 !important;
 }
 
-#contractModal .btn-primary {
-    background-color: #198754;
-    border-color: #198754;
+#contractModal .modal-footer .btn-primary,
+#extendContractModal .modal-footer .btn-primary {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
 }
 
-#contractModal .btn-primary:hover,
-#contractModal .btn-primary:focus,
-#contractModal .btn-primary:active {
+#contractModal .modal-footer .btn-primary:hover,
+#contractModal .modal-footer .btn-primary:focus,
+#contractModal .modal-footer .btn-primary:active,
+#extendContractModal .modal-footer .btn-primary:hover,
+#extendContractModal .modal-footer .btn-primary:focus,
+#extendContractModal .modal-footer .btn-primary:active {
     background-color: #157347 !important;
     border-color: #146c43 !important;
+    color: #ffffff !important;
 }
 
 #contractModal .form-control:focus {
