@@ -12,7 +12,7 @@
         body { padding-top: 80px; }
     </style>
 </head>
-<body class="home-page bg-light">
+<body class="home-page bg-light owner-page">
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
@@ -85,7 +85,7 @@
                         <option value="rented">Đã thuê</option>
                     </select>
                 </div>
-                <button class="btn btn-success fw-bold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Thêm Phòng Mới</button>
+                <button class="btn btn-success fw-bold owner-add-room-btn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Thêm Phòng Mới</button>
             </div>
         </div>
 
@@ -143,8 +143,8 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-between flex-wrap gap-2">
                     <div class="d-flex gap-2 flex-wrap">
-                        <button type="button" class="btn btn-primary" onclick="openContractFromAction()">
-                            <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng
+                        <button type="button" id="contractActionBtn" class="btn btn-primary" onclick="openContractFromAction()">
+                            <i class="fa-solid fa-file-signature"></i> <span id="contractActionBtnText">Tạo hợp đồng</span>
                         </button>
                         <button type="button" class="btn btn-outline-danger" onclick="openEndContractFromAction()">
                             <i class="fa-solid fa-file-circle-xmark"></i> Kết thúc hợp đồng
@@ -438,6 +438,16 @@
                             <label class="form-label">Tên khách thuê <span class="text-danger">*</span></label>
                             <input type="text" id="tenantName" class="form-control" placeholder="Tên khách thuê" required>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="date" id="contractStartDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                                <input type="date" id="contractEndDate" class="form-control" required>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Hợp đồng thuê nhà (PDF) <span class="text-danger">*</span></label>
                             <input type="file" id="contractFile" class="form-control" accept="application/pdf" required>
@@ -484,6 +494,54 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                     <button type="button" class="btn btn-danger" onclick="saveEndContract()">
                         <i class="fa-solid fa-check"></i> Xác nhận kết thúc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="extendContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Gia hạn hợp đồng thuê</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="extendContractForm">
+                        <input type="hidden" id="extendContractRoomId">
+                        <div class="mb-2 small text-muted" id="extendContractRoomTitle"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="extendTenantPhone" class="form-control" readonly>
+                            <div class="form-text">Không thể thay đổi khi gia hạn hợp đồng.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="extendTenantName" class="form-control" readonly>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="date" id="extendContractStartDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                                <input type="date" id="extendContractEndDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hợp đồng thuê nhà (PDF) <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" accept="application/pdf" disabled>
+                            <div class="form-text">Khi gia hạn, không được thay đổi tệp hợp đồng hiện tại.</div>
+                            <div id="extendExistingContractInfo" class="small text-muted mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExtendContract()">
+                        <i class="fa-solid fa-calendar-check"></i> Lưu gia hạn
                     </button>
                 </div>
             </div>

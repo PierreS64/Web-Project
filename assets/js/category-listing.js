@@ -12,6 +12,10 @@ function isRoomDataValid(room) {
         && Number.isFinite(Number(room.area)) && Number(room.area) > 0;
 }
 
+function isRoomVisibleOnCategory(room) {
+    return String(room && room.status ? room.status : '').toLowerCase() !== 'rented';
+}
+
 function initCategoryPage() {
     const pageRoot = document.querySelector('.category-page-wrap');
     if (!pageRoot) return;
@@ -39,7 +43,10 @@ function initCategoryPage() {
     const canUseFavorites = typeof Favorites !== 'undefined' && typeof Favorites.getAll === 'function';
     const favoriteIds = isFavoriteMode && canUseFavorites ? Favorites.getAll() : [];
 
-    let allRooms = Storage.getRooms().filter(isRoomDataValid).filter(config.filterByType);
+    let allRooms = Storage.getRooms()
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnCategory)
+        .filter(config.filterByType);
     if (isFavoriteMode) {
         allRooms = allRooms.filter((room) => favoriteIds.includes(room.id));
         titleEl.textContent = 'PHÒNG TRỌ YÊU THÍCH CỦA BẠN';

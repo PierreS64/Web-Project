@@ -13,6 +13,7 @@ if (!currentUser || currentUser.role !== 'owner') {
 // 2. BIẾN TOÀN CỤC
 let roomModal;
 let contractModal;
+let extendContractModal;
 let endContractModal;
 let roomActionModal;
 let invoiceModal;
@@ -28,6 +29,7 @@ let selectedImages = [];
 document.addEventListener('DOMContentLoaded', () => {
     roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
     contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+    extendContractModal = new bootstrap.Modal(document.getElementById('extendContractModal'));
     endContractModal = new bootstrap.Modal(document.getElementById('endContractModal'));
     roomActionModal = new bootstrap.Modal(document.getElementById('roomActionModal'));
     invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
@@ -721,6 +723,8 @@ function openContractModal(roomId) {
     document.getElementById('contractRoomId').value = room.id;
     document.getElementById('contractRoomTitle').textContent = `Phòng: ${room.title}`;
     document.getElementById('tenantLookupStatus').textContent = '';
+    document.getElementById('contractStartDate').value = '';
+    document.getElementById('contractEndDate').value = '';
 
     const existingInfo = document.getElementById('existingContractInfo');
     existingInfo.classList.add('d-none');
@@ -729,6 +733,8 @@ function openContractModal(roomId) {
     if (room.contract) {
         document.getElementById('tenantPhone').value = room.contract.tenantPhone || '';
         document.getElementById('tenantName').value = room.contract.tenantName || '';
+        document.getElementById('contractStartDate').value = room.contract.startDate || '';
+        document.getElementById('contractEndDate').value = room.contract.endDate || '';
         existingInfo.classList.remove('d-none');
         existingInfo.textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}. Bạn có thể chọn PDF mới để thay thế.`;
         document.getElementById('contractFile').required = false;
@@ -772,11 +778,18 @@ async function saveContract() {
     const roomId = document.getElementById('contractRoomId').value;
     const tenantPhone = (document.getElementById('tenantPhone').value || '').trim();
     const tenantName = (document.getElementById('tenantName').value || '').trim();
+    const contractStartDate = document.getElementById('contractStartDate').value;
+    const contractEndDate = document.getElementById('contractEndDate').value;
     const fileInput = document.getElementById('contractFile');
 
     if (!roomId) return alert('Không xác định được phòng trọ.');
     if (!/^\d{10}$/.test(tenantPhone)) return alert('Số điện thoại khách phải gồm đúng 10 chữ số.');
     if (!tenantName) return alert('Vui lòng nhập tên khách thuê.');
+    if (!contractStartDate) return alert('Vui lòng chọn ngày bắt đầu hợp đồng.');
+    if (!contractEndDate) return alert('Vui lòng chọn ngày kết thúc hợp đồng.');
+    if (contractEndDate < contractStartDate) {
+        return alert('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.');
+    }
 
     const room = Storage.getRoomById(roomId);
     if (!room) return alert('Không tìm thấy phòng trọ.');
@@ -815,6 +828,8 @@ async function saveContract() {
         contract: {
             tenantName,
             tenantPhone,
+            startDate: contractStartDate,
+            endDate: contractEndDate,
             fileName: contractFileName,
             fileData: contractFileData,
             updatedAt: new Date().toISOString(),
@@ -873,6 +888,11 @@ function openRoomActionModalById(roomId) {
     document.getElementById('roomActionStatus').textContent = statusText;
     document.getElementById('roomActionAddress').textContent = location;
     document.getElementById('roomActionDescription').textContent = room.description;
+
+    const contractActionBtnText = document.getElementById('contractActionBtnText');
+    if (contractActionBtnText) {
+        contractActionBtnText.textContent = room.contract ? 'Gia hạn hợp đồng' : 'Tạo hợp đồng';
+    }
 
     initOwnerActionGallery(images, room.title);
 
@@ -945,10 +965,96 @@ window.prevOwnerActionImage = prevOwnerActionImage;
 function openContractFromAction() {
     if (!selectedRoomActionId) return;
     roomActionModal.hide();
+
+    const room = Storage.getRoomById(selectedRoomActionId);
+    if (room && room.contract) {
+        openExtendContractModal(selectedRoomActionId);
+        return;
+    }
+
     openContractModal(selectedRoomActionId);
 }
 
 window.openContractFromAction = openContractFromAction;
+
+function openExtendContractModal(roomId) {
+    const room = Storage.getRoomById(roomId);
+    if (!room) {
+        alert('Không tìm thấy phòng trọ!');
+        return;
+    }
+
+    if (!room.contract) {
+        alert('Phòng này chưa có hợp đồng để gia hạn.');
+        return;
+    }
+
+    const form = document.getElementById('extendContractForm');
+    if (form) form.reset();
+
+    document.getElementById('extendContractRoomId').value = room.id;
+    document.getElementById('extendContractRoomTitle').textContent = `Phòng: ${room.title}`;
+    document.getElementById('extendTenantPhone').value = room.contract.tenantPhone || '';
+    document.getElementById('extendTenantName').value = room.contract.tenantName || '';
+    document.getElementById('extendContractStartDate').value = room.contract.startDate || '';
+    document.getElementById('extendContractEndDate').value = room.contract.endDate || '';
+    document.getElementById('extendExistingContractInfo').textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}.`;
+
+    extendContractModal.show();
+}
+
+async function saveExtendContract() {
+    const roomId = document.getElementById('extendContractRoomId').value;
+    const startDate = document.getElementById('extendContractStartDate').value;
+    const endDate = document.getElementById('extendContractEndDate').value;
+
+    if (!roomId) return alert('Không xác định được phòng trọ.');
+    if (!startDate) return alert('Vui lòng chọn ngày bắt đầu hợp đồng.');
+    if (!endDate) return alert('Vui lòng chọn ngày kết thúc hợp đồng.');
+    if (endDate < startDate) return alert('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.');
+
+    const room = Storage.getRoomById(roomId);
+    if (!room || !room.contract) return alert('Không tìm thấy hợp đồng hiện tại để gia hạn.');
+
+    const updatedRoom = {
+        ...room,
+        contract: {
+            ...room.contract,
+            startDate,
+            endDate,
+            updatedAt: new Date().toISOString()
+        }
+    };
+
+    try {
+        Storage.updateRoom(updatedRoom);
+        if (room.contract.tenantPhone) {
+            Storage.addNotification({
+                toPhone: room.contract.tenantPhone,
+                fromPhone: currentUser.phone,
+                type: 'contract_extended',
+                title: 'Hợp đồng được gia hạn',
+                message: `Hợp đồng phòng ${room.title} đã được gia hạn đến ${new Date(`${endDate}T00:00:00`).toLocaleDateString('vi-VN')}.`,
+                meta: {
+                    roomId: room.id,
+                    roomTitle: room.title,
+                    startDate,
+                    endDate
+                }
+            });
+        }
+
+        extendContractModal.hide();
+        renderTable();
+        renderOwnerNotifications();
+        alert('Gia hạn hợp đồng thành công!');
+    } catch (error) {
+        console.error(error);
+        alert('Không thể gia hạn hợp đồng. Vui lòng thử lại.');
+    }
+}
+
+window.saveExtendContract = saveExtendContract;
 
 function openEndContractFromAction() {
     if (!selectedRoomActionId) return;

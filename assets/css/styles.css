@@ -1,4 +1,6 @@
-﻿/* ==================================================
+﻿@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+/* ==================================================
     CSS STRUCTURE MAP
     1) GLOBAL FOUNDATION: biến, base, component dùng chung
     2) HOME / LISTING PAGES: trang chủ + danh sách tổng hợp
@@ -90,15 +92,15 @@ body {
 }
 
 .btn-nav-register {
-    background-color: white;
+    background-color: transparent;
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
 }
 
 .btn-nav-logout {
-    background-color: #dc3545;
+    background-color: transparent;
     border: 2px solid #dc3545;
-    color: white;
+    color: #dc3545;
 }
 
 .btn-nav-auth:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
@@ -106,10 +108,10 @@ body {
 .btn-nav-register:hover { background-color: var(--primary-color); color: white; }
 .btn-nav-logout:hover { background-color: #bb2d3b; border-color: #bb2d3b; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4); }
 
-/* Chỉ đổi màu nút Đăng ký/Tạo tài khoản trong cụm auth */
+/* Đồng bộ nút auth: mặc định không nền, chỉ hiện nền khi hover */
 #auth-buttons .btn-nav-register {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: transparent;
+    color: var(--primary-color);
 }
 
 #auth-buttons .btn-nav-register:hover {
@@ -1829,6 +1831,158 @@ body.home-page {
 #contractModal .form-control:focus {
     border-color: #198754;
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+/* ------------------------------------------
+    [OWNER/TENANT PAGES] BUTTON STYLE UNIFICATION
+    ------------------------------------------ */
+.owner-page .btn:not(.btn-close):not(.owner-add-room-btn),
+.tenant-page .btn:not(.btn-close) {
+    border-width: 2px;
+    box-shadow: none;
+    transition: all 0.25s ease;
+    transform: none;
+}
+
+.owner-page .btn:not(.btn-close):not(.owner-add-room-btn):not(:hover):not(:focus):not(:active),
+.tenant-page .btn:not(.btn-close):not(:hover):not(:focus):not(:active) {
+    background-color: transparent !important;
+}
+
+.owner-page .btn-primary,
+.tenant-page .btn-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.owner-page .btn-warning,
+.tenant-page .btn-warning {
+    color: #f2a900;
+    border-color: #f2a900;
+}
+
+.owner-page .btn-danger,
+.tenant-page .btn-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.owner-page .btn-success,
+.tenant-page .btn-success {
+    color: #198754;
+    border-color: #198754;
+}
+
+.owner-page .btn-secondary,
+.tenant-page .btn-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.owner-page .btn-outline-primary,
+.tenant-page .btn-outline-primary {
+    color: #0d6efd;
+}
+
+.owner-page .btn-outline-danger,
+.tenant-page .btn-outline-danger {
+    color: #dc3545;
+}
+
+.owner-page .btn-outline-dark,
+.tenant-page .btn-outline-dark {
+    color: #212529;
+}
+
+.owner-page .btn-outline-secondary,
+.tenant-page .btn-outline-secondary {
+    color: #6c757d;
+}
+
+.owner-page .btn-primary:hover,
+.owner-page .btn-primary:focus,
+.tenant-page .btn-primary:hover,
+.tenant-page .btn-primary:focus {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-warning:hover,
+.owner-page .btn-warning:focus,
+.tenant-page .btn-warning:hover,
+.tenant-page .btn-warning:focus {
+    background-color: #f2a900 !important;
+    border-color: #f2a900 !important;
+    color: #212529 !important;
+}
+
+.owner-page .btn-danger:hover,
+.owner-page .btn-danger:focus,
+.tenant-page .btn-danger:hover,
+.tenant-page .btn-danger:focus,
+.owner-page .btn-outline-danger:hover,
+.owner-page .btn-outline-danger:focus,
+.tenant-page .btn-outline-danger:hover,
+.tenant-page .btn-outline-danger:focus {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-success:hover,
+.owner-page .btn-success:focus,
+.tenant-page .btn-success:hover,
+.tenant-page .btn-success:focus {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-secondary:hover,
+.owner-page .btn-secondary:focus,
+.tenant-page .btn-secondary:hover,
+.tenant-page .btn-secondary:focus,
+.owner-page .btn-outline-secondary:hover,
+.owner-page .btn-outline-secondary:focus,
+.tenant-page .btn-outline-secondary:hover,
+.tenant-page .btn-outline-secondary:focus {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-outline-primary:hover,
+.owner-page .btn-outline-primary:focus,
+.tenant-page .btn-outline-primary:hover,
+.tenant-page .btn-outline-primary:focus {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-outline-dark:hover,
+.owner-page .btn-outline-dark:focus,
+.tenant-page .btn-outline-dark:hover,
+.tenant-page .btn-outline-dark:focus {
+    background-color: #212529 !important;
+    border-color: #212529 !important;
+    color: #fff !important;
+}
+
+/* Keep the "Thêm Phòng Mới" button in original solid style. */
+.owner-page .owner-add-room-btn.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+.owner-page .owner-add-room-btn.btn-success:hover,
+.owner-page .owner-add-room-btn.btn-success:focus,
+.owner-page .owner-add-room-btn.btn-success:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #fff !important;
 }
 
 .owner-room-list {
