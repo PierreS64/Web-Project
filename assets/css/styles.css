@@ -1812,6 +1812,20 @@ body.home-page {
 /* ------------------------------------------
     [OWNER PAGES] CONTRACT MODAL (TAO HOP DONG THUE)
     ------------------------------------------ */
+#roomModal .modal-footer .btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+#roomModal .modal-footer .btn-success:hover,
+#roomModal .modal-footer .btn-success:focus,
+#roomModal .modal-footer .btn-success:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
 #contractModal .modal-header {
     background-color: #198754 !important;
 }
