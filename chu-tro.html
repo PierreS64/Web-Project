@@ -152,6 +152,9 @@
                         <button type="button" class="btn btn-warning" onclick="openInvoiceFromAction()">
                             <i class="fa-solid fa-file-invoice"></i> Tạo hoá đơn
                         </button>
+                        <button type="button" class="btn btn-outline-warning" onclick="openIssueListFromAction()">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Xem sự cố
+                        </button>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
                         <button type="button" class="btn btn-outline-primary" onclick="editFromAction()">
@@ -531,9 +534,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Hợp đồng thuê nhà (PDF) <span class="text-danger">*</span></label>
-                            <input type="file" class="form-control" accept="application/pdf" disabled>
-                            <div class="form-text">Khi gia hạn, không được thay đổi tệp hợp đồng hiện tại.</div>
+                            <label class="form-label">Hợp đồng gia hạn (PDF)</label>
+                            <input type="file" id="extendContractFile" class="form-control" accept="application/pdf">
+                            <div class="form-text">Tùy chọn: tải thêm bản hợp đồng gia hạn mới. Hợp đồng hiện tại vẫn được giữ lại.</div>
                             <div id="extendExistingContractInfo" class="small text-muted mt-2"></div>
                         </div>
                     </form>
@@ -542,6 +545,68 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-primary" onclick="saveExtendContract()">
                         <i class="fa-solid fa-calendar-check"></i> Lưu gia hạn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="ownerIssueModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title fw-bold">Danh sách sự cố</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="issue-history-toolbar mb-3">
+                        <label for="ownerIssueStatusFilter" class="small fw-semibold text-muted mb-0">Lọc trạng thái</label>
+                        <select id="ownerIssueStatusFilter" class="form-select form-select-sm w-auto">
+                            <option value="pending" selected>Chưa xử lý</option>
+                            <option value="all">Tất cả</option>
+                            <option value="resolved">Đã xử lý</option>
+                        </select>
+                    </div>
+                    <div id="ownerIssueList" class="issue-history-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ownerIssueDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="ownerIssueDetailTitle">Chi tiết sự cố</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="owner-action-gallery">
+                                <button class="owner-action-gallery-nav prev" type="button" onclick="prevOwnerIssueImage()" aria-label="Ảnh trước">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <div class="owner-action-gallery-track" id="ownerIssueGalleryTrack"></div>
+                                <button class="owner-action-gallery-nav next" type="button" onclick="nextOwnerIssueImage()" aria-label="Ảnh tiếp theo">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="room-action-info"><span>Trạng thái:</span> <strong id="ownerIssueDetailStatus">-</strong></div>
+                            <div class="room-action-info"><span>Khách báo cáo:</span> <strong id="ownerIssueDetailTenant">-</strong></div>
+                            <div class="room-action-info"><span>Ngày báo cáo:</span> <strong id="ownerIssueDetailCreatedAt">-</strong></div>
+                            <div class="room-action-info"><span>Phòng:</span> <strong id="ownerIssueDetailRoomTitle">-</strong></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0" id="ownerIssueDetailDescription">-</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="ownerIssueStatusToggleBtn" onclick="toggleOwnerIssueStatus()">
+                        <i class="fa-solid fa-check"></i> Đánh dấu đã xử lý
                     </button>
                 </div>
             </div>

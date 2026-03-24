@@ -17,12 +17,24 @@ let extendContractModal;
 let endContractModal;
 let roomActionModal;
 let invoiceModal;
+let ownerIssueModal;
+let ownerIssueDetailModal;
 let selectedRoomActionId = null;
+let selectedOwnerIssueRoomId = null;
+let selectedOwnerIssueId = null;
+let ownerHighlightedIssueId = null;
+let ownerIssueHighlightTimer = null;
 let ownerActionGalleryState = {
     images: [],
     index: 0
 };
+let ownerIssueGalleryState = {
+    images: [],
+    index: 0
+};
 let selectedImages = [];
+
+const OWNER_ISSUE_FILTER_KEY = 'owner_issue_status_filter';
 // let map, marker;
 // let defaultLocation = { lat: 21.0285, lng: 105.8542 }; // Hà Nội
 
@@ -33,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     endContractModal = new bootstrap.Modal(document.getElementById('endContractModal'));
     roomActionModal = new bootstrap.Modal(document.getElementById('roomActionModal'));
     invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+    ownerIssueModal = new bootstrap.Modal(document.getElementById('ownerIssueModal'));
+    ownerIssueDetailModal = new bootstrap.Modal(document.getElementById('ownerIssueDetailModal'));
     renderTable();
     renderOwnerNotifications();
     setInterval(renderOwnerNotifications, 30000);
@@ -54,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.invoice-calc').forEach((input) => {
         input.addEventListener('input', recalculateInvoice);
     });
+
+    const ownerIssueStatusFilter = document.getElementById('ownerIssueStatusFilter');
+    if (ownerIssueStatusFilter) {
+        ownerIssueStatusFilter.value = readOwnerIssueFilter();
+        ownerIssueStatusFilter.addEventListener('change', () => {
+            writeOwnerIssueFilter(ownerIssueStatusFilter.value);
+            renderOwnerIssueList();
+        });
+    }
     
     // Fix map rendering issue when modal opens
     /*
@@ -87,6 +110,34 @@ function isPositiveNumber(value) {
 function isNonNegativeNumber(value) {
     const num = Number(value);
     return Number.isFinite(num) && num >= 0;
+}
+
+function getIssueStatusConfig(status) {
+    if (status === 'resolved') {
+        return {
+            label: 'Đã xử lý',
+            tagClass: 'resolved',
+            textClass: 'text-success'
+        };
+    }
+
+    return {
+        label: 'Chưa xử lý',
+        tagClass: 'pending',
+        textClass: 'text-danger'
+    };
+}
+
+function readOwnerIssueFilter() {
+    const saved = (localStorage.getItem(OWNER_ISSUE_FILTER_KEY) || '').toLowerCase();
+    if (saved === 'pending' || saved === 'resolved' || saved === 'all') return saved;
+    return 'pending';
+}
+
+function writeOwnerIssueFilter(value) {
+    const normalized = (value || '').toLowerCase();
+    if (normalized !== 'pending' && normalized !== 'resolved' && normalized !== 'all') return;
+    localStorage.setItem(OWNER_ISSUE_FILTER_KEY, normalized);
 }
 
 function initImageUploadHandlers() {
@@ -933,6 +984,17 @@ function syncOwnerActionGallery() {
 
     slides.forEach((slide, idx) => {
         slide.classList.remove('is-active', 'is-prev', 'is-next');
+        if (total === 1) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            return;
+        }
+
+        if (total === 2) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            else if (idx === nextIndex) slide.classList.add('is-next');
+            return;
+        }
+
         if (idx === currentIndex) slide.classList.add('is-active');
         else if (idx === prevIndex) slide.classList.add('is-prev');
         else if (idx === nextIndex) slide.classList.add('is-next');
@@ -998,7 +1060,8 @@ function openExtendContractModal(roomId) {
     document.getElementById('extendTenantName').value = room.contract.tenantName || '';
     document.getElementById('extendContractStartDate').value = room.contract.startDate || '';
     document.getElementById('extendContractEndDate').value = room.contract.endDate || '';
-    document.getElementById('extendExistingContractInfo').textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}.`;
+    const renewalFileCount = Array.isArray(room.contract.renewalFiles) ? room.contract.renewalFiles.length : 0;
+    document.getElementById('extendExistingContractInfo').textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}. Số bản gia hạn đã lưu: ${renewalFileCount}.`;
 
     extendContractModal.show();
 }
@@ -1007,6 +1070,7 @@ async function saveExtendContract() {
     const roomId = document.getElementById('extendContractRoomId').value;
     const startDate = document.getElementById('extendContractStartDate').value;
     const endDate = document.getElementById('extendContractEndDate').value;
+    const extendContractFileInput = document.getElementById('extendContractFile');
 
     if (!roomId) return alert('Không xác định được phòng trọ.');
     if (!startDate) return alert('Vui lòng chọn ngày bắt đầu hợp đồng.');
@@ -1016,12 +1080,39 @@ async function saveExtendContract() {
     const room = Storage.getRoomById(roomId);
     if (!room || !room.contract) return alert('Không tìm thấy hợp đồng hiện tại để gia hạn.');
 
+    let renewalFiles = Array.isArray(room.contract.renewalFiles) ? [...room.contract.renewalFiles] : [];
+    if (extendContractFileInput && extendContractFileInput.files.length > 0) {
+        const file = extendContractFileInput.files[0];
+        const isPdfType = file.type === 'application/pdf';
+        const isPdfExt = /\.pdf$/i.test(file.name);
+
+        if (!isPdfType && !isPdfExt) {
+            return alert('Chỉ nhận file PDF cho hợp đồng gia hạn.');
+        }
+
+        try {
+            const fileData = await convertFileToBase64(file);
+            renewalFiles.unshift({
+                id: `RENEW_${Date.now()}`,
+                fileName: file.name,
+                fileData,
+                startDate,
+                endDate,
+                uploadedAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error(error);
+            return alert('Không thể đọc file hợp đồng gia hạn PDF.');
+        }
+    }
+
     const updatedRoom = {
         ...room,
         contract: {
             ...room.contract,
             startDate,
             endDate,
+            renewalFiles,
             updatedAt: new Date().toISOString()
         }
     };
@@ -1156,6 +1247,261 @@ function openInvoiceFromAction() {
 }
 
 window.openInvoiceFromAction = openInvoiceFromAction;
+
+function openIssueListFromAction() {
+    if (!selectedRoomActionId) return;
+    selectedOwnerIssueRoomId = selectedRoomActionId;
+    const ownerIssueStatusFilter = document.getElementById('ownerIssueStatusFilter');
+    if (ownerIssueStatusFilter) ownerIssueStatusFilter.value = readOwnerIssueFilter();
+    roomActionModal.hide();
+    renderOwnerIssueList();
+    ownerIssueModal.show();
+}
+
+window.openIssueListFromAction = openIssueListFromAction;
+
+function buildOwnerIssueImagePreview(issue) {
+    const images = Array.isArray(issue.images) ? issue.images : [];
+    const firstImage = images[0] && images[0].base64 ? images[0].base64 : '';
+    if (firstImage) {
+        return `<img src="${firstImage}" alt="${issue.title || 'issue-image'}">`;
+    }
+
+    return '<div class="issue-placeholder-image">Không có ảnh</div>';
+}
+
+function getCurrentOwnerIssueRoom() {
+    if (!selectedOwnerIssueRoomId) return null;
+    return Storage.getRoomById(selectedOwnerIssueRoomId);
+}
+
+function renderOwnerIssueList() {
+    const listEl = document.getElementById('ownerIssueList');
+    if (!listEl) return;
+
+    const room = getCurrentOwnerIssueRoom();
+    const statusFilter = (document.getElementById('ownerIssueStatusFilter')?.value || readOwnerIssueFilter()).toLowerCase();
+    const issues = room && Array.isArray(room.issueReports)
+        ? [...room.issueReports]
+            .filter((issue) => {
+                if (statusFilter === 'all') return true;
+                return (issue.status || 'pending') === statusFilter;
+            })
+            .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+        : [];
+
+    if (!room || issues.length === 0) {
+        listEl.innerHTML = '<div class="issue-empty-state">Chưa có báo cáo sự cố nào cho phòng này.</div>';
+        return;
+    }
+
+    listEl.innerHTML = issues.map((issue) => {
+        const statusConfig = getIssueStatusConfig(issue.status);
+        const createdText = new Date(issue.createdAt || Date.now()).toLocaleString('vi-VN');
+
+        return `
+            <article class="issue-history-card ${ownerHighlightedIssueId === issue.id ? 'highlight' : ''}" onclick="openOwnerIssueDetail('${issue.id}')">
+                <div class="issue-history-content">
+                    <div class="issue-history-title">${issue.title || 'Sự cố không tiêu đề'}</div>
+                    <div class="issue-history-description">${issue.description || 'Không có mô tả.'}</div>
+                    <div class="issue-history-meta">Khách thuê: ${issue.tenantName || '-'} | Báo cáo lúc: ${createdText}</div>
+                </div>
+                <div class="issue-history-image-box">
+                    ${buildOwnerIssueImagePreview(issue)}
+                    <span class="issue-status-tag ${statusConfig.tagClass}">${statusConfig.label}</span>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderOwnerIssueGallery(images) {
+    const track = document.getElementById('ownerIssueGalleryTrack');
+    if (!track) return;
+
+    if (!Array.isArray(images) || images.length === 0) {
+        track.innerHTML = `
+            <div class="owner-action-gallery-slide is-active" data-index="0" style="left:0;width:100%;opacity:1;transform:none;">
+                <div class="issue-placeholder-image">Không có ảnh sự cố</div>
+            </div>
+        `;
+        return;
+    }
+
+    track.innerHTML = images.map((src, idx) => `
+        <div class="owner-action-gallery-slide" data-index="${idx}">
+            <img src="${src}" alt="issue-image-${idx + 1}">
+        </div>
+    `).join('');
+
+    syncOwnerIssueGallery();
+}
+
+function syncOwnerIssueGallery() {
+    const track = document.getElementById('ownerIssueGalleryTrack');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('.owner-action-gallery-slide'));
+    const total = slides.length;
+    if (total === 0) return;
+
+    const currentIndex = ownerIssueGalleryState.index;
+    const prevIndex = (currentIndex - 1 + total) % total;
+    const nextIndex = (currentIndex + 1) % total;
+
+    slides.forEach((slide, idx) => {
+        slide.classList.remove('is-active', 'is-prev', 'is-next');
+        if (total === 1) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            return;
+        }
+
+        if (total === 2) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            else if (idx === nextIndex) slide.classList.add('is-next');
+            return;
+        }
+
+        if (idx === currentIndex) slide.classList.add('is-active');
+        else if (idx === prevIndex) slide.classList.add('is-prev');
+        else if (idx === nextIndex) slide.classList.add('is-next');
+    });
+
+    const gallery = track.closest('.owner-action-gallery');
+    if (!gallery) return;
+
+    const prevBtn = gallery.querySelector('.owner-action-gallery-nav.prev');
+    const nextBtn = gallery.querySelector('.owner-action-gallery-nav.next');
+    const disabled = total <= 1;
+
+    if (prevBtn) prevBtn.disabled = disabled;
+    if (nextBtn) nextBtn.disabled = disabled;
+}
+
+function nextOwnerIssueImage() {
+    const total = ownerIssueGalleryState.images.length;
+    if (total <= 1) return;
+    ownerIssueGalleryState.index = (ownerIssueGalleryState.index + 1) % total;
+    syncOwnerIssueGallery();
+}
+
+function prevOwnerIssueImage() {
+    const total = ownerIssueGalleryState.images.length;
+    if (total <= 1) return;
+    ownerIssueGalleryState.index = (ownerIssueGalleryState.index - 1 + total) % total;
+    syncOwnerIssueGallery();
+}
+
+window.nextOwnerIssueImage = nextOwnerIssueImage;
+window.prevOwnerIssueImage = prevOwnerIssueImage;
+
+function openOwnerIssueDetail(issueId) {
+    const room = getCurrentOwnerIssueRoom();
+    if (!room || !Array.isArray(room.issueReports)) return;
+
+    const issue = room.issueReports.find((item) => item.id === issueId);
+    if (!issue) return;
+
+    selectedOwnerIssueId = issue.id;
+    const statusConfig = getIssueStatusConfig(issue.status);
+
+    document.getElementById('ownerIssueDetailTitle').textContent = issue.title || 'Chi tiết sự cố';
+    document.getElementById('ownerIssueDetailStatus').textContent = statusConfig.label;
+    document.getElementById('ownerIssueDetailStatus').className = statusConfig.textClass;
+    document.getElementById('ownerIssueDetailTenant').textContent = `${issue.tenantName || '-'} (${issue.tenantPhone || '-'})`;
+    document.getElementById('ownerIssueDetailCreatedAt').textContent = new Date(issue.createdAt || Date.now()).toLocaleString('vi-VN');
+    document.getElementById('ownerIssueDetailRoomTitle').textContent = room.title || '-';
+    document.getElementById('ownerIssueDetailDescription').textContent = issue.description || '-';
+
+    const statusBtn = document.getElementById('ownerIssueStatusToggleBtn');
+    if (statusBtn) {
+        if (issue.status === 'resolved') {
+            statusBtn.className = 'btn btn-outline-danger';
+            statusBtn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Chuyển về chưa xử lý';
+        } else {
+            statusBtn.className = 'btn btn-success';
+            statusBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đánh dấu đã xử lý';
+        }
+    }
+
+    const imageSources = (Array.isArray(issue.images) ? issue.images : [])
+        .map((item) => item && item.base64)
+        .filter(Boolean);
+
+    ownerIssueGalleryState.images = imageSources;
+    ownerIssueGalleryState.index = 0;
+    renderOwnerIssueGallery(imageSources);
+
+    ownerIssueDetailModal.show();
+}
+
+window.openOwnerIssueDetail = openOwnerIssueDetail;
+
+function toggleOwnerIssueStatus() {
+    const room = getCurrentOwnerIssueRoom();
+    if (!room || !Array.isArray(room.issueReports) || !selectedOwnerIssueId) return;
+
+    const issueIndex = room.issueReports.findIndex((item) => item.id === selectedOwnerIssueId);
+    if (issueIndex === -1) return;
+
+    const currentIssue = room.issueReports[issueIndex];
+    const nextStatus = currentIssue.status === 'resolved' ? 'pending' : 'resolved';
+    const updatedIssue = {
+        ...currentIssue,
+        status: nextStatus,
+        resolvedAt: nextStatus === 'resolved' ? new Date().toISOString() : null,
+        updatedAt: new Date().toISOString()
+    };
+
+    const nextIssueReports = [...room.issueReports];
+    nextIssueReports[issueIndex] = updatedIssue;
+
+    Storage.updateRoom({
+        ...room,
+        issueReports: nextIssueReports
+    });
+
+    Storage.addNotification({
+        toPhone: updatedIssue.tenantPhone,
+        fromPhone: currentUser.phone,
+        type: nextStatus === 'resolved' ? 'issue_resolved' : 'issue_reopened',
+        title: nextStatus === 'resolved' ? 'Sự cố đã được xử lý' : 'Sự cố cần theo dõi thêm',
+        message: nextStatus === 'resolved'
+            ? `Chủ trọ đã đánh dấu xử lý xong sự cố "${updatedIssue.title}" của phòng ${room.title}.`
+            : `Chủ trọ cập nhật lại trạng thái chưa xử lý cho sự cố "${updatedIssue.title}" của phòng ${room.title}.`,
+        meta: {
+            roomId: room.id,
+            roomTitle: room.title,
+            issueId: updatedIssue.id,
+            issueStatus: nextStatus
+        }
+    });
+
+    if (ownerIssueHighlightTimer) {
+        clearTimeout(ownerIssueHighlightTimer);
+        ownerIssueHighlightTimer = null;
+    }
+
+    if (nextStatus === 'resolved') {
+        ownerHighlightedIssueId = updatedIssue.id;
+        ownerIssueHighlightTimer = setTimeout(() => {
+            ownerHighlightedIssueId = null;
+            renderOwnerIssueList();
+        }, 3000);
+        ownerIssueDetailModal.hide();
+    } else {
+        ownerHighlightedIssueId = null;
+    }
+
+    renderOwnerIssueList();
+    if (nextStatus !== 'resolved') {
+        openOwnerIssueDetail(updatedIssue.id);
+    }
+    renderOwnerNotifications();
+    alert(nextStatus === 'resolved' ? 'Đã cập nhật sự cố sang trạng thái Đã xử lý.' : 'Đã cập nhật sự cố sang trạng thái Chưa xử lý.');
+}
+
+window.toggleOwnerIssueStatus = toggleOwnerIssueStatus;
 
 function editFromAction() {
     if (!selectedRoomActionId) return;
