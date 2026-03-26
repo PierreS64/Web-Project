@@ -2,6 +2,7 @@
 <!-- Khai báo loại tài liệu HTML5 -->
 <html lang="vi">
 <!-- Bắt đầu tài liệu HTML với ngôn ngữ tiếng Việt -->
+
 <head>
     <!-- Phần đầu trang chứa metadata và liên kết tài nguyên -->
     <meta charset="UTF-8">
@@ -10,11 +11,13 @@
     <link rel="icon" href="img/logo.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body class="home-page">
     <!-- Thanh điều hướng cố định ở đầu trang -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
@@ -43,11 +46,13 @@
                     </div>
                     <div id="user-info" class="d-none align-items-center gap-2">
                         <div class="dropdown">
-                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
+                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
                                 <i class="fa-regular fa-bell"></i>
                                 <span id="notification-badge" class="nav-unread-badge d-none">0</span>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0" aria-labelledby="notification-toggle">
+                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0"
+                                aria-labelledby="notification-toggle">
                                 <div class="nav-notification-head">
                                     <h6>Thông báo</h6>
                                     <button type="button" id="nav-mark-all-read">Đánh dấu đã đọc tất cả</button>
@@ -60,7 +65,8 @@
                             </div>
                         </div>
                         <div class="dropdown">
-                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                aria-label="Tài khoản">
                                 <i class="fa-regular fa-user"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end nav-profile-menu p-0">
@@ -70,9 +76,11 @@
                                 <button type="button" class="nav-profile-logout">Đăng xuất</button>
                             </div>
                         </div>
-                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i
+                                class="fa-solid fa-list-check"></i> Quản lý</a>
                     </div>
-                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i
+                            class="fa-solid fa-plus"></i> Đăng tin mới</a>
                 </div>
             </div>
         </div>
@@ -85,7 +93,7 @@
                 <h1 class="hero-heading">Tìm phòng trọ <span>dễ dàng</span></h1>
                 <p class="hero-subtitle">Hàng nghìn tin đăng phòng trọ, nhà nguyên căn, căn hộ uy tín trên toàn quốc</p>
             </div>
-             <!-- Tabs Top -->
+            <!-- Tabs Top -->
             <ul class="search-tabs">
                 <li class="search-tab-item active" data-href="tat-ca-tin-dang.html">Tất cả</li>
                 <li class="search-tab-item" data-href="phong-tro.html">Nhà trọ, phòng trọ</li>
@@ -93,62 +101,82 @@
                 <li class="search-tab-item" data-href="can-ho.html">Căn hộ</li>
                 <li class="search-tab-item" data-href="ky-tuc-xa.html">Ký túc xá</li>
             </ul>
-            
+
             <!-- Main Bar -->
             <div class="search-bar-inner">
                 <div class="flex-grow-1 position-relative">
-                    <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-                    <input type="text" class="form-control ps-5 py-2" id="mainSearchInput" placeholder="Tìm theo tên phòng, địa chỉ..." onclick="openAdvancedSearchPopup()" style="height: 46px; border: 1px solid #ced4da;">
+                    <i
+                        class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+                    <input type="text" class="form-control ps-5 py-2" id="mainSearchInput"
+                        placeholder="Tìm theo tên phòng, địa chỉ..." onclick="openAdvancedSearchPopup()"
+                        style="height: 46px; border: 1px solid #ced4da;">
                 </div>
-                
+
                 <!-- Combined Filter -->
                 <div class="custom-filter-wrapper position-relative">
                     <div class="custom-filter-btn icon-only" id="filterBtn" title="Bộ lọc nâng cao">
                         <i class="fa-solid fa-filter fa-lg"></i>
                     </div>
-                    
+
                     <div id="filterPopup" class="filter-popup">
                         <div class="filter-popup-title">Mức giá (VNĐ)</div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="small text-muted" id="priceMinLabel">0đ</span>
                             <span class="small text-muted" id="priceMaxLabel">100tr+</span>
                         </div>
-                        
+
                         <!-- Dual Range Slider -->
                         <div class="slider-container mb-4">
                             <div class="slider-track-bg"></div>
                             <div class="slider-track-active" id="sliderTrack" style="left: 0%; right: 0%;"></div>
                             <!-- Min Range -->
-                            <input type="range" class="range-input" id="rangeMin" min="0" max="100000000" value="0" step="1000000" oninput="slideOne()">
+                            <input type="range" class="range-input" id="rangeMin" min="0" max="100000000" value="0"
+                                step="1000000" oninput="slideOne()">
                             <!-- Max Range -->
-                            <input type="range" class="range-input" id="rangeMax" min="0" max="100000000" value="100000000" step="1000000" oninput="slideTwo()">
+                            <input type="range" class="range-input" id="rangeMax" min="0" max="100000000"
+                                value="100000000" step="1000000" oninput="slideTwo()">
                         </div>
 
                         <div class="price-inputs">
-                            <input type="number" id="priceMin" class="form-control" placeholder="Từ" min="0" onchange="manualInput('min')">
+                            <input type="number" id="priceMin" class="form-control" placeholder="Từ" min="0"
+                                onchange="manualInput('min')">
                             <i class="fa-solid fa-arrow-right"></i>
-                            <input type="number" id="priceMax" class="form-control" placeholder="Đến" min="0" onchange="manualInput('max')">
+                            <input type="number" id="priceMax" class="form-control" placeholder="Đến" min="0"
+                                onchange="manualInput('max')">
                         </div>
 
                         <ul class="filter-list">
-                            <li><label><input type="radio" name="priceRadio" value="all" checked onchange="updatePriceLabel(this)"> Tất cả mức giá</label></li>
-                            <li><label><input type="radio" name="priceRadio" value="duoi1tr" onchange="updatePriceLabel(this)"> Dưới 1 triệu</label></li>
-                            <li><label><input type="radio" name="priceRadio" value="1tr-5tr" onchange="updatePriceLabel(this)"> 1 - 5 triệu</label></li>
-                            <li><label><input type="radio" name="priceRadio" value="5tr-10tr" onchange="updatePriceLabel(this)"> 5 - 10 triệu</label></li>
-                            <li><label><input type="radio" name="priceRadio" value="10tr-20tr" onchange="updatePriceLabel(this)"> 10 - 20 triệu</label></li>
-                            <li><label><input type="radio" name="priceRadio" value="tren20tr" onchange="updatePriceLabel(this)"> Trên 20 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="all" checked
+                                        onchange="updatePriceLabel(this)"> Tất cả mức giá</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="duoi1tr"
+                                        onchange="updatePriceLabel(this)"> Dưới 1 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="1tr-5tr"
+                                        onchange="updatePriceLabel(this)"> 1 - 5 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="5tr-10tr"
+                                        onchange="updatePriceLabel(this)"> 5 - 10 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="10tr-20tr"
+                                        onchange="updatePriceLabel(this)"> 10 - 20 triệu</label></li>
+                            <li><label><input type="radio" name="priceRadio" value="tren20tr"
+                                        onchange="updatePriceLabel(this)"> Trên 20 triệu</label></li>
                         </ul>
 
                         <div class="my-2 border-top pt-3">
                             <div class="filter-popup-title mb-2">Diện tích</div>
                             <ul class="filter-list">
-                                <li><label><input type="radio" name="areaRadio" value="all" checked onchange="updateAreaLabel(this)"> Tất cả diện tích</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="duoi20" onchange="updateAreaLabel(this)"> Dưới 20 m²</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="20-30" onchange="updateAreaLabel(this)"> 20m² - 30 m²</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="30-50" onchange="updateAreaLabel(this)"> 30m² - 50 m²</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="50-70" onchange="updateAreaLabel(this)"> 50m² - 70 m²</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="70-90" onchange="updateAreaLabel(this)"> 70m² - 90 m²</label></li>
-                                <li><label><input type="radio" name="areaRadio" value="tren90" onchange="updateAreaLabel(this)"> Trên 90 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="all" checked
+                                            onchange="updateAreaLabel(this)"> Tất cả diện tích</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="duoi20"
+                                            onchange="updateAreaLabel(this)"> Dưới 20 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="20-30"
+                                            onchange="updateAreaLabel(this)"> 20m² - 30 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="30-50"
+                                            onchange="updateAreaLabel(this)"> 30m² - 50 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="50-70"
+                                            onchange="updateAreaLabel(this)"> 50m² - 70 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="70-90"
+                                            onchange="updateAreaLabel(this)"> 70m² - 90 m²</label></li>
+                                <li><label><input type="radio" name="areaRadio" value="tren90"
+                                            onchange="updateAreaLabel(this)"> Trên 90 m²</label></li>
                             </ul>
                         </div>
 
@@ -156,11 +184,12 @@
                             <button class="btn btn-outline-secondary btn-sm" onclick="resetCombinedFilters()">
                                 <i class="fa-solid fa-rotate-right"></i> Đặt lại
                             </button>
-                            <button class="btn btn-primary btn-sm px-4" onclick="applyFilter('filterPopup')">Tìm ngay</button>
+                            <button class="btn btn-primary btn-sm px-4" onclick="applyFilter('filterPopup')">Tìm
+                                ngay</button>
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="btn-search-orange" id="mainSearchButton" onclick="handleSearchTrigger(event)">
                     <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
                 </button>
@@ -180,7 +209,8 @@
                 <div class="p-3">
                     <!-- Content Area -->
                     <div id="content-area">
-                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Tỉnh/TP nổi bật</h6>
+                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Tỉnh/TP nổi bật
+                        </h6>
                         <div class="d-flex gap-3 mb-4">
                             <div class="quick-city-item" onclick="quickSelectCity('Hà Nội')">
                                 <img src="img/HaNoiF.jpg" alt="Hà Nội">
@@ -200,11 +230,18 @@
                             </div>
                         </div>
 
-                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Chọn khu vực cụ thể</h6>
+                        <h6 class="text-primary fw-bold border-start border-4 border-primary ps-2 mb-3">Chọn khu vực cụ
+                            thể</h6>
                         <div class="d-flex flex-column gap-3 mb-3">
-                            <select id="advCity" class="form-select"><option value="">Chọn Tỉnh/TP...</option></select>
-                            <select id="advDistrict" class="form-select" disabled><option value="">Quận/Huyện...</option></select>
-                            <select id="advWard" class="form-select" disabled><option value="">Phường/Xã...</option></select>
+                            <select id="advCity" class="form-select">
+                                <option value="">Chọn Tỉnh/TP...</option>
+                            </select>
+                            <select id="advDistrict" class="form-select" disabled>
+                                <option value="">Quận/Huyện...</option>
+                            </select>
+                            <select id="advWard" class="form-select" disabled>
+                                <option value="">Phường/Xã...</option>
+                            </select>
                         </div>
                     </div>
 
@@ -224,7 +261,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="p-3 border-top bg-light d-flex justify-content-between rounded-bottom">
                     <button class="btn btn-outline-secondary btn-sm" onclick="resetAdvancedSearch()">
                         <i class="fa-solid fa-rotate-right"></i> Đặt lại
@@ -336,21 +373,26 @@
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs justify-content-center mb-4 border-0">
-                        <li class="nav-item"><a class="nav-link active fs-5" id="tab-login" onclick="switchTab('login')" style="cursor: pointer;">Đăng nhập</a></li>
-                        <li class="nav-item"><a class="nav-link fs-5" id="tab-register" onclick="switchTab('register')" style="cursor: pointer;">Đăng ký</a></li>
+                        <li class="nav-item"><a class="nav-link active fs-5" id="tab-login" onclick="switchTab('login')"
+                                style="cursor: pointer;">Đăng nhập</a></li>
+                        <li class="nav-item"><a class="nav-link fs-5" id="tab-register" onclick="switchTab('register')"
+                                style="cursor: pointer;">Đăng ký</a></li>
                     </ul>
 
                     <div id="form-login">
                         <form onsubmit="handleLogin(event)" autocomplete="off">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Số điện thoại</label>
-                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập SĐT" required autocomplete="off">
+                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập SĐT" required
+                                    autocomplete="off">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu</label>
                                 <div class="input-group">
-                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu" required autocomplete="new-password">
-                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')" style="cursor: pointer;">
+                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu"
+                                        required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')"
+                                        style="cursor: pointer;">
                                         <i class="fa-solid fa-eye-slash" id="logPass-icon"></i>
                                     </span>
                                 </div>
@@ -367,22 +409,28 @@
                         <form onsubmit="handleRegister(event)" autocomplete="off">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
-                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required autocomplete="off">
+                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required
+                                    autocomplete="off">
                                 <div class="form-text small">Tối thiểu 2 từ, không số/ký tự lạ.</div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
-                                <input type="text" id="regPhone" class="form-control" placeholder="10 số" required autocomplete="off">
+                                <label class="form-label fw-bold">Số điện thoại <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="regPhone" class="form-control" placeholder="10 số" required
+                                    autocomplete="off">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự" required autocomplete="new-password">
-                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')" style="cursor: pointer;">
+                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự"
+                                        required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')"
+                                        style="cursor: pointer;">
                                         <i class="fa-solid fa-eye-slash" id="regPass-icon"></i>
                                     </span>
                                 </div>
-                                <div class="form-text small">Yêu cầu: 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt.</div>
+                                <div class="form-text small">Yêu cầu: 1 chữ hoa, 1 chữ thường, 1 số, 1 ký tự đặc biệt.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Vai trò <span class="text-danger">*</span></label>
@@ -391,7 +439,8 @@
                                     <option value="owner">Chủ nhà (Owner)</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-3">TẠO TÀI KHOẢN</button>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-3">TẠO TÀI
+                                KHOẢN</button>
                         </form>
                     </div>
                 </div>
@@ -410,13 +459,17 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-7">
-                            <img id="detailImage" src="" class="img-fluid rounded shadow-sm mb-3 w-100" style="object-fit: cover; height: 300px;">
+                            <img id="detailImage" src="" class="img-fluid rounded shadow-sm mb-3 w-100"
+                                style="object-fit: cover; height: 300px;">
                         </div>
                         <div class="col-md-5">
                             <h4 class="fw-bold text-danger mb-3" id="detailPrice"></h4>
-                            <p><strong><i class="fa-solid fa-ruler-combined"></i> Diện tích:</strong> <span id="detailArea"></span></p>
-                            <p><strong><i class="fa-solid fa-map-location-dot"></i> Địa chỉ:</strong> <span id="detailAddress"></span></p>
-                            <p><strong><i class="fa-solid fa-circle-info"></i> Trạng thái:</strong> <span id="detailStatus"></span></p>
+                            <p><strong><i class="fa-solid fa-ruler-combined"></i> Diện tích:</strong> <span
+                                    id="detailArea"></span></p>
+                            <p><strong><i class="fa-solid fa-map-location-dot"></i> Địa chỉ:</strong> <span
+                                    id="detailAddress"></span></p>
+                            <p><strong><i class="fa-solid fa-circle-info"></i> Trạng thái:</strong> <span
+                                    id="detailStatus"></span></p>
                             <hr>
                             <button class="btn btn-primary w-100 fw-bold py-2 mb-2" onclick="bookRoom()">
                                 <i class="fa-regular fa-calendar-check"></i> ĐẶT PHÒNG NGAY
@@ -439,7 +492,8 @@
                         <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 30px;">NHÀ XANH
                     </a>
                     <p class="text-muted small mt-2">
-                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người thuê nhanh chóng, an toàn.
+                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người
+                        thuê nhanh chóng, an toàn.
                     </p>
                 </div>
 
@@ -484,15 +538,18 @@
                         <i class="fa-solid fa-location-dot"></i>
                         <span>VP Hà Nội 1: 84C P. Nguyễn Thanh Bình, Vạn Phúc, Hà Đông, Hà Nội</span>
                     </div>
-                     <div class="footer-contact-item">
+                    <div class="footer-contact-item">
                         <i class="fa-solid fa-location-dot"></i>
                         <span>VP Hà Nội 2: Vạn Phúc Building, P. Tố Hữu, Vạn Phúc, Hà Đông, Hà Nội</span>
                     </div>
 
                     <div class="social-links mt-3">
-                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i
+                                class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i
+                                class="fa-brands fa-tiktok"></i></a>
                     </div>
                 </div>
             </div>
@@ -522,4 +579,5 @@
     <!-- Main Logic -->
     <script src="assets/js/main.js"></script>
 </body>
+
 </html>

@@ -1,6 +1,10 @@
 ﻿<!DOCTYPE html>
+<!-- Khai báo loại tài liệu HTML5 -->
 <html lang="vi">
+<!-- Bắt đầu tài liệu HTML với ngôn ngữ tiếng Việt -->
+
 <head>
+    <!-- Phần đầu trang chứa metadata và liên kết tài nguyên -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết phòng trọ - Nhà xanh</title>
@@ -9,11 +13,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        body { padding-top: 80px; }
+        body {
+            padding-top: 80px;
+        }
     </style>
 </head>
-<body class="home-page bg-light">
 
+<body class="home-page bg-light">
+    <!-- Thanh điều hướng cố định ở đầu trang -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
             <a class="navbar-brand" href="index.html">
@@ -24,8 +31,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
                     <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Kỳ túc xá</a></li>
                 </ul>
@@ -40,11 +49,13 @@
                     </div>
                     <div id="user-info" class="d-none align-items-center gap-2">
                         <div class="dropdown">
-                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
+                            <button class="nav-icon-btn position-relative" type="button" id="notification-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-label="Thông báo">
                                 <i class="fa-regular fa-bell"></i>
                                 <span id="notification-badge" class="nav-unread-badge d-none">0</span>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0" aria-labelledby="notification-toggle">
+                            <div class="dropdown-menu dropdown-menu-end nav-notification-menu p-0"
+                                aria-labelledby="notification-toggle">
                                 <div class="nav-notification-head">
                                     <h6>Thông báo</h6>
                                     <button type="button" id="nav-mark-all-read">Đánh dấu đã đọc tất cả</button>
@@ -57,7 +68,8 @@
                             </div>
                         </div>
                         <div class="dropdown">
-                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                            <button class="nav-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                aria-label="Tài khoản">
                                 <i class="fa-regular fa-user"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end nav-profile-menu p-0">
@@ -67,16 +79,19 @@
                                 <button type="button" class="nav-profile-logout">Đăng xuất</button>
                             </div>
                         </div>
-                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
+                        <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i
+                                class="fa-solid fa-list-check"></i> Quản lý</a>
                     </div>
-                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i
+                            class="fa-solid fa-plus"></i> Đăng tin mới</a>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Container chứa nội dung chi tiết phòng trọ -->
     <div class="container my-4" id="detail-container">
-        <!-- Content will be loaded here -->
+        <!-- Nội dung sẽ được tải vào đây -->
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -84,16 +99,18 @@
         </div>
     </div>
 
-    <!-- AUTH MODAL (Copy from Index) -->
+    <!-- Modal đăng nhập và đăng ký -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content overflow-hidden border-0 shadow-lg">
                 <div class="modal-body p-0">
                     <div class="d-flex text-center fw-bold" style="background-color: #f1f1f1;">
-                        <div class="w-50 py-3 cursor-pointer active-tab" id="tab-login" onclick="switchTab('login')" style="cursor: pointer; border-bottom: 3px solid #0d6efd; color: #0d6efd; background: white;">
+                        <div class="w-50 py-3 cursor-pointer active-tab" id="tab-login" onclick="switchTab('login')"
+                            style="cursor: pointer; border-bottom: 3px solid #0d6efd; color: #0d6efd; background: white;">
                             ĐĂNG NHẬP
                         </div>
-                        <div class="w-50 py-3 cursor-pointer text-muted" id="tab-register" onclick="switchTab('register')" style="cursor: pointer;">
+                        <div class="w-50 py-3 cursor-pointer text-muted" id="tab-register"
+                            onclick="switchTab('register')" style="cursor: pointer;">
                             ĐĂNG KÝ
                         </div>
                     </div>
@@ -102,22 +119,26 @@
                         <form onsubmit="handleLogin(event)">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Số điện thoại</label>
-                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập số điện thoại" required>
+                                <input type="text" id="logPhone" class="form-control" placeholder="Nhập số điện thoại"
+                                    required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu</label>
                                 <div class="input-group">
-                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu" required autocomplete="current-password">
-                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')" style="cursor: pointer;">
+                                    <input type="password" id="logPass" class="form-control" placeholder="Nhập mật khẩu"
+                                        required autocomplete="current-password">
+                                    <span class="input-group-text" onclick="togglePassword('logPass', 'logPass-icon')"
+                                        style="cursor: pointer;">
                                         <i class="fa-solid fa-eye-slash" id="logPass-icon"></i>
                                     </span>
                                 </div>
                             </div>
-                                <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" id="rememberPassword">
-                                    <label class="form-check-label" for="rememberPassword">Lưu mật khẩu</label>
-                                </div>
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 6px;">ĐĂNG NHẬP</button>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="rememberPassword">
+                                <label class="form-check-label" for="rememberPassword">Lưu mật khẩu</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"
+                                style="border-radius: 6px;">ĐĂNG NHẬP</button>
                         </form>
                     </div>
 
@@ -125,17 +146,21 @@
                         <form onsubmit="handleRegister(event)" autocomplete="off">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Họ và Tên <span class="text-danger">*</span></label>
-                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A" required>
+                                <input type="text" id="regName" class="form-control" placeholder="Nguyễn Văn A"
+                                    required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Số điện thoại <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" id="regPhone" class="form-control" placeholder="10 số" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Mật khẩu <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự" required autocomplete="new-password">
-                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')" style="cursor: pointer;">
+                                    <input type="password" id="regPass" class="form-control" placeholder="5-20 ký tự"
+                                        required autocomplete="new-password">
+                                    <span class="input-group-text" onclick="togglePassword('regPass', 'regPass-icon')"
+                                        style="cursor: pointer;">
                                         <i class="fa-solid fa-eye-slash" id="regPass-icon"></i>
                                     </span>
                                 </div>
@@ -147,7 +172,8 @@
                                     <option value="owner">Chủ nhà (Owner)</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold" style="border-radius: 6px;">TẠO TÀI KHOẢN</button>
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold"
+                                style="border-radius: 6px;">TẠO TÀI KHOẢN</button>
                         </form>
                     </div>
                 </div>
@@ -155,8 +181,7 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-<!-- FOOTER -->
+    <!-- Chân trang với thông tin liên hệ và mạng xã hội -->
     <footer>
         <div class="container">
             <div class="row">
@@ -166,7 +191,8 @@
                         <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 30px;">NHÀ XANH
                     </a>
                     <p class="text-muted small mt-2">
-                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người thuê nhanh chóng, an toàn.
+                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người
+                        thuê nhanh chóng, an toàn.
                     </p>
                 </div>
 
@@ -211,15 +237,18 @@
                         <i class="fa-solid fa-location-dot"></i>
                         <span>VP Hà Nội 1: 84C P. Nguyễn Thanh Bình, Vạn Phúc, Hà Đông, Hà Nội</span>
                     </div>
-                     <div class="footer-contact-item">
+                    <div class="footer-contact-item">
                         <i class="fa-solid fa-location-dot"></i>
                         <span>VP Hà Nội 2: Vạn Phúc Building, P. Tố Hữu, Vạn Phúc, Hà Đông, Hà Nội</span>
                     </div>
 
                     <div class="social-links mt-3">
-                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i
+                                class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i
+                                class="fa-brands fa-tiktok"></i></a>
                     </div>
                 </div>
             </div>
@@ -229,24 +258,25 @@
         </div>
     </footer>
 
+    <!-- Các tệp JavaScript được tải -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Foundation -->
-<script src="assets/js/config.js"></script>
-<script src="assets/js/validators.js"></script>
-<script src="assets/js/utils.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/validators.js"></script>
+    <script src="assets/js/utils.js"></script>
     <!-- Core -->
-<script src="assets/js/storage.js"></script>
-<script src="assets/js/navbar.js"></script>
-<script src="assets/js/event-handlers.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/navbar.js"></script>
+    <script src="assets/js/event-handlers.js"></script>
     <!-- Features -->
-<script src="assets/js/favorites.js"></script>
+    <script src="assets/js/favorites.js"></script>
     <!-- Main Logic -->
-<script src="assets/js/main.js"></script>
-<script src="assets/js/details.js"></script>
-    <!-- Scroll To Top Button -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/details.js"></script>
+    <!-- Nút cuộn lên đầu trang -->
     <button id="scrollToTopBtn" class="scroll-to-top">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 </body>
-</html>
 
+</html>
