@@ -1,14 +1,18 @@
-﻿/* ==================================================
-    STYLE GUIDE STRUCTURE
-    A) GLOBAL: dùng chung toàn site
-    B) PAGE INDEX: trang chủ và tìm kiếm
-    C) PAGE DETAIL: trang chi tiết phòng
-    D) PAGE OWNER: trang quản lý chủ trọ
-    E) RESPONSIVE: breakpoint theo từng trang
+﻿@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+/* ==================================================
+    CSS STRUCTURE MAP
+    1) GLOBAL FOUNDATION: biến, base, component dùng chung
+    2) HOME / LISTING PAGES: trang chủ + danh sách tổng hợp
+    3) DETAIL PAGE: trang chi tiết phòng
+    4) PROFILE PAGE: hồ sơ người dùng
+    5) OWNER PAGES: quản lý chủ trọ
+    6) CATEGORY PAGE: trang xem tất cả + bộ lọc
+    7) RESPONSIVE: đặt gần section liên quan theo từng trang
     ================================================== */
 
 /* =========================================
-    [GLOBAL] 1. THEME & BASE
+    [GLOBAL FOUNDATION] THEME & BASE
     ========================================= */
 :root {
     --primary-color: #0d6efd;
@@ -22,7 +26,7 @@ body {
 }
 
 /* =========================================
-    [GLOBAL] 2. NAVBAR & AUTH BUTTONS
+    [GLOBAL FOUNDATION] NAVBAR & AUTH BUTTONS
     ========================================= */
 .navbar {
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -88,15 +92,15 @@ body {
 }
 
 .btn-nav-register {
-    background-color: white;
+    background-color: transparent;
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
 }
 
 .btn-nav-logout {
-    background-color: #dc3545;
+    background-color: transparent;
     border: 2px solid #dc3545;
-    color: white;
+    color: #dc3545;
 }
 
 .btn-nav-auth:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3); }
@@ -104,10 +108,10 @@ body {
 .btn-nav-register:hover { background-color: var(--primary-color); color: white; }
 .btn-nav-logout:hover { background-color: #bb2d3b; border-color: #bb2d3b; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4); }
 
-/* Chỉ đổi màu nút Đăng ký/Tạo tài khoản trong cụm auth */
+/* Đồng bộ nút auth: mặc định không nền, chỉ hiện nền khi hover */
 #auth-buttons .btn-nav-register {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: transparent;
+    color: var(--primary-color);
 }
 
 #auth-buttons .btn-nav-register:hover {
@@ -339,12 +343,16 @@ body {
     content: "\f4fe";
 }
 
+.nav-profile-link.nav-profile-favorites::before {
+    content: "\f004";
+}
+
 .nav-profile-logout::before {
     content: "\f2f5";
 }
 
 /* =========================================
-    [GLOBAL] 3. BUTTONS
+    [GLOBAL FOUNDATION] SHARED BUTTONS
     ========================================= */
 .btn-custom {
     background-color: var(--primary-color);
@@ -385,7 +393,7 @@ body {
 }
 
 /* =========================================
-    [INDEX] 4. HERO, SEARCH BAR, FILTER POPUP
+    [HOME / LISTING] HERO, SEARCH BAR, FILTER POPUP (BASE)
     ========================================= */
 .hero-section {
     background-color: #0033a0;
@@ -556,7 +564,7 @@ body {
 .btn-search-orange:hover { background-color: #f4511e; color: white; }
 
 /* =========================================
-    [GLOBAL] 5. AUTH MODAL & ROOM CARD BASE
+    [GLOBAL FOUNDATION] AUTH MODAL & ROOM CARD BASE
     ========================================= */
 .nav-tabs .nav-link { color: #666; font-weight: 600; }
 .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
@@ -602,7 +610,7 @@ body {
 .room-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
 
 /* =========================================
-    [DETAIL] 6. ROOM DETAIL PAGE
+    [DETAIL PAGE] ROOM DETAIL
     ========================================= */
 .detail-header-title { font-size: 1.5rem; font-weight: 700; color: #333; margin-bottom: 0.5rem; }
 .detail-address { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
@@ -730,7 +738,7 @@ body {
 }
 
 /* =========================================
-    [GLOBAL] 7. FOOTER
+    [GLOBAL FOUNDATION] FOOTER
     ========================================= */
 footer {
     background-color: #fff;
@@ -755,7 +763,7 @@ footer {
 .social-links a:hover { background-color: var(--primary-color); color: white; transform: translateY(-3px); }
 
 /* =========================================
-    [GLOBAL] 8. SCROLL TO TOP
+    [GLOBAL FOUNDATION] SCROLL TO TOP
     ========================================= */
 .scroll-to-top {
     position: fixed;
@@ -787,7 +795,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX] 9. FIGMA OVERRIDES
+    [HOME / LISTING] FIGMA OVERRIDES
     ========================================= */
 .home-page {
     font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
@@ -999,10 +1007,22 @@ footer {
     color: #6b7280;
 }
 
+.home-page #content-map {
+    padding-top: 4px !important;
+}
+
 .home-page #content-map .form-control,
 .home-page #content-map .form-select {
     height: 46px;
     border-radius: 8px;
+}
+
+.home-page #content-map > div {
+    margin-bottom: 16px !important;
+}
+
+.home-page #content-map .form-label {
+    margin-bottom: 4px !important;
 }
 
 .home-page .advanced-popup .btn {
@@ -1017,62 +1037,6 @@ footer {
     border-color: #1f67e6;
 }
 
-/* =========================================
-    [OWNER] 10. ROOM IMAGE UPLOAD UI
-    ========================================= */
-#imageUploadArea {
-    border-style: dashed !important;
-    border-color: #cbd5e1 !important;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-#imageUploadArea:hover {
-    border-color: #198754 !important;
-    background-color: #f4fbf7 !important;
-}
-
-#imagePreviewContainer .card {
-    border: 1px solid #e2e8f0;
-}
-
-#imagePreviewContainer .card-body {
-    background: #fff;
-}
-
-#imagePreviewContainer .btn-danger {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* ------------------------------------------
-    [OWNER] Contract Modal (Tạo hợp đồng thuê)
-    ------------------------------------------ */
-#contractModal .modal-header {
-    background-color: #198754 !important;
-}
-
-#contractModal .btn-primary {
-    background-color: #198754;
-    border-color: #198754;
-}
-
-#contractModal .btn-primary:hover,
-#contractModal .btn-primary:focus,
-#contractModal .btn-primary:active {
-    background-color: #157347 !important;
-    border-color: #146c43 !important;
-}
-
-#contractModal .form-control:focus {
-    border-color: #198754;
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-}
-
 .home-page .custom-filter-btn.icon-only {
     width: 40px;
     height: 40px;
@@ -1083,6 +1047,9 @@ footer {
     color: #516661;
 }
 
+/* ------------------------------------------
+   [HOME / LISTING] SEARCH ACTION STYLING
+   ------------------------------------------ */
 .home-page #filterPopup {
     min-width: 360px;
 }
@@ -1224,6 +1191,22 @@ footer {
     font-weight: 600;
 }
 
+.home-page .room-chip.room-chip-type-motel {
+    background: #16a34a;
+}
+
+.home-page .room-chip.room-chip-type-house {
+    background: #0ea5e9;
+}
+
+.home-page .room-chip.room-chip-type-apartment {
+    background: #f59e0b;
+}
+
+.home-page .room-chip.room-chip-type-dorm {
+    background: #8b5cf6;
+}
+
 .home-page .room-chip-rented {
     background: #dc2626;
 }
@@ -1238,6 +1221,13 @@ footer {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.92);
     color: #96a2ab;
+}
+
+.home-page .room-fav-btn.active,
+.category-room-image-wrap .room-fav-btn.active {
+    color: #ef4444;
+    background: rgba(255, 241, 242, 0.96);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.22);
 }
 
 .home-page .room-info-wrap {
@@ -1354,7 +1344,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX][RESPONSIVE] TABLET <= 992px
+    [HOME / LISTING][RESPONSIVE] TABLET <= 992px
     ========================================= */
 @media (max-width: 992px) {
     .home-page .city-strip-grid {
@@ -1399,7 +1389,7 @@ footer {
 }
 
 /* =========================================
-    [INDEX][RESPONSIVE] MOBILE <= 767px
+    [HOME / LISTING][RESPONSIVE] MOBILE <= 767px
     ========================================= */
 @media (max-width: 767px) {
     .home-page .container-fluid.px-5 {
@@ -1486,7 +1476,7 @@ footer {
 }
 
 /* =========================================
-    [PROFILE] 11. PROFILE PAGE
+    [PROFILE PAGE] PROFILE LAYOUT & FORMS
     ========================================= */
 body.home-page {
     background-color: #f8f9fa;
@@ -1785,8 +1775,269 @@ body.home-page {
 }
 
 /* =========================================
-    [OWNER] CARD LIST VIEW
+    [OWNER PAGES] CARD LIST VIEW
     ========================================= */
+/* ------------------------------------------
+    [OWNER PAGES] ROOM IMAGE UPLOAD UI
+    ------------------------------------------ */
+#imageUploadArea,
+#issueImageUploadArea {
+    border-style: dashed !important;
+    border-color: #cbd5e1 !important;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#imageUploadArea:hover,
+#issueImageUploadArea:hover {
+    border-color: #198754 !important;
+    background-color: #f4fbf7 !important;
+}
+
+#imagePreviewContainer .card,
+#issueImagePreviewContainer .card {
+    border: 1px solid #e2e8f0;
+}
+
+#imagePreviewContainer .card-body,
+#issueImagePreviewContainer .card-body {
+    background: #fff;
+}
+
+#imagePreviewContainer .btn-danger,
+#issueImagePreviewContainer .btn-danger {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ------------------------------------------
+    [OWNER PAGES] CONTRACT MODAL (TAO HOP DONG THUE)
+    ------------------------------------------ */
+#roomModal .modal-footer .btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+#roomModal .modal-footer .btn-success:hover,
+#roomModal .modal-footer .btn-success:focus,
+#roomModal .modal-footer .btn-success:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
+#invoiceModal .modal-footer .btn-warning {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+#invoiceModal .modal-footer .btn-warning:hover,
+#invoiceModal .modal-footer .btn-warning:focus,
+#invoiceModal .modal-footer .btn-warning:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
+#contractModal .modal-header {
+    background-color: #198754 !important;
+}
+
+#contractModal .modal-footer .btn-primary,
+#extendContractModal .modal-footer .btn-primary {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+#contractModal .modal-footer .btn-primary:hover,
+#contractModal .modal-footer .btn-primary:focus,
+#contractModal .modal-footer .btn-primary:active,
+#extendContractModal .modal-footer .btn-primary:hover,
+#extendContractModal .modal-footer .btn-primary:focus,
+#extendContractModal .modal-footer .btn-primary:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
+#contractModal .form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+#tenantInvoiceModal .modal-footer .btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+#tenantInvoiceModal .modal-footer .btn-success:hover,
+#tenantInvoiceModal .modal-footer .btn-success:focus,
+#tenantInvoiceModal .modal-footer .btn-success:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #ffffff !important;
+}
+
+/* ------------------------------------------
+    [OWNER/TENANT PAGES] BUTTON STYLE UNIFICATION
+    ------------------------------------------ */
+.owner-page .btn:not(.btn-close):not(.owner-add-room-btn),
+.tenant-page .btn:not(.btn-close) {
+    border-width: 2px;
+    box-shadow: none;
+    transition: all 0.25s ease;
+    transform: none;
+}
+
+.owner-page .btn:not(.btn-close):not(.owner-add-room-btn):not(:hover):not(:focus):not(:active),
+.tenant-page .btn:not(.btn-close):not(:hover):not(:focus):not(:active) {
+    background-color: transparent !important;
+}
+
+.owner-page .btn-primary,
+.tenant-page .btn-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.owner-page .btn-warning,
+.tenant-page .btn-warning {
+    color: #f2a900;
+    border-color: #f2a900;
+}
+
+.owner-page .btn-danger,
+.tenant-page .btn-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.owner-page .btn-success,
+.tenant-page .btn-success {
+    color: #198754;
+    border-color: #198754;
+}
+
+.owner-page .btn-secondary,
+.tenant-page .btn-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.owner-page .btn-outline-primary,
+.tenant-page .btn-outline-primary {
+    color: #0d6efd;
+}
+
+.owner-page .btn-outline-danger,
+.tenant-page .btn-outline-danger {
+    color: #dc3545;
+}
+
+.owner-page .btn-outline-dark,
+.tenant-page .btn-outline-dark {
+    color: #212529;
+}
+
+.owner-page .btn-outline-secondary,
+.tenant-page .btn-outline-secondary {
+    color: #6c757d;
+}
+
+.owner-page .btn-primary:hover,
+.owner-page .btn-primary:focus,
+.tenant-page .btn-primary:hover,
+.tenant-page .btn-primary:focus {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-warning:hover,
+.owner-page .btn-warning:focus,
+.tenant-page .btn-warning:hover,
+.tenant-page .btn-warning:focus {
+    background-color: #f2a900 !important;
+    border-color: #f2a900 !important;
+    color: #212529 !important;
+}
+
+.owner-page .btn-danger:hover,
+.owner-page .btn-danger:focus,
+.tenant-page .btn-danger:hover,
+.tenant-page .btn-danger:focus,
+.owner-page .btn-outline-danger:hover,
+.owner-page .btn-outline-danger:focus,
+.tenant-page .btn-outline-danger:hover,
+.tenant-page .btn-outline-danger:focus {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-success:hover,
+.owner-page .btn-success:focus,
+.tenant-page .btn-success:hover,
+.tenant-page .btn-success:focus {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-secondary:hover,
+.owner-page .btn-secondary:focus,
+.tenant-page .btn-secondary:hover,
+.tenant-page .btn-secondary:focus,
+.owner-page .btn-outline-secondary:hover,
+.owner-page .btn-outline-secondary:focus,
+.tenant-page .btn-outline-secondary:hover,
+.tenant-page .btn-outline-secondary:focus {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-outline-primary:hover,
+.owner-page .btn-outline-primary:focus,
+.tenant-page .btn-outline-primary:hover,
+.tenant-page .btn-outline-primary:focus {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+}
+
+.owner-page .btn-outline-dark:hover,
+.owner-page .btn-outline-dark:focus,
+.tenant-page .btn-outline-dark:hover,
+.tenant-page .btn-outline-dark:focus {
+    background-color: #212529 !important;
+    border-color: #212529 !important;
+    color: #fff !important;
+}
+
+/* Keep the "Thêm Phòng Mới" button in original solid style. */
+.owner-page .owner-add-room-btn.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}
+
+.owner-page .owner-add-room-btn.btn-success:hover,
+.owner-page .owner-add-room-btn.btn-success:focus,
+.owner-page .owner-add-room-btn.btn-success:active {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: #fff !important;
+}
+
 .owner-room-list {
     display: flex;
     flex-direction: column;
@@ -1810,11 +2061,25 @@ body.home-page {
 }
 
 .category-room-image-wrap {
+    position: relative;
     width: 210px;
     min-width: 210px;
     height: 150px;
     border-radius: 10px;
     overflow: hidden;
+}
+
+.category-room-image-wrap .room-fav-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #96a2ab;
+    z-index: 2;
 }
 
 .category-room-image {
@@ -1858,6 +2123,30 @@ body.home-page {
     color: #334155;
 }
 
+.category-room-tags span.tag-type-motel {
+    background: #ecfdf3;
+    border-color: #6ee7b7;
+    color: #047857;
+}
+
+.category-room-tags span.tag-type-house {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+.category-room-tags span.tag-type-apartment {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+.category-room-tags span.tag-type-dorm {
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+    color: #6d28d9;
+}
+
 .category-room-location,
 .room-extra-info {
     color: #64748b;
@@ -1887,6 +2176,139 @@ body.home-page {
 .room-action-info strong {
     color: #0f172a;
     text-align: right;
+}
+
+.issue-tabs .nav-link {
+    border: none;
+    color: #64748b;
+    font-weight: 700;
+    border-bottom: 2px solid transparent;
+}
+
+.issue-tabs .nav-link.active {
+    color: #dc3545;
+    border-bottom-color: #dc3545;
+    background: transparent;
+}
+
+.issue-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.issue-history-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.issue-history-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.issue-history-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+.issue-history-card.highlight {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.22), 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+.issue-history-content {
+    min-width: 0;
+}
+
+.issue-history-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.issue-history-description {
+    color: #475569;
+    font-size: 0.92rem;
+    margin-bottom: 8px;
+}
+
+.issue-history-meta {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.issue-history-image-box {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dbe5f2;
+    height: 140px;
+    background: #f8fafc;
+}
+
+.issue-history-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.issue-status-tag {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 999px;
+    padding: 4px 8px;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.issue-status-tag.pending {
+    background: #dc3545;
+}
+
+.issue-status-tag.resolved {
+    background: #198754;
+}
+
+.issue-empty-state {
+    border: 1px dashed #d5dbe3;
+    border-radius: 12px;
+    padding: 18px;
+    color: #64748b;
+    text-align: center;
+}
+
+.issue-placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    font-weight: 700;
+}
+
+@media (max-width: 767px) {
+    .issue-history-card {
+        grid-template-columns: 1fr;
+    }
+
+    .issue-history-image-box {
+        height: 180px;
+    }
 }
 
 .owner-action-gallery {
@@ -1992,6 +2414,9 @@ body.home-page {
     gap: 10px;
 }
 
+/* ------------------------------------------
+    [OWNER PAGES] NOTIFICATION & INVOICE BLOCKS
+    ------------------------------------------ */
 .notification-item {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -2043,7 +2468,7 @@ body.home-page {
 }
 
 /* =========================================
-    [CATEGORY] TRANG XEM TAT CA
+    [CATEGORY PAGE] TRANG XEM TAT CA
     ========================================= */
 body.home-page.category-page {
     padding-top: 0;

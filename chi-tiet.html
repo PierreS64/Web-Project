@@ -16,7 +16,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
-            <a class="navbar-brand" href="trang-chu.html">
+            <a class="navbar-brand" href="index.html">
                 <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,17 +24,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-can-ho">Căn hộ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Kỳ túc xá</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div id="auth-buttons" class="d-flex gap-2">
-                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-login" onclick="return handleNavbarAuthClick(event, 'login')">
+                        <a href="#" id="navLoginBtn" class="btn-nav-auth btn-nav-login" aria-label="Đăng nhập">
                             <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
                         </a>
-                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-register" onclick="return handleNavbarAuthClick(event, 'register')">
+                        <a href="#" id="navRegisterBtn" class="btn-nav-auth btn-nav-register" aria-label="Đăng ký">
                             <i class="fa-solid fa-user-plus"></i> Đăng ký
                         </a>
                     </div>
@@ -52,7 +52,7 @@
                                 <div class="nav-notification-tabs" id="nav-notification-tabs"></div>
                                 <div class="nav-notification-list" id="nav-notification-list"></div>
                                 <div class="nav-notification-foot">
-                                    <a href="trang-chu.html">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+                                    <a href="index.html">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -64,12 +64,12 @@
                                 <div class="nav-profile-name" id="nav-profile-name">User</div>
                                 <a class="nav-profile-link" href="ho-so.html#personal-info">Thông tin cá nhân</a>
                                 <a class="nav-profile-link" href="ho-so.html#account-info">Thông tin tài khoản</a>
-                                <button type="button" class="nav-profile-logout" onclick="Storage.logout()">Đăng xuất</button>
+                                <button type="button" class="nav-profile-logout">Đăng xuất</button>
                             </div>
                         </div>
                         <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
                     </div>
-                    <a href="#" class="btn-nav-auth btn-nav-register" onclick="postNewRoom()"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
+                    <a href="#" id="post-new-btn" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-plus"></i> Đăng tin mới</a>
                 </div>
             </div>
         </div>
@@ -113,6 +113,10 @@
                                     </span>
                                 </div>
                             </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="rememberPassword">
+                                    <label class="form-check-label" for="rememberPassword">Lưu mật khẩu</label>
+                                </div>
                             <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 6px;">ĐĂNG NHẬP</button>
                         </form>
                     </div>
@@ -152,266 +156,97 @@
     </div>
 
     <!-- FOOTER -->
+<!-- FOOTER -->
     <footer>
-        <div class="container text-center py-4">
-             <p class="text-muted small">© 2026 Nhà xanh. All rights reserved.</p>
+        <div class="container">
+            <div class="row">
+                <!-- Column 1: Logo -->
+                <div class="col-md-3 mb-4">
+                    <a href="#" class="footer-logo">
+                        <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 30px;">NHÀ XANH
+                    </a>
+                    <p class="text-muted small mt-2">
+                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người thuê nhanh chóng, an toàn.
+                    </p>
+                </div>
+
+                <!-- Column 2: Hệ thống -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">HỆ THỐNG</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Dành cho chủ trọ</a></li>
+                        <li><a href="#">Blog tin tức</a></li>
+                        <li><a href="#">Hướng dẫn đăng tin</a></li>
+                        <li><a href="#">Liên hệ hỗ trợ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Thông tin -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">THÔNG TIN</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Điều khoản & Cam kết</a></li>
+                        <li><a href="#">Quy chế hoạt động</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Giải quyết khiếu nại</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Kết nối -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">KẾT NỐI VỚI CHÚNG TÔI</h5>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-brands fa-whatsapp"></i> <!-- Zalo icon approximation -->
+                        <span>Zalo: 0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@nhaxanh.com</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 1: 84C P. Nguyễn Thanh Bình, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+                     <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 2: Vạn Phúc Building, P. Tố Hữu, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+
+                    <div class="social-links mt-3">
+                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-4 border-top mt-3 text-muted small">
+                © 2026 Nhà xanh. All rights reserved.
+            </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/navbar.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script>
-        // Override renderHomeRooms to prevent error on detail page
-        // Since main.js calls it automatically
-        // or ensure main.js checks for container existence (We verified it does check for 'room-list')
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
-            
-            if(!id) {
-                document.getElementById('detail-container').innerHTML = '<div class="alert alert-danger">Không tìm thấy phòng!</div>';
-                return;
-            }
-
-            const room = Storage.getRoomById(id);
-            if(!room) {
-               document.getElementById('detail-container').innerHTML = '<div class="alert alert-warning">Phòng không tồn tại hoặc đã bị xóa.</div>';
-               return; 
-            }
-
-            renderDetail(room);
-        });
-
-        let detailGalleryState = {
-            images: [],
-            index: 0
-        };
-
-        function renderDetail(room) {
-            if (!room
-                || !(room.title && room.type && room.address && room.description && room.ownerName && room.ownerPhone)
-                || !Array.isArray(room.images) || room.images.length === 0
-                || !Number.isFinite(Number(room.price)) || Number(room.price) <= 0
-                || !Number.isFinite(Number(room.area)) || Number(room.area) <= 0
-                || !Array.isArray(room.amenities)
-                || !Array.isArray(room.targets)
-                || !Array.isArray(room.surroundings)) {
-                document.getElementById('detail-container').innerHTML = '<div class="alert alert-danger">Dữ liệu phòng không hợp lệ hoặc thiếu trường bắt buộc.</div>';
-                return;
-            }
-
-            const price = new Intl.NumberFormat('vi-VN').format(room.price);
-            const images = room.images && Array.isArray(room.images) ? room.images : [];
-            const ownerName = room.ownerName;
-            const ownerPhone = room.ownerPhone;
-            const phoneDisplay = ownerPhone;
-            
-            // Map Amenities
-            const amenitiesHtml = room.amenities.map(item => `
-                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
-            `).join('');
-
-            // Map Targets
-            const targetsHtml = room.targets.map(item => `
-                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
-            `).join('');
-
-            // Map Surroundings
-            const surroundingsHtml = room.surroundings.map(item => `
-                <div class="info-item"><i class="${getIcon(item)}"></i> ${item}</div>
-            `).join('');
-
-            const html = `
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="trang-chu.html">Trang chủ</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">${room.type}</li>
-                    </ol>
-                </nav>
-
-                <div class="row">
-                    <div class="col-lg-8">
-                        <!-- Header -->
-                        <h1 class="detail-header-title">${room.title}</h1>
-                        <p class="detail-address"><i class="fa-solid fa-location-dot"></i> ${room.address}</p>
-                        
-                        <!-- Images -->
-                        ${renderDetailGallery(images, room.title)}
-                        
-                        <!-- Intro -->
-                        <div class="my-4">
-                            <h5 class="section-title">Giới thiệu</h5>
-                            <p style="white-space: pre-line;">${room.description}</p>
-                            <hr class="text-secondary opacity-25 my-3">
-                            <p><strong>Diện tích:</strong> ${room.area} m²</p>
-                            <p><strong>Giá điện:</strong> ${room.elecPrice ? new Intl.NumberFormat('vi-VN').format(room.elecPrice) + ' đ/kW' : 'Miễn phí'}</p>
-                            <p><strong>Giá nước:</strong> ${room.waterPrice ? new Intl.NumberFormat('vi-VN').format(room.waterPrice) + ' đ/tháng' : 'Miễn phí'}</p>
-                            <p><strong>Wifi:</strong> ${room.wifiPrice ? new Intl.NumberFormat('vi-VN').format(room.wifiPrice) + ' đ/tháng' : 'Miễn phí'}</p>
-                            <p><strong>Dịch vụ:</strong> ${room.servicePrice ? new Intl.NumberFormat('vi-VN').format(room.servicePrice) + ' đ/tháng' : 'Miễn phí'}</p>
-                        </div>
-
-                        <!-- Đối tượng -->
-                        ${targetsHtml ? `
-                        <hr class="text-secondary opacity-25 my-4">
-                        <div class="mb-4">
-                            <h5 class="section-title">Đối tượng</h5>
-                            <div class="info-grid">${targetsHtml}</div>
-                        </div>` : ''}
-
-                        <!-- Tiện nghi -->
-                        ${amenitiesHtml ? `
-                        <hr class="text-secondary opacity-25 my-4">
-                        <div class="mb-4">
-                            <h5 class="section-title">Tiện nghi</h5>
-                            <div class="info-grid">${amenitiesHtml}</div>
-                        </div>` : ''}
-
-                        <!-- Môi trường -->
-                        ${surroundingsHtml ? `
-                        <hr class="text-secondary opacity-25 my-4">
-                        <div class="mb-4">
-                            <h5 class="section-title">Môi trường xung quanh</h5>
-                            <div class="info-grid">${surroundingsHtml}</div>
-                        </div>` : ''}
-
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="contact-card sticky-contact">
-                            <div class="mb-3">
-                                <span class="text-muted small">Giá thuê</span>
-                                <div class="detail-price">${price}đ/tháng</div>
-                            </div>
-                            
-                            <div class="d-flex align-items-center mb-4">
-                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-3" style="width: 50px; height: 50px;">
-                                    <i class="fa-solid fa-user fa-lg"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold">${ownerName}</div>
-                                    <div class="text-muted small">${phoneDisplay}</div>
-                                </div>
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-danger py-2 fw-bold" ${ownerPhone ? `onclick="window.open('tel:${ownerPhone}')"` : 'disabled'}><i class="fa-solid fa-phone"></i> ${phoneDisplay}</button>
-                                <button class="btn zalo-btn py-2" ${ownerPhone ? `onclick="window.open('https://zalo.me/${ownerPhone}', '_blank')"` : 'disabled'}><i class="fa-solid fa-comment"></i> Nhắn Zalo</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('detail-container').innerHTML = html;
-            initDetailGallery(images);
-        }
-
-        function renderDetailGallery(images, title) {
-            if (!images || images.length === 0) {
-                return '';
-            }
-
-            const slides = images.map((src, idx) => `
-                <div class="detail-gallery-slide" data-index="${idx}">
-                    <img src="${src}" alt="${title} - ảnh ${idx + 1}">
-                </div>
-            `).join('');
-
-            return `
-                <div class="detail-gallery">
-                    <button class="detail-gallery-nav prev" type="button" onclick="prevDetailImage()" aria-label="Ảnh trước">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <div class="detail-gallery-track" id="detailGalleryTrack">
-                        ${slides}
-                    </div>
-                    <button class="detail-gallery-nav next" type="button" onclick="nextDetailImage()" aria-label="Ảnh tiếp theo">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-                <div class="detail-gallery-counter" id="detailGalleryCounter"></div>
-            `;
-        }
-
-        function initDetailGallery(images) {
-            detailGalleryState.images = images;
-            detailGalleryState.index = 0;
-            syncDetailGallery();
-        }
-
-        function syncDetailGallery() {
-            const track = document.getElementById('detailGalleryTrack');
-            const counter = document.getElementById('detailGalleryCounter');
-            if (!track || !counter) return;
-
-            const slides = Array.from(track.querySelectorAll('.detail-gallery-slide'));
-            const total = slides.length;
-            if (total === 0) return;
-
-            const currentIndex = detailGalleryState.index;
-            const prevIndex = (currentIndex - 1 + total) % total;
-            const nextIndex = (currentIndex + 1) % total;
-
-            slides.forEach((slide, idx) => {
-                slide.classList.remove('is-active', 'is-prev', 'is-next');
-                if (idx === currentIndex) slide.classList.add('is-active');
-                else if (idx === prevIndex) slide.classList.add('is-prev');
-                else if (idx === nextIndex) slide.classList.add('is-next');
-            });
-
-            counter.textContent = `${currentIndex + 1} / ${total}`;
-        }
-
-        function nextDetailImage() {
-            const total = detailGalleryState.images.length;
-            if (total <= 1) return;
-            detailGalleryState.index = (detailGalleryState.index + 1) % total;
-            syncDetailGallery();
-        }
-
-        function prevDetailImage() {
-            const total = detailGalleryState.images.length;
-            if (total <= 1) return;
-            detailGalleryState.index = (detailGalleryState.index - 1 + total) % total;
-            syncDetailGallery();
-        }
-
-        window.nextDetailImage = nextDetailImage;
-        window.prevDetailImage = prevDetailImage;
-
-        function getIcon(name) {
-            const map = {
-                'Đi học': 'fa-solid fa-graduation-cap',
-                'Đi làm': 'fa-solid fa-briefcase',
-                'Cặp đôi': 'fa-solid fa-user-group',
-                'Gác lửng': 'fa-solid fa-stairs',
-                'Wifi': 'fa-solid fa-wifi',
-                'Vệ sinh trong': 'fa-solid fa-toilet',
-                'Phòng tắm': 'fa-solid fa-bath',
-                'Kệ bếp': 'fa-solid fa-kitchen-set',
-                'Điều hòa': 'fa-regular fa-snowflake',
-                'Tủ lạnh': 'fa-solid fa-snowflake', // FontAwesome free might duplicate
-                'Giường nệm': 'fa-solid fa-bed',
-                'Tủ áo quần': 'fa-solid fa-shirt',
-                'Ban công/sân thượng': 'fa-regular fa-sun',
-                'Thang máy': 'fa-solid fa-elevator',
-                'Bãi để xe riêng': 'fa-solid fa-motorcycle',
-                'Chợ': 'fa-solid fa-store',
-                'Siêu thị': 'fa-solid fa-cart-shopping',
-                'Trường học': 'fa-solid fa-school',
-                'Công viên': 'fa-solid fa-tree',
-                'Bến xe Bus': 'fa-solid fa-bus',
-                'Cây xanh': 'fa-solid fa-leaf'
-            };
-            return map[name] || 'fa-solid fa-check';
-        }
-    </script>
+    <!-- Foundation -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/validators.js"></script>
+<script src="assets/js/utils.js"></script>
+    <!-- Core -->
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/navbar.js"></script>
+<script src="assets/js/event-handlers.js"></script>
+    <!-- Features -->
+<script src="assets/js/favorites.js"></script>
+    <!-- Main Logic -->
+<script src="assets/js/main.js"></script>
+<script src="assets/js/details.js"></script>
     <!-- Scroll To Top Button -->
     <button id="scrollToTopBtn" class="scroll-to-top">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 </body>
 </html>
+

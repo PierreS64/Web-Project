@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -12,11 +12,11 @@
         body { padding-top: 80px; }
     </style>
 </head>
-<body class="home-page bg-light">
+<body class="home-page bg-light owner-page">
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
-            <a class="navbar-brand" href="trang-chu.html">
+            <a class="navbar-brand" href="index.html">
                 <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 40px;">NHÀ XANH
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,17 +24,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-4 fw-bold">
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-can-ho">Căn hộ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="trang-chu.html#section-ky-tuc-xa">Ký túc xá</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-phong-tro">Nhà trọ, Phòng trọ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-nha-nguyen-can">Nhà nguyên căn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-can-ho">Căn hộ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#section-ky-tuc-xa">Kỳ túc xá</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <div id="auth-buttons" class="d-flex gap-2 d-none">
-                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-login" onclick="return handleNavbarAuthClick(event, 'login')">
+                        <a href="#" id="navLoginBtn" class="btn-nav-auth btn-nav-login" aria-label="Đăng nhập">
                             <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
                         </a>
-                        <a href="trang-chu.html" class="btn-nav-auth btn-nav-register" onclick="return handleNavbarAuthClick(event, 'register')">
+                        <a href="#" id="navRegisterBtn" class="btn-nav-auth btn-nav-register" aria-label="Đăng ký">
                             <i class="fa-solid fa-user-plus"></i> Đăng ký
                         </a>
                     </div>
@@ -64,7 +64,7 @@
                                 <div class="nav-profile-name" id="nav-profile-name">User</div>
                                 <a class="nav-profile-link" href="ho-so.html#personal-info">Thông tin cá nhân</a>
                                 <a class="nav-profile-link" href="ho-so.html#account-info">Thông tin tài khoản</a>
-                                <button type="button" class="nav-profile-logout" onclick="Storage.logout()">Đăng xuất</button>
+                                <button type="button" class="nav-profile-logout">Đăng xuất</button>
                             </div>
                         </div>
                         <a href="chu-tro.html" id="admin-link" class="btn-nav-auth btn-nav-register d-none"><i class="fa-solid fa-list-check"></i> Quản lý</a>
@@ -85,7 +85,7 @@
                         <option value="rented">Đã thuê</option>
                     </select>
                 </div>
-                <button class="btn btn-success fw-bold" onclick="openModal()"><i class="fa-solid fa-plus"></i> Thêm Phòng Mới</button>
+                <button class="btn btn-success fw-bold owner-add-room-btn" onclick="openModal()"><i class="fa-solid fa-plus"></i> Thêm Phòng Mới</button>
             </div>
         </div>
 
@@ -143,14 +143,17 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-between flex-wrap gap-2">
                     <div class="d-flex gap-2 flex-wrap">
-                        <button type="button" class="btn btn-primary" onclick="openContractFromAction()">
-                            <i class="fa-solid fa-file-signature"></i> Tạo hợp đồng
+                        <button type="button" id="contractActionBtn" class="btn btn-primary" onclick="openContractFromAction()">
+                            <i class="fa-solid fa-file-signature"></i> <span id="contractActionBtnText">Tạo hợp đồng</span>
                         </button>
                         <button type="button" class="btn btn-outline-danger" onclick="openEndContractFromAction()">
                             <i class="fa-solid fa-file-circle-xmark"></i> Kết thúc hợp đồng
                         </button>
                         <button type="button" class="btn btn-warning" onclick="openInvoiceFromAction()">
                             <i class="fa-solid fa-file-invoice"></i> Tạo hoá đơn
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" onclick="openIssueListFromAction()">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Xem sự cố
                         </button>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
@@ -438,6 +441,16 @@
                             <label class="form-label">Tên khách thuê <span class="text-danger">*</span></label>
                             <input type="text" id="tenantName" class="form-control" placeholder="Tên khách thuê" required>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="date" id="contractStartDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                                <input type="date" id="contractEndDate" class="form-control" required>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Hợp đồng thuê nhà (PDF) <span class="text-danger">*</span></label>
                             <input type="file" id="contractFile" class="form-control" accept="application/pdf" required>
@@ -490,11 +503,203 @@
         </div>
     </div>
 
+    <div class="modal fade form-theme-green" id="extendContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Gia hạn hợp đồng thuê</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="extendContractForm">
+                        <input type="hidden" id="extendContractRoomId">
+                        <div class="mb-2 small text-muted" id="extendContractRoomTitle"></div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="extendTenantPhone" class="form-control" readonly>
+                            <div class="form-text">Không thể thay đổi khi gia hạn hợp đồng.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên khách thuê <span class="text-danger">*</span></label>
+                            <input type="text" id="extendTenantName" class="form-control" readonly>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="date" id="extendContractStartDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                                <input type="date" id="extendContractEndDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hợp đồng gia hạn (PDF)</label>
+                            <input type="file" id="extendContractFile" class="form-control" accept="application/pdf">
+                            <div class="form-text">Tùy chọn: tải thêm bản hợp đồng gia hạn mới. Hợp đồng hiện tại vẫn được giữ lại.</div>
+                            <div id="extendExistingContractInfo" class="small text-muted mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExtendContract()">
+                        <i class="fa-solid fa-calendar-check"></i> Lưu gia hạn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade form-theme-green" id="ownerIssueModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger-subtle">
+                    <h5 class="modal-title fw-bold">Danh sách sự cố</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="issue-history-toolbar mb-3">
+                        <label for="ownerIssueStatusFilter" class="small fw-semibold text-muted mb-0">Lọc trạng thái</label>
+                        <select id="ownerIssueStatusFilter" class="form-select form-select-sm w-auto">
+                            <option value="pending" selected>Chưa xử lý</option>
+                            <option value="all">Tất cả</option>
+                            <option value="resolved">Đã xử lý</option>
+                        </select>
+                    </div>
+                    <div id="ownerIssueList" class="issue-history-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ownerIssueDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="ownerIssueDetailTitle">Chi tiết sự cố</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="owner-action-gallery">
+                                <button class="owner-action-gallery-nav prev" type="button" onclick="prevOwnerIssueImage()" aria-label="Ảnh trước">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <div class="owner-action-gallery-track" id="ownerIssueGalleryTrack"></div>
+                                <button class="owner-action-gallery-nav next" type="button" onclick="nextOwnerIssueImage()" aria-label="Ảnh tiếp theo">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="room-action-info"><span>Trạng thái:</span> <strong id="ownerIssueDetailStatus">-</strong></div>
+                            <div class="room-action-info"><span>Khách báo cáo:</span> <strong id="ownerIssueDetailTenant">-</strong></div>
+                            <div class="room-action-info"><span>Ngày báo cáo:</span> <strong id="ownerIssueDetailCreatedAt">-</strong></div>
+                            <div class="room-action-info"><span>Phòng:</span> <strong id="ownerIssueDetailRoomTitle">-</strong></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0" id="ownerIssueDetailDescription">-</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" id="ownerIssueStatusToggleBtn" onclick="toggleOwnerIssueStatus()">
+                        <i class="fa-solid fa-check"></i> Đánh dấu đã xử lý
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <!-- Column 1: Logo -->
+                <div class="col-md-3 mb-4">
+                    <a href="#" class="footer-logo">
+                        <img src="img/logo.png" alt="Nhà xanh" class="me-2" style="height: 30px;">NHÀ XANH
+                    </a>
+                    <p class="text-muted small mt-2">
+                        Hệ thống tìm kiếm phòng trọ, nhà ở, căn hộ cho thuê hàng đầu Việt Nam. Kết nối chủ nhà và người thuê nhanh chóng, an toàn.
+                    </p>
+                </div>
+
+                <!-- Column 2: Hệ thống -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">HỆ THỐNG</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Dành cho chủ trọ</a></li>
+                        <li><a href="#">Blog tin tức</a></li>
+                        <li><a href="#">Hướng dẫn đăng tin</a></li>
+                        <li><a href="#">Liên hệ hỗ trợ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Thông tin -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">THÔNG TIN</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Điều khoản & Cam kết</a></li>
+                        <li><a href="#">Quy chế hoạt động</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Giải quyết khiếu nại</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Kết nối -->
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">KẾT NỐI VỚI CHÚNG TÔI</h5>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-brands fa-whatsapp"></i> <!-- Zalo icon approximation -->
+                        <span>Zalo: 0396340364</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>info@nhaxanh.com</span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 1: 84C P. Nguyễn Thanh Bình, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+                     <div class="footer-contact-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>VP Hà Nội 2: Vạn Phúc Building, P. Tố Hữu, Vạn Phúc, Hà Đông, Hà Nội</span>
+                    </div>
+
+                    <div class="social-links mt-3">
+                        <a href="https://www.facebook.com/PierreSchrub" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gnohp.nauht/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@pierreschrub" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-4 border-top mt-3 text-muted small">
+                © 2026 Nhà xanh. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/navbar.js"></script>
-    <script src="assets/js/main.js"></script>
-    <script src="assets/js/owner.js"></script>
+    <!-- Foundation -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/validators.js"></script>
+<script src="assets/js/utils.js"></script>
+    <!-- Core -->
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/navbar.js"></script>
+<script src="assets/js/event-handlers.js"></script>
+    <!-- Features -->
+<script src="assets/js/favorites.js"></script>
+    <!-- Main Logic -->
+<script src="assets/js/main.js"></script>
+    <!-- Owner Logic -->
+<script src="assets/js/owner.js"></script>
     <!-- Scroll To Top Button -->
     <button id="scrollToTopBtn" class="scroll-to-top">
         <i class="fa-solid fa-arrow-up"></i>

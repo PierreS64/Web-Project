@@ -6,6 +6,25 @@
 let authModal;
 let roomDetailModal;
 
+function preloadRememberedLogin() {
+    if (!window.Storage || typeof Storage.getRememberedLogin !== 'function') return;
+
+    const remembered = Storage.getRememberedLogin();
+    const phoneInput = document.getElementById('logPhone');
+    const passInput = document.getElementById('logPass');
+    const rememberCheckbox = document.getElementById('rememberPassword');
+
+    if (!phoneInput || !passInput || !rememberCheckbox) return;
+
+    if (remembered && remembered.phone && remembered.pass) {
+        phoneInput.value = remembered.phone;
+        passInput.value = remembered.pass;
+        rememberCheckbox.checked = true;
+    } else {
+        rememberCheckbox.checked = false;
+    }
+}
+
 function isRoomDataValid(room) {
     return room
         && typeof room.title === 'string' && room.title.trim()
@@ -14,6 +33,18 @@ function isRoomDataValid(room) {
         && Array.isArray(room.images) && room.images.length > 0
         && Number.isFinite(Number(room.price)) && Number(room.price) > 0
         && Number.isFinite(Number(room.area)) && Number(room.area) > 0;
+}
+
+function isRoomVisibleOnHome(room) {
+    return String(room && room.status ? room.status : '').toLowerCase() !== 'rented';
+}
+
+function getRoomTypeClass(type) {
+    const normalized = String(type || '').toLowerCase().trim();
+    if (normalized === 'nhà nguyên căn') return 'room-chip-type-house';
+    if (normalized === 'căn hộ') return 'room-chip-type-apartment';
+    if (normalized === 'ký túc xá') return 'room-chip-type-dorm';
+    return 'room-chip-type-motel';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,6 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Render dữ liệu
     renderHomeRooms();
     checkAuth();
+    preloadRememberedLogin();
+
+    // 2.1 Mở modal auth theo query param khi chuyển từ trang khác về.
+    const authMode = new URLSearchParams(window.location.search).get('auth');
+    if ((authMode === 'login' || authMode === 'register') && typeof openAuthModal === 'function') {
+        openAuthModal(authMode);
+        if (window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        }
+    }
 
     // 3. Sự kiện tìm kiếm
     const btnSearch = document.querySelector('.btn-search');
@@ -92,6 +133,7 @@ function switchTab(type) {
         regForm.classList.add('d-none');
         tabLogin.classList.add('active'); 
         tabReg.classList.remove('active');
+        preloadRememberedLogin();
     } else {
         loginForm.classList.add('d-none'); 
         regForm.classList.remove('d-none');
@@ -120,17 +162,38 @@ function handleLogin(e) {
     e.preventDefault();
     const phone = document.getElementById('logPhone').value.trim();
     const pass = document.getElementById('logPass').value;
+    const rememberCheckbox = document.getElementById('rememberPassword');
 
-    if (!/^\d{10}$/.test(phone)) return alert('Vui lòng nhập số điện thoại hợp lệ (10 chữ số).');
-    if (!pass) return alert('Vui lòng nhập mật khẩu.');
+    // Use centralized validators
+    const formData = { phone, pass };
+    const rules = {
+        phone: { type: 'phone', required: true },
+        pass: { type: 'text', required: true, minLength: 1 }
+    };
+
+    const validation = Validators.validateForm(formData, rules);
+    if (!validation.isValid) {
+        Object.values(validation.errors).forEach(error => {
+            Utils.showError(error);
+        });
+        return;
+    }
 
     const user = Storage.login(phone, pass);
-    if(user) {
-        // Tự động đóng modal và tải lại trang để cập nhật giao diện
+    if (user) {
+        if (rememberCheckbox && rememberCheckbox.checked && typeof Storage.setRememberedLogin === 'function') {
+            Storage.setRememberedLogin(phone, pass);
+        } else if (typeof Storage.clearRememberedLogin === 'function') {
+            Storage.clearRememberedLogin();
+        }
+
+        Utils.showSuccess('Đăng nhập thành công!');
         authModal.hide();
-        window.location.reload();
+        // Update UI instead of reload
+        window.NavbarUI?.refreshAuthUI?.();
+        renderHomeRooms();
     } else {
-        alert('Sai thông tin đăng nhập!');
+        Utils.showError('Sai số điện thoại hoặc mật khẩu!');
     }
 }
 
@@ -141,19 +204,30 @@ function handleRegister(e) {
     const pass = document.getElementById('regPass').value;
     const role = document.getElementById('regRole').value;
 
-    if (!name) return alert('Vui lòng nhập họ tên.');
-    if (!role || !['owner', 'tenant'].includes(role)) return alert('Vui lòng chọn vai trò hợp lệ.');
-    if (!/^\d{10}$/.test(phone)) return alert('Lỗi: SĐT phải là 10 số!');
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{5,20}$/.test(pass)) return alert('Lỗi: Mật khẩu chưa đủ mạnh (Hoa, thường, số, ký tự đặc biệt)!');
-    if (name.split(/\s+/).length < 2 || /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(name)) return alert('Lỗi: Tên không hợp lệ!');
+    // Use centralized validators
+    const formData = { name, phone, pass, role };
+    const rules = {
+        name: { type: 'name', required: true },
+        phone: { type: 'phone', required: true },
+        pass: { type: 'password', required: true },
+        role: { type: 'select', required: true }
+    };
+
+    const validation = Validators.validateForm(formData, rules);
+    if (!validation.isValid) {
+        Object.values(validation.errors).forEach(error => {
+            Utils.showError(error);
+        });
+        return;
+    }
 
     if (Storage.register({ name, phone, pass, role })) {
-        alert('Đăng ký thành công!'); 
+        Utils.showSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
         switchTab('login');
         document.getElementById('logPhone').value = phone;
-        document.getElementById('form-register').querySelector('form').reset();
+        document.getElementById('form-register').reset();
     } else {
-        alert('SĐT đã tồn tại!');
+        Utils.showError('Số điện thoại đã tồn tại!');
     }
 }
 
@@ -203,7 +277,9 @@ function renderHomeRooms(roomsToRender = null) {
         kyTucXa: 'see-all-ky-tuc-xa'
     };
 
-    const rooms = (roomsToRender || Storage.getRooms()).filter(isRoomDataValid);
+    const rooms = (roomsToRender || Storage.getRooms())
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const container = document.getElementById('room-list');
     const resultCount = document.getElementById('results-count');
     const roomPhongTro = document.getElementById('room-list-phong-tro');
@@ -220,7 +296,7 @@ function renderHomeRooms(roomsToRender = null) {
         if (!btnId) return;
         const btn = document.getElementById(btnId);
         if (!btn) return;
-        btn.classList.toggle('d-none', total <= HOME_SECTION_LIMIT);
+        btn.classList.remove('d-none');
     };
 
     const normalizeType = (type = '') => type.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -237,23 +313,24 @@ function renderHomeRooms(roomsToRender = null) {
     };
 
     const buildRoomCard = (room) => {
-        const price = new Intl.NumberFormat('vi-VN').format(room.price);
+        const price = Utils.formatCurrency(room.price);
         const area = Number(room.area);
         const type = room.type;
+        const typeClass = getRoomTypeClass(type);
         const locationText = room.address;
         const statusChip = room.status === 'rented' ? '<span class="room-chip room-chip-rented">Đã thuê</span>' : '';
         const imgUrl = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
 
         return `
-        <div class="col-lg-3 col-md-6">
-            <article class="room-card room-card-figma h-100" onclick="viewRoom('${room.id}')">
+        <div class="col-lg-3 col-md-6" data-room-id="${room.id}">
+            <article class="room-card room-card-figma h-100" style="cursor: pointer;" onclick="viewRoom('${room.id}')">
                 <div class="room-thumb-wrap">
                     <img src="${imgUrl}" class="room-thumb" alt="${room.title}">
                     <div class="room-chip-row">
-                        <span class="room-chip">${type}</span>
+                        <span class="room-chip ${typeClass}">${type}</span>
                         ${statusChip}
                     </div>
-                    <button type="button" class="room-fav-btn" onclick="event.stopPropagation()" aria-label="Yêu thích">
+                    <button type="button" class="room-fav-btn" aria-label="Yêu thích">
                         <i class="fa-regular fa-heart"></i>
                     </button>
                 </div>
@@ -325,7 +402,9 @@ function handleSearch() {
     const keyword = document.getElementById('searchKeyword').value.toLowerCase().trim();
     const type = document.getElementById('searchType').value;
 
-    const allRooms = Storage.getRooms().filter(isRoomDataValid);
+    const allRooms = Storage.getRooms()
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const filtered = allRooms.filter(r => {
         // 1. Lọc theo từ khóa (Tên hoặc Địa chỉ)
         const matchKeyword = r.title.toLowerCase().includes(keyword) || 
@@ -499,8 +578,8 @@ function updateTrack() {
     track.style.width = (percent2 - percent1) + "%";
     
     if(document.getElementById('priceMinLabel')) {
-        document.getElementById('priceMinLabel').innerText = new Intl.NumberFormat('vi-VN').format(minVal);
-        document.getElementById('priceMaxLabel').innerText = new Intl.NumberFormat('vi-VN').format(maxVal);
+        document.getElementById('priceMinLabel').innerText = Utils.formatCurrency(minVal);
+        document.getElementById('priceMaxLabel').innerText = Utils.formatCurrency(maxVal);
     }
 }
 
@@ -641,6 +720,24 @@ function resetAdvancedSearch() {
     document.getElementById('mainSearchInput').value = '';
 }
 
+function normalizeLocationText(value = '') {
+    return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\b(thanh pho|tp\.?|tinh|quan|huyen|thi xa|thi tran|phuong|xa)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function locationContains(haystack, needle) {
+    const normalizedNeedle = normalizeLocationText(needle);
+    if (!normalizedNeedle) return true;
+
+    const normalizedHaystack = normalizeLocationText(haystack);
+    return normalizedHaystack.includes(normalizedNeedle);
+}
+
 function executeSearch(options = {}) {
     // 1. Get location string from Advanced Search
     const city = document.getElementById('advCity').value;
@@ -696,14 +793,20 @@ function executeSearch(options = {}) {
 
 
     // 3. Perform Filter
-    const allRooms = Storage.getRooms();
+    const allRooms = Storage.getRooms()
+        .filter(isRoomDataValid)
+        .filter(isRoomVisibleOnHome);
     const filtered = allRooms.filter(r => {
         // A. Type Filter
         const typeMatch = (selectedTabType === 'all') || (r.type === selectedTabType);
 
         // B. Keyword / Location Filter
         const roomAddress = (r.address || [r.street, r.ward, r.district, r.city].filter(Boolean).join(', ')).toLowerCase();
-        const locMatch = !locationKeyword || roomAddress.includes(locationKeyword.toLowerCase());
+        const cityMatch = !city || locationContains(r.city || roomAddress, city);
+        const districtMatch = !district || locationContains(r.district || roomAddress, district);
+        const wardMatch = !ward || locationContains(r.ward || roomAddress, ward);
+        const keywordMatch = !locationKeyword || locationContains(roomAddress, locationKeyword);
+        const locMatch = cityMatch && districtMatch && wardMatch && keywordMatch;
 
         // C. Price Filter
         const priceMatch = r.price >= minPrice && r.price <= maxPrice;

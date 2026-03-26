@@ -40,7 +40,7 @@
         }
 
         if (category === 'promo') {
-            return 'trang-chu.html';
+            return 'index.html';
         }
 
         if (user && user.role === 'owner') {
@@ -55,14 +55,14 @@
             return `chi-tiet.html?id=${roomId}`;
         }
 
-        return 'trang-chu.html';
+        return 'index.html';
     }
 
     function resolveViewAllNotificationLink(user) {
-        if (!user) return 'trang-chu.html';
+        if (!user) return 'index.html';
         if (user.role === 'owner') return 'chu-tro.html#ownerNotificationList';
         if (user.role === 'tenant') return 'khach-hang.html#tenantNotificationList';
-        return 'trang-chu.html';
+        return 'index.html';
     }
 
     function renderNotificationDropdown() {
@@ -151,8 +151,46 @@
         const userInfo = document.getElementById('user-info');
         const profileName = document.getElementById('nav-profile-name');
         const adminLink = document.getElementById('admin-link');
+        const postNewBtn = document.getElementById('post-new-btn');
         const viewAllLink = document.querySelector('.nav-notification-foot a');
+        const profileMenu = document.querySelector('.nav-profile-menu');
         const user = window.Storage && Storage.getCurrentUser ? Storage.getCurrentUser() : null;
+
+        const ensureFavoritesLink = () => {
+            if (!profileMenu) return;
+            const existing = profileMenu.querySelector('.nav-profile-favorites');
+
+            if (!user) {
+                if (existing) existing.remove();
+                return;
+            }
+
+            if (existing) {
+                existing.href = 'yeu-thich.html';
+                const firstProfileLink = profileMenu.querySelector('.nav-profile-link:not(.nav-profile-favorites)');
+                if (firstProfileLink) {
+                    profileMenu.insertBefore(existing, firstProfileLink);
+                }
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.className = 'nav-profile-link nav-profile-favorites';
+            link.href = 'yeu-thich.html';
+            link.textContent = 'Phòng yêu thích';
+
+            const firstProfileLink = profileMenu.querySelector('.nav-profile-link');
+            if (firstProfileLink) {
+                profileMenu.insertBefore(link, firstProfileLink);
+            } else {
+                const logoutBtn = profileMenu.querySelector('.nav-profile-logout');
+                if (logoutBtn) {
+                    profileMenu.insertBefore(link, logoutBtn);
+                } else {
+                    profileMenu.appendChild(link);
+                }
+            }
+        };
 
         if (!authButtons || !userInfo) return;
 
@@ -161,7 +199,9 @@
             userInfo.classList.add('d-none');
             userInfo.classList.remove('d-flex');
             if (adminLink) adminLink.classList.add('d-none');
+            if (postNewBtn) postNewBtn.classList.remove('d-none');
             if (viewAllLink) viewAllLink.href = resolveViewAllNotificationLink(null);
+            ensureFavoritesLink();
             return;
         }
 
@@ -184,9 +224,19 @@
             }
         }
 
+        if (postNewBtn) {
+            if (user.role === 'owner') {
+                postNewBtn.classList.remove('d-none');
+            } else {
+                postNewBtn.classList.add('d-none');
+            }
+        }
+
         if (viewAllLink) {
             viewAllLink.href = resolveViewAllNotificationLink(user);
         }
+
+        ensureFavoritesLink();
 
         renderNotificationDropdown();
     }
@@ -256,7 +306,11 @@
             window.openAuthModal(type);
             return false;
         }
-        return true;
+
+        event.preventDefault();
+        const mode = type === 'register' ? 'register' : 'login';
+        window.location.href = `index.html?auth=${mode}`;
+        return false;
     };
 
     window.NavbarUI = {

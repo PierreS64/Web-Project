@@ -7,30 +7,46 @@
 const currentUser = Storage.getCurrentUser();
 if (!currentUser || currentUser.role !== 'owner') {
     alert('Bạn không có quyền truy cập trang này!');
-    window.location.href = 'trang-chu.html';
+    window.location.href = 'index.html';
 }
 
 // 2. BIẾN TOÀN CỤC
 let roomModal;
 let contractModal;
+let extendContractModal;
 let endContractModal;
 let roomActionModal;
 let invoiceModal;
+let ownerIssueModal;
+let ownerIssueDetailModal;
 let selectedRoomActionId = null;
+let selectedOwnerIssueRoomId = null;
+let selectedOwnerIssueId = null;
+let ownerHighlightedIssueId = null;
+let ownerIssueHighlightTimer = null;
 let ownerActionGalleryState = {
     images: [],
     index: 0
 };
+let ownerIssueGalleryState = {
+    images: [],
+    index: 0
+};
 let selectedImages = [];
+
+const OWNER_ISSUE_FILTER_KEY = 'owner_issue_status_filter';
 // let map, marker;
 // let defaultLocation = { lat: 21.0285, lng: 105.8542 }; // Hà Nội
 
 document.addEventListener('DOMContentLoaded', () => {
     roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
     contractModal = new bootstrap.Modal(document.getElementById('contractModal'));
+    extendContractModal = new bootstrap.Modal(document.getElementById('extendContractModal'));
     endContractModal = new bootstrap.Modal(document.getElementById('endContractModal'));
     roomActionModal = new bootstrap.Modal(document.getElementById('roomActionModal'));
     invoiceModal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+    ownerIssueModal = new bootstrap.Modal(document.getElementById('ownerIssueModal'));
+    ownerIssueDetailModal = new bootstrap.Modal(document.getElementById('ownerIssueDetailModal'));
     renderTable();
     renderOwnerNotifications();
     setInterval(renderOwnerNotifications, 30000);
@@ -52,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.invoice-calc').forEach((input) => {
         input.addEventListener('input', recalculateInvoice);
     });
+
+    const ownerIssueStatusFilter = document.getElementById('ownerIssueStatusFilter');
+    if (ownerIssueStatusFilter) {
+        ownerIssueStatusFilter.value = readOwnerIssueFilter();
+        ownerIssueStatusFilter.addEventListener('change', () => {
+            writeOwnerIssueFilter(ownerIssueStatusFilter.value);
+            renderOwnerIssueList();
+        });
+    }
     
     // Fix map rendering issue when modal opens
     /*
@@ -85,6 +110,34 @@ function isPositiveNumber(value) {
 function isNonNegativeNumber(value) {
     const num = Number(value);
     return Number.isFinite(num) && num >= 0;
+}
+
+function getIssueStatusConfig(status) {
+    if (status === 'resolved') {
+        return {
+            label: 'Đã xử lý',
+            tagClass: 'resolved',
+            textClass: 'text-success'
+        };
+    }
+
+    return {
+        label: 'Chưa xử lý',
+        tagClass: 'pending',
+        textClass: 'text-danger'
+    };
+}
+
+function readOwnerIssueFilter() {
+    const saved = (localStorage.getItem(OWNER_ISSUE_FILTER_KEY) || '').toLowerCase();
+    if (saved === 'pending' || saved === 'resolved' || saved === 'all') return saved;
+    return 'pending';
+}
+
+function writeOwnerIssueFilter(value) {
+    const normalized = (value || '').toLowerCase();
+    if (normalized !== 'pending' && normalized !== 'resolved' && normalized !== 'all') return;
+    localStorage.setItem(OWNER_ISSUE_FILTER_KEY, normalized);
 }
 
 function initImageUploadHandlers() {
@@ -402,7 +455,7 @@ function renderTable() {
 }
 
 function buildOwnerRoomCard(room) {
-    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const price = Utils.formatCurrency(Number(room.price) || 0);
     const area = Number(room.area) || 0;
     const locationText = room.address;
     const image = Array.isArray(room.images) && room.images.length > 0 ? room.images[0] : '';
@@ -598,13 +651,13 @@ async function saveRoom() {
     const street = document.getElementById('addrStreet').value.trim();
 
     // Validate cơ bản
-    if (!isNonEmptyText(title)) return alert('Vui lòng nhập Tên phòng!');
-    if (!isNonEmptyText(roomType)) return alert('Vui lòng chọn Loại hình phòng!');
-    if (!isPositiveNumber(price)) return alert('Giá tiền phải là số lớn hơn 0.');
-    if (!isPositiveNumber(area)) return alert('Diện tích phải là số lớn hơn 0.');
+    if (!isNonEmptyText(title)) return Utils.showError('Vui lòng nhập Tên phòng!');
+    if (!isNonEmptyText(roomType)) return Utils.showError('Vui lòng chọn Loại hình phòng!');
+    if (!isPositiveNumber(price)) return Utils.showError('Giá tiền phải là số lớn hơn 0.');
+    if (!isPositiveNumber(area)) return Utils.showError('Diện tích phải là số lớn hơn 0.');
     
-    if (!city || !district || !ward) return alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!');
-    if (!street) return alert('Vui lòng nhập địa chỉ cụ thể (Số nhà, đường)!');
+    if (!city || !district || !ward) return Utils.showError('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!');
+    if (!street) return Utils.showError('Vui lòng nhập địa chỉ cụ thể (Số nhà, đường)!');
 
     /*
     const lat = document.getElementById('roomLat').value;
@@ -690,11 +743,11 @@ async function saveRoom() {
         if (id) {
             // Có ID -> Gọi Update
             Storage.updateRoom(roomData);
-            alert('Cập nhật thành công!');
+            Utils.showSuccess('Cập nhật thành công!');
         } else {
             // Không ID -> Gọi Add
             Storage.addRoom(roomData);
-            alert('Thêm mới thành công!');
+            Utils.showSuccess('Thêm mới thành công!');
         }
         roomModal.hide();
         renderTable(); // Vẽ lại bảng
@@ -721,6 +774,8 @@ function openContractModal(roomId) {
     document.getElementById('contractRoomId').value = room.id;
     document.getElementById('contractRoomTitle').textContent = `Phòng: ${room.title}`;
     document.getElementById('tenantLookupStatus').textContent = '';
+    document.getElementById('contractStartDate').value = '';
+    document.getElementById('contractEndDate').value = '';
 
     const existingInfo = document.getElementById('existingContractInfo');
     existingInfo.classList.add('d-none');
@@ -729,6 +784,8 @@ function openContractModal(roomId) {
     if (room.contract) {
         document.getElementById('tenantPhone').value = room.contract.tenantPhone || '';
         document.getElementById('tenantName').value = room.contract.tenantName || '';
+        document.getElementById('contractStartDate').value = room.contract.startDate || '';
+        document.getElementById('contractEndDate').value = room.contract.endDate || '';
         existingInfo.classList.remove('d-none');
         existingInfo.textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}. Bạn có thể chọn PDF mới để thay thế.`;
         document.getElementById('contractFile').required = false;
@@ -772,11 +829,18 @@ async function saveContract() {
     const roomId = document.getElementById('contractRoomId').value;
     const tenantPhone = (document.getElementById('tenantPhone').value || '').trim();
     const tenantName = (document.getElementById('tenantName').value || '').trim();
+    const contractStartDate = document.getElementById('contractStartDate').value;
+    const contractEndDate = document.getElementById('contractEndDate').value;
     const fileInput = document.getElementById('contractFile');
 
     if (!roomId) return alert('Không xác định được phòng trọ.');
     if (!/^\d{10}$/.test(tenantPhone)) return alert('Số điện thoại khách phải gồm đúng 10 chữ số.');
     if (!tenantName) return alert('Vui lòng nhập tên khách thuê.');
+    if (!contractStartDate) return alert('Vui lòng chọn ngày bắt đầu hợp đồng.');
+    if (!contractEndDate) return alert('Vui lòng chọn ngày kết thúc hợp đồng.');
+    if (contractEndDate < contractStartDate) {
+        return alert('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.');
+    }
 
     const room = Storage.getRoomById(roomId);
     if (!room) return alert('Không tìm thấy phòng trọ.');
@@ -815,6 +879,8 @@ async function saveContract() {
         contract: {
             tenantName,
             tenantPhone,
+            startDate: contractStartDate,
+            endDate: contractEndDate,
             fileName: contractFileName,
             fileData: contractFileData,
             updatedAt: new Date().toISOString(),
@@ -863,7 +929,7 @@ function openRoomActionModalById(roomId) {
 
     const images = room.images;
     const location = room.address;
-    const price = new Intl.NumberFormat('vi-VN').format(Number(room.price) || 0);
+    const price = Utils.formatCurrency(Number(room.price) || 0);
     const statusText = room.status === 'available' ? 'Còn trống' : 'Đã thuê';
 
     document.getElementById('roomActionTitle').textContent = room.title;
@@ -873,6 +939,11 @@ function openRoomActionModalById(roomId) {
     document.getElementById('roomActionStatus').textContent = statusText;
     document.getElementById('roomActionAddress').textContent = location;
     document.getElementById('roomActionDescription').textContent = room.description;
+
+    const contractActionBtnText = document.getElementById('contractActionBtnText');
+    if (contractActionBtnText) {
+        contractActionBtnText.textContent = room.contract ? 'Gia hạn hợp đồng' : 'Tạo hợp đồng';
+    }
 
     initOwnerActionGallery(images, room.title);
 
@@ -913,6 +984,17 @@ function syncOwnerActionGallery() {
 
     slides.forEach((slide, idx) => {
         slide.classList.remove('is-active', 'is-prev', 'is-next');
+        if (total === 1) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            return;
+        }
+
+        if (total === 2) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            else if (idx === nextIndex) slide.classList.add('is-next');
+            return;
+        }
+
         if (idx === currentIndex) slide.classList.add('is-active');
         else if (idx === prevIndex) slide.classList.add('is-prev');
         else if (idx === nextIndex) slide.classList.add('is-next');
@@ -945,10 +1027,125 @@ window.prevOwnerActionImage = prevOwnerActionImage;
 function openContractFromAction() {
     if (!selectedRoomActionId) return;
     roomActionModal.hide();
+
+    const room = Storage.getRoomById(selectedRoomActionId);
+    if (room && room.contract) {
+        openExtendContractModal(selectedRoomActionId);
+        return;
+    }
+
     openContractModal(selectedRoomActionId);
 }
 
 window.openContractFromAction = openContractFromAction;
+
+function openExtendContractModal(roomId) {
+    const room = Storage.getRoomById(roomId);
+    if (!room) {
+        alert('Không tìm thấy phòng trọ!');
+        return;
+    }
+
+    if (!room.contract) {
+        alert('Phòng này chưa có hợp đồng để gia hạn.');
+        return;
+    }
+
+    const form = document.getElementById('extendContractForm');
+    if (form) form.reset();
+
+    document.getElementById('extendContractRoomId').value = room.id;
+    document.getElementById('extendContractRoomTitle').textContent = `Phòng: ${room.title}`;
+    document.getElementById('extendTenantPhone').value = room.contract.tenantPhone || '';
+    document.getElementById('extendTenantName').value = room.contract.tenantName || '';
+    document.getElementById('extendContractStartDate').value = room.contract.startDate || '';
+    document.getElementById('extendContractEndDate').value = room.contract.endDate || '';
+    const renewalFileCount = Array.isArray(room.contract.renewalFiles) ? room.contract.renewalFiles.length : 0;
+    document.getElementById('extendExistingContractInfo').textContent = `Đã có hợp đồng: ${room.contract.fileName || 'contract.pdf'}. Số bản gia hạn đã lưu: ${renewalFileCount}.`;
+
+    extendContractModal.show();
+}
+
+async function saveExtendContract() {
+    const roomId = document.getElementById('extendContractRoomId').value;
+    const startDate = document.getElementById('extendContractStartDate').value;
+    const endDate = document.getElementById('extendContractEndDate').value;
+    const extendContractFileInput = document.getElementById('extendContractFile');
+
+    if (!roomId) return alert('Không xác định được phòng trọ.');
+    if (!startDate) return alert('Vui lòng chọn ngày bắt đầu hợp đồng.');
+    if (!endDate) return alert('Vui lòng chọn ngày kết thúc hợp đồng.');
+    if (endDate < startDate) return alert('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.');
+
+    const room = Storage.getRoomById(roomId);
+    if (!room || !room.contract) return alert('Không tìm thấy hợp đồng hiện tại để gia hạn.');
+
+    let renewalFiles = Array.isArray(room.contract.renewalFiles) ? [...room.contract.renewalFiles] : [];
+    if (extendContractFileInput && extendContractFileInput.files.length > 0) {
+        const file = extendContractFileInput.files[0];
+        const isPdfType = file.type === 'application/pdf';
+        const isPdfExt = /\.pdf$/i.test(file.name);
+
+        if (!isPdfType && !isPdfExt) {
+            return alert('Chỉ nhận file PDF cho hợp đồng gia hạn.');
+        }
+
+        try {
+            const fileData = await convertFileToBase64(file);
+            renewalFiles.unshift({
+                id: `RENEW_${Date.now()}`,
+                fileName: file.name,
+                fileData,
+                startDate,
+                endDate,
+                uploadedAt: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error(error);
+            return alert('Không thể đọc file hợp đồng gia hạn PDF.');
+        }
+    }
+
+    const updatedRoom = {
+        ...room,
+        contract: {
+            ...room.contract,
+            startDate,
+            endDate,
+            renewalFiles,
+            updatedAt: new Date().toISOString()
+        }
+    };
+
+    try {
+        Storage.updateRoom(updatedRoom);
+        if (room.contract.tenantPhone) {
+            Storage.addNotification({
+                toPhone: room.contract.tenantPhone,
+                fromPhone: currentUser.phone,
+                type: 'contract_extended',
+                title: 'Hợp đồng được gia hạn',
+                message: `Hợp đồng phòng ${room.title} đã được gia hạn đến ${new Date(`${endDate}T00:00:00`).toLocaleDateString('vi-VN')}.`,
+                meta: {
+                    roomId: room.id,
+                    roomTitle: room.title,
+                    startDate,
+                    endDate
+                }
+            });
+        }
+
+        extendContractModal.hide();
+        renderTable();
+        renderOwnerNotifications();
+        alert('Gia hạn hợp đồng thành công!');
+    } catch (error) {
+        console.error(error);
+        alert('Không thể gia hạn hợp đồng. Vui lòng thử lại.');
+    }
+}
+
+window.saveExtendContract = saveExtendContract;
 
 function openEndContractFromAction() {
     if (!selectedRoomActionId) return;
@@ -1050,6 +1247,261 @@ function openInvoiceFromAction() {
 }
 
 window.openInvoiceFromAction = openInvoiceFromAction;
+
+function openIssueListFromAction() {
+    if (!selectedRoomActionId) return;
+    selectedOwnerIssueRoomId = selectedRoomActionId;
+    const ownerIssueStatusFilter = document.getElementById('ownerIssueStatusFilter');
+    if (ownerIssueStatusFilter) ownerIssueStatusFilter.value = readOwnerIssueFilter();
+    roomActionModal.hide();
+    renderOwnerIssueList();
+    ownerIssueModal.show();
+}
+
+window.openIssueListFromAction = openIssueListFromAction;
+
+function buildOwnerIssueImagePreview(issue) {
+    const images = Array.isArray(issue.images) ? issue.images : [];
+    const firstImage = images[0] && images[0].base64 ? images[0].base64 : '';
+    if (firstImage) {
+        return `<img src="${firstImage}" alt="${issue.title || 'issue-image'}">`;
+    }
+
+    return '<div class="issue-placeholder-image">Không có ảnh</div>';
+}
+
+function getCurrentOwnerIssueRoom() {
+    if (!selectedOwnerIssueRoomId) return null;
+    return Storage.getRoomById(selectedOwnerIssueRoomId);
+}
+
+function renderOwnerIssueList() {
+    const listEl = document.getElementById('ownerIssueList');
+    if (!listEl) return;
+
+    const room = getCurrentOwnerIssueRoom();
+    const statusFilter = (document.getElementById('ownerIssueStatusFilter')?.value || readOwnerIssueFilter()).toLowerCase();
+    const issues = room && Array.isArray(room.issueReports)
+        ? [...room.issueReports]
+            .filter((issue) => {
+                if (statusFilter === 'all') return true;
+                return (issue.status || 'pending') === statusFilter;
+            })
+            .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+        : [];
+
+    if (!room || issues.length === 0) {
+        listEl.innerHTML = '<div class="issue-empty-state">Chưa có báo cáo sự cố nào cho phòng này.</div>';
+        return;
+    }
+
+    listEl.innerHTML = issues.map((issue) => {
+        const statusConfig = getIssueStatusConfig(issue.status);
+        const createdText = new Date(issue.createdAt || Date.now()).toLocaleString('vi-VN');
+
+        return `
+            <article class="issue-history-card ${ownerHighlightedIssueId === issue.id ? 'highlight' : ''}" onclick="openOwnerIssueDetail('${issue.id}')">
+                <div class="issue-history-content">
+                    <div class="issue-history-title">${issue.title || 'Sự cố không tiêu đề'}</div>
+                    <div class="issue-history-description">${issue.description || 'Không có mô tả.'}</div>
+                    <div class="issue-history-meta">Khách thuê: ${issue.tenantName || '-'} | Báo cáo lúc: ${createdText}</div>
+                </div>
+                <div class="issue-history-image-box">
+                    ${buildOwnerIssueImagePreview(issue)}
+                    <span class="issue-status-tag ${statusConfig.tagClass}">${statusConfig.label}</span>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderOwnerIssueGallery(images) {
+    const track = document.getElementById('ownerIssueGalleryTrack');
+    if (!track) return;
+
+    if (!Array.isArray(images) || images.length === 0) {
+        track.innerHTML = `
+            <div class="owner-action-gallery-slide is-active" data-index="0" style="left:0;width:100%;opacity:1;transform:none;">
+                <div class="issue-placeholder-image">Không có ảnh sự cố</div>
+            </div>
+        `;
+        return;
+    }
+
+    track.innerHTML = images.map((src, idx) => `
+        <div class="owner-action-gallery-slide" data-index="${idx}">
+            <img src="${src}" alt="issue-image-${idx + 1}">
+        </div>
+    `).join('');
+
+    syncOwnerIssueGallery();
+}
+
+function syncOwnerIssueGallery() {
+    const track = document.getElementById('ownerIssueGalleryTrack');
+    if (!track) return;
+
+    const slides = Array.from(track.querySelectorAll('.owner-action-gallery-slide'));
+    const total = slides.length;
+    if (total === 0) return;
+
+    const currentIndex = ownerIssueGalleryState.index;
+    const prevIndex = (currentIndex - 1 + total) % total;
+    const nextIndex = (currentIndex + 1) % total;
+
+    slides.forEach((slide, idx) => {
+        slide.classList.remove('is-active', 'is-prev', 'is-next');
+        if (total === 1) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            return;
+        }
+
+        if (total === 2) {
+            if (idx === currentIndex) slide.classList.add('is-active');
+            else if (idx === nextIndex) slide.classList.add('is-next');
+            return;
+        }
+
+        if (idx === currentIndex) slide.classList.add('is-active');
+        else if (idx === prevIndex) slide.classList.add('is-prev');
+        else if (idx === nextIndex) slide.classList.add('is-next');
+    });
+
+    const gallery = track.closest('.owner-action-gallery');
+    if (!gallery) return;
+
+    const prevBtn = gallery.querySelector('.owner-action-gallery-nav.prev');
+    const nextBtn = gallery.querySelector('.owner-action-gallery-nav.next');
+    const disabled = total <= 1;
+
+    if (prevBtn) prevBtn.disabled = disabled;
+    if (nextBtn) nextBtn.disabled = disabled;
+}
+
+function nextOwnerIssueImage() {
+    const total = ownerIssueGalleryState.images.length;
+    if (total <= 1) return;
+    ownerIssueGalleryState.index = (ownerIssueGalleryState.index + 1) % total;
+    syncOwnerIssueGallery();
+}
+
+function prevOwnerIssueImage() {
+    const total = ownerIssueGalleryState.images.length;
+    if (total <= 1) return;
+    ownerIssueGalleryState.index = (ownerIssueGalleryState.index - 1 + total) % total;
+    syncOwnerIssueGallery();
+}
+
+window.nextOwnerIssueImage = nextOwnerIssueImage;
+window.prevOwnerIssueImage = prevOwnerIssueImage;
+
+function openOwnerIssueDetail(issueId) {
+    const room = getCurrentOwnerIssueRoom();
+    if (!room || !Array.isArray(room.issueReports)) return;
+
+    const issue = room.issueReports.find((item) => item.id === issueId);
+    if (!issue) return;
+
+    selectedOwnerIssueId = issue.id;
+    const statusConfig = getIssueStatusConfig(issue.status);
+
+    document.getElementById('ownerIssueDetailTitle').textContent = issue.title || 'Chi tiết sự cố';
+    document.getElementById('ownerIssueDetailStatus').textContent = statusConfig.label;
+    document.getElementById('ownerIssueDetailStatus').className = statusConfig.textClass;
+    document.getElementById('ownerIssueDetailTenant').textContent = `${issue.tenantName || '-'} (${issue.tenantPhone || '-'})`;
+    document.getElementById('ownerIssueDetailCreatedAt').textContent = new Date(issue.createdAt || Date.now()).toLocaleString('vi-VN');
+    document.getElementById('ownerIssueDetailRoomTitle').textContent = room.title || '-';
+    document.getElementById('ownerIssueDetailDescription').textContent = issue.description || '-';
+
+    const statusBtn = document.getElementById('ownerIssueStatusToggleBtn');
+    if (statusBtn) {
+        if (issue.status === 'resolved') {
+            statusBtn.className = 'btn btn-outline-danger';
+            statusBtn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Chuyển về chưa xử lý';
+        } else {
+            statusBtn.className = 'btn btn-success';
+            statusBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đánh dấu đã xử lý';
+        }
+    }
+
+    const imageSources = (Array.isArray(issue.images) ? issue.images : [])
+        .map((item) => item && item.base64)
+        .filter(Boolean);
+
+    ownerIssueGalleryState.images = imageSources;
+    ownerIssueGalleryState.index = 0;
+    renderOwnerIssueGallery(imageSources);
+
+    ownerIssueDetailModal.show();
+}
+
+window.openOwnerIssueDetail = openOwnerIssueDetail;
+
+function toggleOwnerIssueStatus() {
+    const room = getCurrentOwnerIssueRoom();
+    if (!room || !Array.isArray(room.issueReports) || !selectedOwnerIssueId) return;
+
+    const issueIndex = room.issueReports.findIndex((item) => item.id === selectedOwnerIssueId);
+    if (issueIndex === -1) return;
+
+    const currentIssue = room.issueReports[issueIndex];
+    const nextStatus = currentIssue.status === 'resolved' ? 'pending' : 'resolved';
+    const updatedIssue = {
+        ...currentIssue,
+        status: nextStatus,
+        resolvedAt: nextStatus === 'resolved' ? new Date().toISOString() : null,
+        updatedAt: new Date().toISOString()
+    };
+
+    const nextIssueReports = [...room.issueReports];
+    nextIssueReports[issueIndex] = updatedIssue;
+
+    Storage.updateRoom({
+        ...room,
+        issueReports: nextIssueReports
+    });
+
+    Storage.addNotification({
+        toPhone: updatedIssue.tenantPhone,
+        fromPhone: currentUser.phone,
+        type: nextStatus === 'resolved' ? 'issue_resolved' : 'issue_reopened',
+        title: nextStatus === 'resolved' ? 'Sự cố đã được xử lý' : 'Sự cố cần theo dõi thêm',
+        message: nextStatus === 'resolved'
+            ? `Chủ trọ đã đánh dấu xử lý xong sự cố "${updatedIssue.title}" của phòng ${room.title}.`
+            : `Chủ trọ cập nhật lại trạng thái chưa xử lý cho sự cố "${updatedIssue.title}" của phòng ${room.title}.`,
+        meta: {
+            roomId: room.id,
+            roomTitle: room.title,
+            issueId: updatedIssue.id,
+            issueStatus: nextStatus
+        }
+    });
+
+    if (ownerIssueHighlightTimer) {
+        clearTimeout(ownerIssueHighlightTimer);
+        ownerIssueHighlightTimer = null;
+    }
+
+    if (nextStatus === 'resolved') {
+        ownerHighlightedIssueId = updatedIssue.id;
+        ownerIssueHighlightTimer = setTimeout(() => {
+            ownerHighlightedIssueId = null;
+            renderOwnerIssueList();
+        }, 3000);
+        ownerIssueDetailModal.hide();
+    } else {
+        ownerHighlightedIssueId = null;
+    }
+
+    renderOwnerIssueList();
+    if (nextStatus !== 'resolved') {
+        openOwnerIssueDetail(updatedIssue.id);
+    }
+    renderOwnerNotifications();
+    alert(nextStatus === 'resolved' ? 'Đã cập nhật sự cố sang trạng thái Đã xử lý.' : 'Đã cập nhật sự cố sang trạng thái Chưa xử lý.');
+}
+
+window.toggleOwnerIssueStatus = toggleOwnerIssueStatus;
 
 function editFromAction() {
     if (!selectedRoomActionId) return;
@@ -1195,7 +1647,7 @@ function saveInvoice() {
                 fromPhone: currentUser.phone,
                 type: 'invoice_created',
                 title: 'Hoá đơn mới',
-                message: `Có hoá đơn kỳ ${invoiceData.period} cho phòng ${room.title}. Tổng cần thanh toán: ${new Intl.NumberFormat('vi-VN').format(invoiceData.grandTotal)}đ.`,
+                message: `Có hoá đơn kỳ ${invoiceData.period} cho phòng ${room.title}. Tổng cần thanh toán: ${Utils.formatCurrency(invoiceData.grandTotal)}đ.`,
                 meta: {
                     roomId: room.id,
                     roomTitle: room.title,
