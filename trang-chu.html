@@ -1,6 +1,9 @@
 ﻿<!DOCTYPE html>
+<!-- Khai báo loại tài liệu HTML5 -->
 <html lang="vi">
+<!-- Bắt đầu tài liệu HTML với ngôn ngữ tiếng Việt -->
 <head>
+    <!-- Phần đầu trang chứa metadata và liên kết tài nguyên -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nhà xanh - Tìm phòng trọ nhanh</title>
@@ -13,7 +16,7 @@
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body class="home-page">
-
+    <!-- Thanh điều hướng cố định ở đầu trang -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid px-5">
             <a class="navbar-brand" href="#">
@@ -75,6 +78,7 @@
         </div>
     </nav>
 
+    <!-- Phần header với hero section và hộp tìm kiếm -->
     <header class="hero-section">
         <div class="search-box-wrapper">
             <div class="hero-intro text-center">
@@ -231,6 +235,7 @@
         </div>
     </header>
 
+    <!-- Phần hiển thị các thành phố nổi bật -->
     <section class="container city-strip-section">
         <div class="city-strip-grid">
             <button class="city-feature-card" type="button" onclick="quickSelectCity('Hà Nội')">
@@ -252,6 +257,7 @@
         </div>
     </section>
 
+    <!-- Phần danh sách tin đăng mới nhất -->
     <section class="container my-5 listing-section" id="section-latest">
         <div class="listing-header">
             <h3 class="fw-bold mb-1">Tin đăng mới nhất</h3>
@@ -265,6 +271,7 @@
         </div>
     </section>
 
+    <!-- Phần danh sách nhà trọ, phòng trọ -->
     <section class="container my-5 listing-section" id="section-phong-tro">
         <div class="listing-header">
             <h3 class="fw-bold mb-1">Nhà trọ, phòng trọ</h3>
@@ -278,6 +285,7 @@
         </div>
     </section>
 
+    <!-- Phần danh sách nhà nguyên căn -->
     <section class="container my-5 listing-section" id="section-nha-nguyen-can">
         <div class="listing-header">
             <h3 class="fw-bold mb-1">Nhà nguyên căn</h3>
@@ -291,6 +299,7 @@
         </div>
     </section>
 
+    <!-- Phần danh sách căn hộ -->
     <section class="container my-5 listing-section" id="section-can-ho">
         <div class="listing-header">
             <h3 class="fw-bold mb-1">Căn hộ</h3>
@@ -304,6 +313,7 @@
         </div>
     </section>
 
+    <!-- Phần danh sách ký túc xá -->
     <section class="container my-5 listing-section" id="section-ky-tuc-xa">
         <div class="listing-header">
             <h3 class="fw-bold mb-1">Ký túc xá</h3>
@@ -317,6 +327,7 @@
         </div>
     </section>
 
+    <!-- Modal đăng nhập và đăng ký -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -384,7 +395,7 @@
         </div>
     </div>
 
-    <!-- ROOM DETAIL MODAL -->
+    <!-- Modal chi tiết phòng -->
     <div class="modal fade" id="roomDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -414,7 +425,7 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
+    <!-- Chân trang với thông tin liên hệ và mạng xã hội -->
     <footer>
         <div class="container">
             <div class="row">
@@ -487,11 +498,12 @@
         </div>
     </footer>
 
-    <!-- Button Scroll To Top -->
+    <!-- Nút cuộn lên đầu trang -->
     <button id="scrollToTopBtn" class="scroll-to-top" title="Lên đầu trang">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 
+    <!-- Các tệp JavaScript được tải -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/storage.js"></script>
     <script src="assets/js/navbar.js"></script>
