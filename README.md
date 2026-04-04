@@ -14,7 +14,8 @@
 
 ### Cho Khách Hàng (Người Tìm Phòng)
 - 🔍 **Tìm kiếm & Lọc** - Lọc theo giá, diện tích, tiện nghi, địa điểm
-- ❤️ **Danh sách yêu thích** - Lưu các phòng yêu thích (localStorage)
+- ❤️ **Danh sách yêu thích** - Trang quản lý riêng các phòng đã lưu (localStorage qua `yeu-thich.html`)
+- 📄 **Chi tiết phòng** - Xem thông tin đầy đủ, hình ảnh, đánh giá và tiện ích nổi bật của nhà/phòng
 - 📌 **4 loại hình cho thuê**:
   - Nhà trọ, phòng trọ
   - Nhà nguyên căn
@@ -52,7 +53,8 @@ Bài tập lớn Web/
 ├── nha-nguyen-can.html                # Nhà nguyên căn
 ├── can-ho.html                        # Căn hộ
 ├── ky-tuc-xa.html                     # Ký túc xá
-├── tat-ca-tin-dang.html              # Tất cả tin đăng
+├── tat-ca-tin-dang.html               # Tất cả tin đăng
+├── yeu-thich.html                     # Trang danh sách yêu thích
 └── assets/
     ├── css/
     │   └── styles.css                 # Stylesheet chính
@@ -65,6 +67,7 @@ Bài tập lớn Web/
     │   ├── event-handlers.js          # Event delegation
     │   ├── favorites.js               # Yêu thích system
     │   ├── main.js                    # Trang chủ logic
+    │   ├── details.js                 # Logic trang chi tiết phòng
     │   ├── owner.js                   # Quản lý chủ trọ
     │   ├── customer.js                # Quản lý khách hàng
     │   └── category-listing.js        # Logic danh mục
