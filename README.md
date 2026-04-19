@@ -14,7 +14,8 @@
 
 ### Cho Khách Hàng (Người Tìm Phòng)
 - 🔍 **Tìm kiếm & Lọc** - Lọc theo giá, diện tích, tiện nghi, địa điểm
-- ❤️ **Danh sách yêu thích** - Lưu các phòng yêu thích (localStorage)
+- ❤️ **Danh sách yêu thích** - Trang quản lý riêng các phòng đã lưu (localStorage qua `yeu-thich.html`)
+- 📄 **Chi tiết phòng** - Xem thông tin đầy đủ, hình ảnh, đánh giá và tiện ích nổi bật của nhà/phòng
 - 📌 **4 loại hình cho thuê**:
   - Nhà trọ, phòng trọ
   - Nhà nguyên căn
@@ -52,7 +53,8 @@ Bài tập lớn Web/
 ├── nha-nguyen-can.html                # Nhà nguyên căn
 ├── can-ho.html                        # Căn hộ
 ├── ky-tuc-xa.html                     # Ký túc xá
-├── tat-ca-tin-dang.html              # Tất cả tin đăng
+├── tat-ca-tin-dang.html               # Tất cả tin đăng
+├── yeu-thich.html                     # Trang danh sách yêu thích
 └── assets/
     ├── css/
     │   └── styles.css                 # Stylesheet chính
@@ -65,6 +67,7 @@ Bài tập lớn Web/
     │   ├── event-handlers.js          # Event delegation
     │   ├── favorites.js               # Yêu thích system
     │   ├── main.js                    # Trang chủ logic
+    │   ├── details.js                 # Logic trang chi tiết phòng
     │   ├── owner.js                   # Quản lý chủ trọ
     │   ├── customer.js                # Quản lý khách hàng
     │   └── category-listing.js        # Logic danh mục
@@ -109,31 +112,35 @@ Các tệp này được tạo trong quá trình refactoring để tập trung h
 
 ## 📖 Hướng Dẫn Sử Dụng
 
-### Đăng Nhập / Đăng Ký
-1. Click nút "Đăng nhập" hoặc "Đăng ký" ở góc trên phải
-2. Nhập email, mật khẩu, số điện thoại
-3. Chọn lựa chọn (Chủ trọ/Khách hàng)
+### 1. Đăng Nhập / Đăng Ký
+1. Click nút "Đăng nhập" hoặc "Đăng ký" ở góc trên cùng bên phải.
+2. Điền đầy đủ thông tin: họ tên, email, mật khẩu, số điện thoại.
+3. Chọn đúng vai trò của bạn: **Khách hàng** (Tìm phòng) hoặc **Chủ trọ** (Cho thuê).
 
-### Tìm Kiếm Phòng
-1. Chọn loại hình cho thuê từ tab
-2. Sử dụng bộ lọc: Khoảng giá, diện tích, tiện nghi
-3. Nhập từ khóa tìm kiếm
-4. Click "Tìm kiếm"
+### 2. Dành Cho Khách Hàng (Người Tìm Phòng)
+- **Tìm Kiếm Phòng:**
+  1. Truy cập trang chủ hoặc các trang danh mục (Phòng trọ, Ký túc xá, v.v.).
+  2. Sử dụng thanh tìm kiếm hoặc công cụ lọc (Khoảng giá, diện tích, tiện nghi).
+- **Xem Chi Tiết & Liên Hệ:**
+  1. Click vào một thẻ phòng bất kỳ để xem chi tiết (hình ảnh, mô tả, tiện ích đầy đủ, vị trí).
+  2. Lấy thông tin chủ trọ ở cột bên phải để gọi điện trực tiếp hoặc nhắn tin Zalo.
+- **Lưu Phòng Yêu Thích:**
+  1. Click biểu tượng trái tim (❤️) trên thẻ phòng để lưu lại các phòng ưng ý.
+  2. Truy cập trang **Yêu thích** từ menu trên cùng để xem lại và quản lý danh sách phòng đã lưu.
+- **Quản Lý Hồ Sơ Cá Nhân:**
+  1. Đăng nhập và truy cập trang **Hồ sơ**.
+  2. Cập nhật thông tin cá nhân.
+  3. Xem lịch sử các phòng đã thuê, theo dõi và thanh toán hóa đơn được chủ trọ gửi.
 
-### Lưu Phòng Yêu Thích
-- Click biểu tượng ❤️ trên thẻ phòng
-- Danh sách yêu thích được lưu tự động trên thiết bị
-
-### Đăng Phòng (Chủ Trọ)
-1. Đăng nhập với tài khoản chủ trọ
-2. Click "Đăng tin mới"
-3. Điền đầy đủ thông tin (tiêu đề, giá, diện tích, ảnh, etc)
-4. Click "Thêm phòng" hoặc "Cập nhật"
-
-### Quản Lý Hóa Đơn
-1. Vào **Quản lý** (cho chủ trọ) hoặc **Hồ sơ** (cho khách hàng)
-2. Chọn phòng, tạo hóa đơn
-3. Gửi hóa đơn cho khách (tạo QR code thanh toán)
+### 3. Dành Cho Chủ Trọ (Người Cho Thuê)
+- **Quản Lý Tin Đăng (Đăng Phòng):**
+  1. Đăng nhập với tài khoản chủ trọ, truy cập trang **Quản lý chủ phần**.
+  2. Click "Đăng tin mới", điền đầy đủ thông tin (tiêu đề, giá, diện tích, hình ảnh, tiện ích).
+  3. Có thể dùng các chức năng cập nhật, chỉnh sửa, hoặc ẩn/xóa tin đăng.
+- **Quản Lý Khách Thuê & Hóa Đơn:**
+  1. Theo dõi trạng thái từng phòng (còn trống/đã thuê).
+  2. Tạo hóa đơn thanh toán hàng tháng chi tiết (tiền phòng, tiền điện, nước, wifi).
+  3. Gửi hóa đơn và thông báo cho khách hàng (có hỗ trợ tạo mã QR code tiện lợi để khách quét thanh toán trực tiếp).
 
 ## 🎯 Tính Năng Nâng Cao
 
